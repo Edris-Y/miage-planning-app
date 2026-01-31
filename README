@@ -9,6 +9,10 @@ Elle offre des outils de visualisation, de réservation des ressources et de dé
 - Réservation et gestion des salles et ressources
 - Détection des conflits (chevauchements, indisponibilités)
 - Coordination entre les différents acteurs de l’université
+## Analyse Fonctionnelle
+Analyse fonctionnelle de la plateforme de gestion des emplois du temps universitaires définissant les besoins des acteurs (étudiants, enseignants, administratifs), la gestion des ressources, la planification et la résolution des conflits.
+Le système vise une organisation optimisée, automatisée et cohérente des emplois du temps et des réservations.
+
 
 2/02 : Evaluation Modelisation
 
