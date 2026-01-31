@@ -3,6 +3,13 @@ Projet Universitaire MIAGE 2026
 Cette application web permet de gérer et de planifier les emplois du temps universitaires en tenant compte des contraintes des enseignants, des étudiants et des salles.
 Elle offre des outils de visualisation, de réservation des ressources et de détection des conflits, tout en facilitant la coordination entre les différents acteurs de l’université.
 
+## Fonctionnalités principales
+- Gestion des emplois du temps (cours, examens, événements)
+- Visualisation des plannings par étudiant, enseignant ou groupe
+- Réservation et gestion des salles et ressources
+- Détection des conflits (chevauchements, indisponibilités)
+- Coordination entre les différents acteurs de l’université
+
 2/02 : Evaluation Modelisation
 
 Rendu attendu :
