@@ -6,11 +6,9 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 1. On récupère les infos stockées lors du login
     const savedUser = localStorage.getItem('user');
     
     if (!savedUser) {
-      // Si pas d'utilisateur, on renvoie au login
       navigate('/login');
     } else {
       setUser(JSON.parse(savedUser));
@@ -24,10 +22,10 @@ const Dashboard = () => {
       <h1>Bienvenue, {user.prenom} {user.nom} !</h1>
       <p><strong>Votre rôle :</strong> {user.role}</p>
       
-      {/* Affichage conditionnel selon le rôle (Règle de gestion) */}
       {user.role === 'administratif' && <button>Gérer les Salles</button>}
       {user.role === 'etudiant' && <button>Voir mon Emploi du Temps</button>}
-      
+      {user.role === 'enseignant' && <button>Demande</button>}
+
       <button onClick={() => { localStorage.clear(); navigate('/login'); }}>
         Se déconnecter
       </button>

@@ -9,11 +9,9 @@ async function hashAllPasswords() {
     console.log(`Hachage de ${users.length} mots de passe...`);
 
     for (const user of users) {
-      // On génère le "sel" et le "hash"
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(user.mot_de_passe, salt);
 
-      // Mise à jour dans la base
       await db.run('UPDATE Utilisateur SET mot_de_passe = ? WHERE id = ?', [
         hashedPassword,
         user.id
