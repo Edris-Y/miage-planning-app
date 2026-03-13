@@ -7,7 +7,7 @@ module.exports = (req, res, next) => {
   try {
     const verified = jwt.verify(token, 'SECRET_KEY_MIAGE');
     req.user = verified;
-    next(); // On laisse passer vers le contrôleur
+    next(); 
   } catch (err) {
     res.status(400).json({ message: "Token invalide" });
   }
