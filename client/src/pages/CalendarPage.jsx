@@ -1,8 +1,8 @@
 // src/pages/CalendarPage.jsx
 import { useState } from "react";
-import Navbar from "../Components/Navbar";
-import WeekNavigator from "../Components/WeekNavigator";
-import WeekCalendar from "../Components/WeekCalendar";
+import Navbar from "../components/Navbar";
+import WeekNavigator from "../components/WeekNavigator";
+import WeekCalendar from "../components/WeekCalendar";
 import { mockEnseignantCours } from "../data/mockData";
 
 const pageStyles = `
