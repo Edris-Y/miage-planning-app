@@ -1,4 +1,5 @@
 // src/Components/Navbar.jsx
+import { useNavigate } from 'react-router-dom';
 
 const navbarStyles = `
   .navbar {
@@ -95,7 +96,25 @@ const navbarStyles = `
   }
 `;
 
-export default function Navbar({ notifCount = 3 }) {
+export default function Navbar({ notifCount = 3, onExport, onNotifications }) {
+  const navigate = useNavigate();
+
+  const handleExport = () => {
+    if (typeof onExport === 'function') {
+      onExport();
+    } else {
+      alert('Export : fonctionnalité active uniquement depuis la page calendrier.');
+    }
+  };
+
+  const handleNotifications = () => {
+    if (typeof onNotifications === 'function') {
+      onNotifications();
+    } else {
+      navigate('/enseignant/notifications');
+    }
+  };
+
   return (
     <>
       <style>{navbarStyles}</style>
@@ -113,7 +132,7 @@ export default function Navbar({ notifCount = 3 }) {
           </div>
         </div>
         <div className="navbar-right">
-          <button className="navbar-export-btn">
+          <button className="navbar-export-btn" onClick={handleExport}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
               <polyline points="7 10 12 15 17 10" />
@@ -121,7 +140,7 @@ export default function Navbar({ notifCount = 3 }) {
             </svg>
             Exporter
           </button>
-          <button className="navbar-icon-btn" aria-label="Notifications">
+          <button className="navbar-icon-btn" aria-label="Notifications" onClick={handleNotifications}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
               <path d="M13.73 21a2 2 0 0 1-3.46 0" />

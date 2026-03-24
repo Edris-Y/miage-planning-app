@@ -1,9 +1,10 @@
 // src/pages/EtudiantPage.jsx
 import { useState } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import WeekNavigator from "../../components/WeekNavigator";
 import WeekCalendar from "../../components/WeekCalendar";
-import { mockEtudiantCours, mockEnseignants } from "../../data/mockData";
+import { mockEtudiantCours, mockEnseignants, mockCohortesCours, mockFilieres } from "../../data/mockData";
 
 const pageStyles = `
   .etu-page {
@@ -18,6 +19,59 @@ const pageStyles = `
   }
   .etu-body {
     padding: 0 16px 24px;
+  }
+  .etu-group-header {
+    background: #fff;
+    border: 1px solid #dbe3ef;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .etu-group-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+  .etu-group-badge {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: #3b82f6;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .etu-group-title {
+    font-size: 15px;
+    color: #1e2d4a;
+    font-weight: 800;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .etu-back-btn {
+    border: 1.5px solid #d1dbea;
+    background: #fff;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e2d4a;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .etu-back-btn:hover {
+    background: #f5f8ff;
   }
   .etu-card {
     background: #fff;
@@ -76,10 +130,30 @@ const pageStyles = `
 const TYPES = ['Tous les type', 'Cours Magistral', 'Travaux Dirigés', 'Travaux Pratiques', 'Examen'];
 
 export default function EtudiantPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState("Semaine");
   const [typeFilter, setTypeFilter] = useState("Tous les type");
   const [ensFilter, setEnsFilter] = useState("Tous les enseignants");
+
+  const selectedGroupId = searchParams.get('group') || location.state?.groupId || '';
+
+  const GROUP_TO_COHORTE_KEY = {
+    ASR: 'ASR1',
+    MIAGE: 'MIAGE2',
+    CILS: 'L3INFO',
+  };
+
+  const selectedCohorteKey = GROUP_TO_COHORTE_KEY[selectedGroupId];
+
+  const allGroupes = mockFilieres.flatMap((filiere) =>
+    (filiere.groupes || []).map((groupe) => ({ ...groupe, filiereNom: filiere.nom }))
+  );
+  const selectedGroup = allGroupes.find((g) => g.id === selectedGroupId);
+  const groupCours = (selectedCohorteKey && mockCohortesCours[selectedCohorteKey]) || mockEtudiantCours;
+  const isGroupMode = Boolean(selectedGroupId);
 
   const typeMap = {
     'Cours Magistral': 'CM',
@@ -88,7 +162,7 @@ export default function EtudiantPage() {
     'Examen': 'Examen',
   };
 
-  const coursFiltres = mockEtudiantCours.filter(c => {
+  const coursFiltres = groupCours.filter(c => {
     const typeOk = typeFilter === 'Tous les type' || c.type === typeMap[typeFilter];
     const ensOk = ensFilter === 'Tous les enseignants' || c.enseignant === ensFilter;
     return typeOk && ensOk;
@@ -101,6 +175,25 @@ export default function EtudiantPage() {
         <Navbar />
         <div className="etu-breadcrumb"></div>
         <div className="etu-body">
+
+          {isGroupMode && (
+            <div className="etu-group-header">
+              <div className="etu-group-title-wrap">
+                <span className="etu-group-badge">
+                  {location.state?.groupInitial || (selectedGroup?.nom || 'G').charAt(0).toUpperCase()}
+                </span>
+                <div className="etu-group-title">
+                  {(location.state?.groupName || selectedGroup?.nom || selectedGroupId) +
+                    (location.state?.groupDescription || selectedGroup?.description
+                      ? ` - ${location.state?.groupDescription || selectedGroup?.description}`
+                      : '')}
+                </div>
+              </div>
+              <button className="etu-back-btn" onClick={() => navigate('/enseignant/cohortes')}>
+                ← Retour
+              </button>
+            </div>
+          )}
 
           {/* Navigateur semaine */}
           <div className="etu-card">
@@ -145,7 +238,7 @@ export default function EtudiantPage() {
               </div>
             </div>
 
-            <WeekCalendar cours={coursFiltres} currentDate={currentDate} />
+            <WeekCalendar cours={coursFiltres} currentDate={currentDate} onSessionClick={(sessionId) => navigate(`/etudiant/seance/${sessionId}`)} />
           </div>
 
         </div>

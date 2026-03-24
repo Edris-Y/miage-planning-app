@@ -7,6 +7,11 @@ import Dashboard from './pages/Dashboard';
 
 // Enseignant
 import EnseignantCalendar from './enseignant/pages/EnseignantCalendar';
+import EnseignantNotifications from './enseignant/pages/EnseignantNotifications';
+import EnseignantDemandes from './enseignant/pages/EnseignantDemandes';
+import EnseignantNouvelleDemandeReservation from './enseignant/pages/EnseignantNouvelleDemandeReservation';
+import EnseignantSeanceDetails from './enseignant/pages/EnseignantSeanceDetails';
+import EnseignantCohortes from './enseignant/pages/EnseignantCohortes';
 
 // Étudiant
 import EtudiantPage from './etudiant/pages/EtudiantPage';
@@ -28,6 +33,12 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/calendar" element={<EnseignantCalendar />} />
+        <Route path="/enseignant/notifications" element={<EnseignantNotifications />} />
+        <Route path="/enseignant/demandes" element={<EnseignantDemandes />} />
+        <Route path="/enseignant/demandes/nouvelle-reservation" element={<EnseignantNouvelleDemandeReservation />} />
+        <Route path="/enseignant/seance/:id" element={<EnseignantSeanceDetails />} />
+        <Route path="/enseignant/cohortes" element={<EnseignantCohortes />} />
+
         <Route path="/etudiant" element={<EtudiantPage />} />
 
         <Route path="/admin" element={<AdminLayout />}>
