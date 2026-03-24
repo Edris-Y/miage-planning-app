@@ -4,57 +4,116 @@
   display: flex;
   min-height: 100vh;
   font-family: 'Segoe UI', sans-serif;
-  background: #f0f2f5;
+  background: #f3f5f9;
+}
+.admin-layout,
+.admin-layout * {
+  box-sizing: border-box;
 }
 
 .admin-sidebar {
-  width: 250px;
-  background: #1e2d4a;
+  width: 272px;
+  background: linear-gradient(180deg, #1f2b42 0%, #182338 100%);
   color: #fff;
-  padding: 20px 0;
+  padding: 20px 14px 14px;
   position: fixed;
   height: 100vh;
-  overflow-y: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 8px 0 30px rgba(15, 23, 42, 0.16);
+  box-sizing: border-box;
 }
 
-.admin-sidebar-header {
-  padding: 0 20px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+.admin-sidebar-top {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
-.admin-sidebar-header h2 {
-  margin: 0;
+.admin-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 14px 22px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.14);
+}
+
+.admin-sidebar-brand-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-sidebar-brand-image {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  display: block;
+}
+
+.admin-sidebar-brand-copy h2 {
+  margin: 0 0 4px;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.admin-sidebar-brand-copy p {
+  margin: 0;
+  font-size: 13px;
+  color: #a9b6ca;
 }
 
 .admin-sidebar-nav {
-  padding: 20px 0;
+  padding: 18px 6px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .admin-sidebar-link {
   display: flex;
   align-items: center;
-  padding: 12px 20px;
-  color: rgba(255, 255, 255, 0.7);
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  color: #90a2bd;
   text-decoration: none;
-  transition: background 0.2s;
+  transition: background 0.2s, color 0.2s;
 }
 
 .admin-sidebar-link:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: rgba(148, 163, 184, 0.12);
+  color: #f8fafc;
 }
 
 .admin-sidebar-link.active {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  border-right: 3px solid #fff;
+  background: #4c6688;
+  color: #ffffff;
 }
 
 .admin-sidebar-icon {
-  margin-right: 12px;
-  font-size: 16px;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-sidebar-icon svg {
+  width: 18px;
+  height: 18px;
 }
 
 .admin-sidebar-label {
@@ -62,9 +121,86 @@
   font-weight: 500;
 }
 
+.admin-sidebar-bottom {
+  margin-top: auto;
+  padding: 14px 8px 0;
+  border-top: 1px solid rgba(226, 232, 240, 0.14);
+  flex-shrink: 0;
+}
+
+.admin-sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.admin-sidebar-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: #506b8f;
+  color: #eaf1ff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.admin-sidebar-user-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.admin-sidebar-user-name {
+  color: #f8fafc;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-sidebar-user-role {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.admin-sidebar-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  border: none;
+  background: transparent;
+  color: #9fb0c8;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+}
+
+.admin-sidebar-logout:hover {
+  color: #f8fafc;
+}
+
+.admin-sidebar-logout-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-sidebar-logout-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
 .admin-main {
   flex: 1;
-  margin-left: 250px;
+  margin-left: 272px;
   display: flex;
   flex-direction: column;
 }
@@ -105,7 +241,7 @@
 .admin-content {
   flex: 1;
   padding: 24px;
-  background: #f0f2f5;
+  background: #f3f5f9;
 }
 
 .admin-page {
