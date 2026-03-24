@@ -1,5 +1,6 @@
 // src/Components/WeekCalendar.jsx
 import { COURSE_TYPES } from '../data/mockData';
+import CourseBlock from './CourseBlock';
 
 const calendarStyles = `
   .cal-outer {
@@ -156,7 +157,6 @@ const calendarStyles = `
 
 const DAYS_FR = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
 const HOURS   = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
-const CELL_H  = 52; // hauteur exacte d'une ligne = 1h
 
 function getMonday(date) {
   const d = new Date(date);
@@ -213,7 +213,7 @@ export default function WeekCalendar({ cours = [], currentDate }) {
 
           {/* Rows horaires */}
           {HOURS.map(hour => (
-            <React_Fragment key={hour} hour={hour} weekDays={weekDays} cours={cours} />
+            <HourRow key={hour} hour={hour} weekDays={weekDays} cours={cours} />
           ))}
         </div>
       </div>
@@ -222,7 +222,7 @@ export default function WeekCalendar({ cours = [], currentDate }) {
 }
 
 // Composant interne pour éviter le warning React key dans Fragment
-function React_Fragment({ hour, weekDays, cours }) {
+function HourRow({ hour, weekDays, cours }) {
   return (
     <>
       <div className="cal-time-cell">{hour}:00</div>
@@ -230,23 +230,9 @@ function React_Fragment({ hour, weekDays, cours }) {
         const coursIci = cours.filter(c => c.jour === jourIdx && c.heureDebut === hour);
         return (
           <div key={jourIdx} className="cal-cell">
-            {coursIci.map(c => {
-              const duree  = c.heureFin - c.heureDebut;
-              const couleur = COURSE_TYPES[c.type]?.color || '#6b7280';
-              const hauteur = duree * CELL_H - 6; // -6px pour les marges top+bottom
-              return (
-                <div
-                  key={c.id}
-                  className="course-blk"
-                  style={{ background: couleur, height: `${hauteur}px` }}
-                  title={`${c.matiere} — ${c.salle}`}
-                >
-                  <div className="course-blk-title">{c.matiere}</div>
-                  {c.salle && <div className="course-blk-salle">{c.salle}</div>}
-                  <div className="course-blk-heure">{c.heureDebut}:00 - {c.heureFin}:00</div>
-                </div>
-              );
-            })}
+            {coursIci.map(c => (
+              <CourseBlock key={c.id} cours={c} />
+            ))}
           </div>
         );
       })}
