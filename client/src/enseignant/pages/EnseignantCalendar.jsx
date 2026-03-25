@@ -1,8 +1,8 @@
 import { useState } from "react";
-import Navbar from "../components/Navbar";
-import WeekNavigator from "../components/WeekNavigator";
-import WeekCalendar from "../components/WeekCalendar";
-import { mockEnseignantCours } from "../data/mockData";
+import Navbar from "../../components/Navbar";
+import WeekNavigator from "../../components/WeekNavigator";
+import WeekCalendar from "../../components/WeekCalendar";
+import { mockEnseignantCours } from "../../data/mockData";
 
 const pageStyles = `
   .ens-page {
