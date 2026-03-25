@@ -1,5 +1,3 @@
-// src/data/mockData.js
-
 export const COURSE_TYPES = {
   CM: { label: "CM", color: "#DC2626" },
   TD: { label: "TD", color: "#F59E0B" },
@@ -7,7 +5,6 @@ export const COURSE_TYPES = {
   EXAM: { label: "Examen", color: "#10B981" },
 };
 
-// jour: 0=lundi ... 6=dimanche
 export const mockEnseignantCours = [
   {
     id: "c1",

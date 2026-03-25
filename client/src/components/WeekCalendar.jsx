@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { COURSE_TYPES } from '../data/mockData';
-import './WeekCalendar.css'; // Nouveau fichier CSS
+import './WeekCalendar.css';
 
 const DAYS_FR = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'];
 const HOURS = [8,9,10,11,12,13,14,15,16,17,18];

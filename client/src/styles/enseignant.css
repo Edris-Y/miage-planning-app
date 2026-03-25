@@ -1,36 +1,24 @@
-/* ============================================================
-   UniSchedule – Enseignant UI
-   Matches mockup: dark navbar, white cards, colored badges
-   ============================================================ */
-
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 
 :root {
-  --bg:           #eef1f8;
+  --bg:           #f0f2f5;
   --card:         #ffffff;
   --navbar:       #0f2342;
   --navbar-sub:   #152d52;
   --text:         #1a2b45;
-  --muted:        #7a8eaa;
-  --border:       #e0e7f3;
+  --muted:        #6f829d;
+  --border:       #cfd9e8;
   --primary:      #1a4f9e;
   --primary-soft: #e8f0fd;
 
-  /* Session type colours (dot + block) */
-  --cm:           #3b7cf4;   /* blue  */
-  --td:           #22c17a;   /* green */
-  --tp:           #f59e0b;   /* amber */
-  --exam:         #ef4444;   /* red   */
-
-  /* Status badges */
-  --s-validee:    #22c17a;
+  --cm:           #3b7cf4;   --td:           #22c17a;   --tp:           #f59e0b;   --exam:         #ef4444;   --s-validee:    #22c17a;
   --s-attente:    #f59e0b;
   --s-refuse:     #ef4444;
   --s-ajuste:     #3b7cf4;
 
   --radius:       12px;
   --radius-sm:    8px;
-  --shadow:       0 2px 16px rgba(15,35,66,.10);
+  --shadow:       0 4px 14px rgba(30,45,74,.08);
   --shadow-lg:    0 8px 32px rgba(15,35,66,.15);
 }
 
@@ -43,7 +31,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── Page shell ───────────────────────────────────────────── */
 .ens-page {
   min-height: 100vh;
   background: var(--bg);
@@ -59,7 +46,6 @@ body {
   margin: 0 auto;
 }
 
-/* ── Top Navbar ───────────────────────────────────────────── */
 .ens-navbar {
   background: var(--navbar);
   display: flex;
@@ -96,7 +82,6 @@ body {
   gap: 8px;
 }
 
-/* ── Sub-header (page title row) ──────────────────────────── */
 .ens-subheader {
   background: var(--card);
   border-bottom: 1px solid var(--border);
@@ -127,16 +112,286 @@ body {
   color: var(--text);
 }
 
-/* ── Cards ────────────────────────────────────────────────── */
 .ens-card {
   background: var(--card);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  border: 1px solid var(--border);
+  border: 1px solid #cfd9e8;
   padding: 20px;
 }
 
-/* ── Buttons ──────────────────────────────────────────────── */
+.cal-block {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #dbe3ef;
+  padding: 16px 20px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 14px rgba(30,45,74,.08);
+}
+
+.cal-block-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 14px;
+}
+
+.cal-block-title {
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+
+.cal-actions-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cal-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #dbe3ef;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 14px rgba(30,45,74,.08);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cal-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cal-toolbar-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: .86rem;
+  color: var(--text);
+  min-width: 230px;
+  text-align: center;
+  background: #d5e1f0;
+  border: 1.5px solid #bfcde2;
+  border-radius: 10px;
+  height: 38px;
+  padding: 0 14px;
+  box-shadow: 0 2px 8px rgba(30,45,74,.16);
+}
+
+.cal-legend-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.cal-legend-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--muted);
+  transition: all .15s;
+}
+
+.cal-legend-btn.active {
+  background: #f0f4fb;
+  color: var(--text);
+}
+
+.cal-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cal-grid-card {
+  padding: 0 0 8px;
+  overflow: hidden;
+}
+
+.cal-day-view {
+  padding: 8px 12px 14px;
+}
+
+.cal-day-title {
+  font-size: .95rem;
+  font-weight: 800;
+  color: var(--text);
+  text-transform: capitalize;
+  margin: 4px 4px 10px;
+}
+
+.cal-day-row {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  border-top: 1px solid #e6ecf6;
+  min-height: 64px;
+}
+
+.cal-day-time {
+  font-size: .84rem;
+  font-weight: 700;
+  color: #6e83a0;
+  padding: 10px 8px;
+}
+
+.cal-day-events {
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cal-day-empty {
+  font-size: .82rem;
+  color: #96a5bb;
+  padding: 8px 10px;
+  border: 1px dashed #d8e1ef;
+  border-radius: 8px;
+  background: #f8fbff;
+}
+
+.cal-day-event-card {
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  padding: 10px 12px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(20, 30, 50, .14);
+}
+
+.cal-day-event-title {
+  display: block;
+  font-size: .9rem;
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+
+.cal-day-event-meta {
+  display: block;
+  font-size: .78rem;
+  opacity: .95;
+}
+
+.cal-month-view {
+  padding: 8px 10px 14px;
+}
+
+.cal-month-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  margin: 2px 4px 8px;
+}
+
+.cal-month-weekday {
+  text-align: center;
+  font-size: .76rem;
+  font-weight: 800;
+  color: #6b7e99;
+  text-transform: capitalize;
+}
+
+.cal-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.cal-month-cell {
+  min-height: 122px;
+  border: 1px solid #dbe4f0;
+  border-radius: 10px;
+  background: #fff;
+  padding: 8px;
+}
+
+.cal-month-cell.outside {
+  background: #f7f9fc;
+  opacity: .65;
+}
+
+.cal-month-cell-head {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 6px;
+}
+
+.cal-month-date {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .78rem;
+  font-weight: 800;
+  color: #6c7e98;
+}
+
+.cal-month-date.today {
+  background: #e8f0fd;
+  color: #1a4f9e;
+  border: 1.5px solid #b9cff0;
+}
+
+.cal-month-items {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cal-month-item {
+  border: none;
+  border-radius: 8px;
+  padding: 6px 8px;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.cal-month-item span {
+  font-size: .76rem;
+  font-weight: 800;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cal-month-item small {
+  font-size: .7rem;
+  opacity: .95;
+}
+
+.cal-month-more {
+  font-size: .74rem;
+  font-weight: 700;
+  color: #607792;
+  padding-left: 2px;
+}
+
 .ens-btn,
 .ens-btn-primary,
 .ens-btn-outline,
@@ -164,7 +419,7 @@ body {
 .ens-btn-primary:hover   { background: #163d80; }
 
 .ens-btn-outline         { background: #fff; color: var(--text); border: 1.5px solid var(--border); }
-.ens-btn-outline:hover   { background: #f5f8ff; border-color: #c5d5f0; }
+.ens-btn-outline:hover   { background: #f5f8ff; border-color: #bfcde2; }
 
 .ens-btn-icon {
   padding: 8px;
@@ -178,24 +433,24 @@ body {
 .ens-btn-ghost         { background: transparent; color: var(--muted); border: none; padding: 6px 10px; }
 .ens-btn-ghost:hover   { color: var(--text); background: #f5f7fc; }
 
-/* ── Toggle group (Jour / Semaine / Mois) ─────────────────── */
 .ens-toggle-group {
   display: flex;
-  background: #f0f4fb;
+  background: #7f95b3;
   border-radius: var(--radius-sm);
-  padding: 3px;
+  padding: 2px;
   gap: 2px;
+  box-shadow: inset 0 0 0 1px rgba(30, 45, 74, 0.08), 0 2px 8px rgba(30,45,74,.18);
 }
 
 .ens-toggle-group button {
   background: transparent;
   border: none;
   border-radius: 6px;
-  padding: 6px 14px;
+  padding: 6px 16px;
   font-family: inherit;
   font-size: .85rem;
-  font-weight: 600;
-  color: var(--muted);
+  font-weight: 700;
+  color: rgba(255,255,255,.7);
   cursor: pointer;
   transition: all .15s ease;
 }
@@ -206,7 +461,6 @@ body {
   box-shadow: 0 1px 4px rgba(0,0,0,.10);
 }
 
-/* ── Type legend dots ─────────────────────────────────────── */
 .ens-legend {
   display: flex;
   align-items: center;
@@ -239,7 +493,6 @@ body {
 .ens-dot-tp   { background: var(--tp);   }
 .ens-dot-exam { background: var(--exam); }
 
-/* ── Week navigator bar ───────────────────────────────────── */
 .ens-week-nav {
   display: flex;
   align-items: center;
@@ -257,14 +510,15 @@ body {
 .ens-nav-btn {
   width: 28px; height: 28px;
   border-radius: 6px;
-  border: 1.5px solid var(--border);
-  background: #fff;
+  border: 1.5px solid #bfcde2;
+  background: #d5e1f0;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  font-size: .8rem; color: var(--muted);
+  font-size: .85rem; color: #1e2d4a;
   transition: all .15s;
+  box-shadow: 0 1px 4px rgba(30,45,74,.12);
 }
-.ens-nav-btn:hover { background: #f5f8ff; color: var(--text); }
+.ens-nav-btn:hover { background: #c9d8ea; color: var(--text); }
 
 .ens-today-btn {
   display: flex;
@@ -272,17 +526,17 @@ body {
   gap: 6px;
   padding: 6px 12px;
   border-radius: var(--radius-sm);
-  border: 1.5px solid var(--border);
-  background: #fff;
+  border: 1.5px solid #bfcde2;
+  background: #d5e1f0;
   font-size: .82rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   color: var(--text);
   transition: all .15s;
+  box-shadow: 0 2px 8px rgba(30,45,74,.16);
 }
-.ens-today-btn:hover { background: #f5f8ff; }
+.ens-today-btn:hover { background: #c9d8ea; }
 
-/* ── Calendar grid ────────────────────────────────────────── */
 .ens-calendar-wrapper {
   overflow-x: auto;
   margin-top: 16px;
@@ -350,7 +604,6 @@ body {
 
 .ens-calendar tbody tr { height: 40px; }
 
-/* Session blocks */
 .ens-session {
   border-radius: 8px;
   padding: 6px 8px;
@@ -372,7 +625,6 @@ body {
 .ens-session-room  { font-size: .72rem; opacity: .85; margin-top: 2px; }
 .ens-session-time  { font-size: .7rem;  opacity: .85; margin-top: 2px; font-family: 'DM Mono', monospace; }
 
-/* ── Status badges ────────────────────────────────────────── */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -390,7 +642,6 @@ body {
 .badge-nouveau  { background: #e0edff; color: #1a4f9e; }
 .badge-important{ background: #fde8e8; color: #b91c1c; }
 
-/* ── Stats row (demandes) ─────────────────────────────────── */
 .ens-stats {
   display: flex;
   gap: 12px;
@@ -426,7 +677,6 @@ body {
 .ens-stat-info span  { font-size: .75rem; color: var(--muted); font-weight: 500; display: block; }
 .ens-stat-info strong{ font-size: 1.5rem; font-weight: 700; color: var(--text); line-height: 1; }
 
-/* ── Table ────────────────────────────────────────────────── */
 .ens-table {
   width: 100%;
   border-collapse: collapse;
@@ -457,7 +707,6 @@ body {
 
 .ens-table .created-at { font-size: .78rem; color: var(--muted); }
 
-/* ── Search bar ───────────────────────────────────────────── */
 .ens-search {
   position: relative;
   flex: 1;
@@ -485,7 +734,6 @@ body {
   pointer-events: none;
 }
 
-/* ── Filter tabs ──────────────────────────────────────────── */
 .ens-tabs {
   display: flex;
   gap: 4px;
@@ -523,7 +771,6 @@ body {
   font-size: .7rem;
 }
 
-/* ── Notification items ───────────────────────────────────── */
 .notif-list { display: flex; flex-direction: column; gap: 1px; margin-top: 12px; }
 
 .notif-item {
@@ -562,7 +809,6 @@ body {
 
 .notif-divider { height: 1px; background: var(--border); margin: 0 16px; }
 
-/* ── Modal ────────────────────────────────────────────────── */
 .ens-modal-overlay {
   position: fixed; inset: 0;
   background: rgba(10,20,40,.45);
@@ -608,7 +854,6 @@ body {
 
 .ens-modal-body { padding: 24px; }
 
-/* ── Form ─────────────────────────────────────────────────── */
 .ens-form { display: grid; gap: 16px; }
 
 .ens-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -653,7 +898,6 @@ body {
   border-left: 4px solid #ef4444;
 }
 
-/* ── Seance detail modal/page ─────────────────────────────── */
 .ens-detail-header {
   display: flex;
   align-items: center;
@@ -703,7 +947,6 @@ body {
   color: var(--text);
 }
 
-/* ── Cohortes grid ────────────────────────────────────────── */
 .ens-cohorte-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -741,7 +984,6 @@ body {
 
 .ens-cohorte-card .ens-btn-primary { width: 100%; justify-content: center; margin-top: 4px; }
 
-/* ── Cohortes page sections ───────────────────────────────── */
 .ens-cohortes-summary-card {
   display: flex;
   align-items: center;
@@ -876,7 +1118,6 @@ body {
   margin-top: 2px;
 }
 
-/* ── Page header row ──────────────────────────────────────── */
 .ens-page-header {
   display: flex;
   align-items: center;
@@ -887,7 +1128,6 @@ body {
 }
 .ens-page-header h1 { font-size: 1.35rem; font-weight: 800; letter-spacing: -.02em; }
 
-/* ── Top bar (export + icons) ─────────────────────────────── */
 .ens-topbar {
   display: flex;
   align-items: center;
@@ -931,7 +1171,6 @@ body {
   border: 2px solid var(--navbar);
 }
 
-/* ── Section title inside card ────────────────────────────── */
 .ens-section-title {
   font-size: .75rem;
   font-weight: 700;
@@ -941,17 +1180,14 @@ body {
   margin: 16px 0 8px;
 }
 
-/* ── Divider ──────────────────────────────────────────────── */
 .ens-divider {
   height: 1px;
   background: var(--border);
   margin: 16px 0;
 }
 
-/* ── Disponibilites label ─────────────────────────────────── */
 .ens-avail-title { font-size: 1rem; font-weight: 700; margin-bottom: 12px; }
 
-/* ── Empty state ──────────────────────────────────────────── */
 .ens-empty {
   text-align: center;
   padding: 40px 20px;
@@ -961,7 +1197,6 @@ body {
 .ens-empty h3   { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
 .ens-empty p    { font-size: .875rem; }
 
-/* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 768px) {
   .ens-form-row { grid-template-columns: 1fr; }
   .ens-stats    { flex-direction: column; }
@@ -972,7 +1207,6 @@ body {
   .ens-content { padding: 16px; }
 }
 
-/* ── Field input wrapper (used in modal form) ─────────────── */
 .ens-field-input input,
 .ens-field-input select,
 .ens-field-input textarea {

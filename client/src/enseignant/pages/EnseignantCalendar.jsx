@@ -27,14 +27,23 @@ function getWeekDays(date) {
   });
 }
 
-function getMonthDays(date) {
-  const d = new Date(date.getFullYear(), date.getMonth(), 1);
-  const days = [];
-  while (d.getMonth() === date.getMonth()) {
-    days.push(new Date(d));
-    d.setDate(d.getDate() + 1);
+function getMonthMatrix(date) {
+  const first = new Date(date.getFullYear(), date.getMonth(), 1);
+  const last = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  const offset = (first.getDay() + 6) % 7;
+  const total = Math.ceil((offset + last.getDate()) / 7) * 7;
+
+  const cells = Array.from({ length: total }, (_, i) => {
+    const d = new Date(first);
+    d.setDate(i - offset + 1);
+    return d;
+  });
+
+  const weeks = [];
+  for (let i = 0; i < cells.length; i += 7) {
+    weeks.push(cells.slice(i, i + 7));
   }
-  return days;
+  return weeks;
 }
 
 function formatViewLabel(currentDate, view, days) {
@@ -66,9 +75,10 @@ export default function EnseignantCalendar() {
 
   const weekDays = useMemo(() => {
     if (view === "Jour") return [new Date(currentDate)];
-    if (view === "Mois") return getMonthDays(currentDate);
     return getWeekDays(currentDate);
   }, [currentDate, view]);
+
+  const monthWeeks = useMemo(() => getMonthMatrix(currentDate), [currentDate]);
 
   const goToPrev = () => {
     const d = new Date(currentDate);
@@ -133,26 +143,31 @@ export default function EnseignantCalendar() {
       return false;
     });
 
+  const getCoursForDate = (dayDate) =>
+    filteredCours
+      .filter(c => {
+        if (c.date && c.debut) return isSameDay(new Date(c.date), dayDate);
+        if (typeof c.jour === "number") return c.jour === (dayDate.getDay() + 6) % 7;
+        return false;
+      })
+      .sort((a, b) => (a.heureDebut ?? 0) - (b.heureDebut ?? 0));
+
   return (
     <div className="ens-page">
       <Navbar onExport={exportCsv} />
 
       <div className="ens-content">
 
-        <div style={{
-          background: "#fff", borderRadius: 12, border: "1px solid #e4eaf4",
-          padding: "16px 20px", marginBottom: 14,
-          boxShadow: "0 1px 6px rgba(15,35,66,.06)"
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 14 }}>
+        <div className="cal-block">
+          <div className="cal-block-head">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2.2" strokeLinecap="round">
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
             </svg>
-            <span style={{ fontSize: ".75rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".07em" }}>
+            <span className="cal-block-title">
               Actions rapides
             </span>
           </div>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <div className="cal-actions-row">
             <button className="ens-btn-outline" style={{ fontSize: ".84rem" }}
               onClick={() => navigate('/enseignant/demandes')}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
@@ -176,13 +191,8 @@ export default function EnseignantCalendar() {
           </div>
         </div>
 
-        <div style={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          background: "#fff", borderRadius: 10, border: "1px solid #e4eaf4",
-          padding: "10px 16px", marginBottom: 12,
-          boxShadow: "0 1px 4px rgba(15,35,66,.05)", flexWrap: "wrap", gap: 12
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div className="cal-toolbar">
+          <div className="cal-toolbar-left">
             <button className="ens-today-btn" onClick={() => setCurrentDate(new Date())}>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
                 <rect x="3" y="4" width="18" height="18" rx="2"/>
@@ -193,7 +203,7 @@ export default function EnseignantCalendar() {
               Aujourd'hui
             </button>
             <button className="ens-nav-btn" onClick={goToPrev}>‹</button>
-            <span style={{ fontWeight: 700, fontSize: ".88rem", color: "var(--text)", minWidth: 230, textAlign: "center" }}>
+            <span className="cal-toolbar-label">
               {formatViewLabel(currentDate, view, weekDays)}
             </span>
             <button className="ens-nav-btn" onClick={goToNext}>›</button>
@@ -208,30 +218,23 @@ export default function EnseignantCalendar() {
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 4, marginBottom: 10, flexWrap: "wrap" }}>
+        <div className="cal-legend-row">
           {LEGEND.map(({ label, color }) => (
             <button
               key={label}
               onClick={() => setActiveType(activeType === label ? "Tous" : label)}
-              style={{
-                display: "flex", alignItems: "center", gap: 6,
-                padding: "4px 12px", borderRadius: 20,
-                border: "none", cursor: "pointer",
-                background: activeType === label ? "#f0f4fb" : "transparent",
-                fontSize: ".82rem", fontWeight: 600,
-                color: activeType === label ? "var(--text)" : "var(--muted)",
-                transition: "all .15s"
-              }}
+              className={`cal-legend-btn ${activeType === label ? "active" : ""}`}
             >
-              <span style={{ width: 10, height: 10, borderRadius: "50%", background: color, flexShrink: 0 }} />
+              <span className="cal-legend-dot" style={{ background: color }} />
               {label}
             </button>
           ))}
         </div>
 
-        <div className="ens-card" style={{ padding: "0 0 8px", overflow: "hidden" }}>
-          <div className="ens-calendar-wrapper">
-            <table className="ens-calendar">
+        <div className="ens-card cal-grid-card">
+          {view === "Semaine" && (
+            <div className="ens-calendar-wrapper">
+              <table className="ens-calendar">
               <thead>
                 <tr>
                   <th style={{ width: 56, border: "none", background: "#fff" }} />
@@ -309,8 +312,85 @@ export default function EnseignantCalendar() {
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+              </table>
+            </div>
+          )}
+
+          {view === "Jour" && (
+            <div className="cal-day-view">
+              <div className="cal-day-title">
+                {currentDate.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+              </div>
+              {HOURS.map(hour => {
+                const sessions = getCoursForDayHour(currentDate, hour);
+                return (
+                  <div key={hour} className="cal-day-row">
+                    <div className="cal-day-time">{hour}:00</div>
+                    <div className="cal-day-events">
+                      {sessions.length === 0 ? (
+                        <div className="cal-day-empty">Aucun cours</div>
+                      ) : (
+                        sessions.map(s => {
+                          const debut = s.debut ?? `${String(s.heureDebut ?? 0).padStart(2, "0")}:00`;
+                          const fin = s.fin ?? `${String(s.heureFin ?? 0).padStart(2, "0")}:00`;
+                          return (
+                            <button
+                              key={s.id}
+                              className={`cal-day-event-card ens-session-${TYPE_COLORS[s.type] ?? "cm"}`}
+                              onClick={() => navigate(`/enseignant/seance/${s.id}`)}
+                            >
+                              <span className="cal-day-event-title">{s.titre ?? s.matiere ?? "Cours"}</span>
+                              <span className="cal-day-event-meta">{s.salle} - {debut} - {fin}</span>
+                            </button>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {view === "Mois" && (
+            <div className="cal-month-view">
+              <div className="cal-month-weekdays">
+                {DAYS_FR.map(day => (
+                  <div key={day} className="cal-month-weekday">{day}</div>
+                ))}
+              </div>
+              <div className="cal-month-grid">
+                {monthWeeks.flat().map((day, idx) => {
+                  const inCurrentMonth = day.getMonth() === currentDate.getMonth();
+                  const sessions = inCurrentMonth ? getCoursForDate(day) : [];
+                  const today = isToday(day);
+                  return (
+                    <div key={`${day.toISOString()}-${idx}`} className={`cal-month-cell ${!inCurrentMonth ? "outside" : ""}`}>
+                      <div className="cal-month-cell-head">
+                        <span className={`cal-month-date ${today ? "today" : ""}`}>{day.getDate()}</span>
+                      </div>
+                      <div className="cal-month-items">
+                        {sessions.slice(0, 2).map(s => {
+                          const debut = s.debut ?? `${String(s.heureDebut ?? 0).padStart(2, "0")}:00`;
+                          return (
+                            <button
+                              key={s.id}
+                              className={`cal-month-item ens-session-${TYPE_COLORS[s.type] ?? "cm"}`}
+                              onClick={() => navigate(`/enseignant/seance/${s.id}`)}
+                            >
+                              <span>{s.matiere}</span>
+                              <small>{debut}</small>
+                            </button>
+                          );
+                        })}
+                        {sessions.length > 2 && <div className="cal-month-more">+{sessions.length - 2}</div>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
       </div>

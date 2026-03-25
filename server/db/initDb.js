@@ -1,4 +1,5 @@
 const { getDbConnection } = require('./database.js');
+const bcrypt = require('bcryptjs');
 
 async function init() {
   try {
@@ -16,7 +17,7 @@ async function init() {
         nom         TEXT    NOT NULL,
         prenom      TEXT    NOT NULL,
         email       TEXT    NOT NULL UNIQUE,
-        mot_de_passe TEXT   NOT NULL DEFAULT 'changeme',  -- hash bcrypt (Edris)
+        mot_de_passe TEXT   NOT NULL,  -- hash bcrypt
         role        TEXT    NOT NULL CHECK(role IN ('etudiant', 'enseignant', 'administratif')),
         created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
       );
@@ -194,12 +195,18 @@ async function init() {
     if (count.total === 0) {
       console.log('Insertion des données de test...');
 
-      await db.run(`
+      const demoPassword = process.env.DEMO_PASSWORD || 'Abcd1234*';
+      const demoPasswordHash = await bcrypt.hash(demoPassword, 10);
+
+      await db.run(
+        `
         INSERT INTO Utilisateur (nom, prenom, email, mot_de_passe, role) VALUES
-        ('Youssef', 'Edris', 'edris.youssef@univ.fr', 'changeme', 'etudiant'),
-        ('Beduneau', 'Jean', 'prof.beduneau@univ.fr', 'changeme', 'enseignant'),
-        ('AdminNom', 'AdminPrenom', 'admin.planning@univ.fr', 'changeme', 'administratif')
-      `);
+        ('Youssef', 'Edris', 'edris.youssef@univ.fr', ?, 'etudiant'),
+        ('Beduneau', 'Jean', 'prof.beduneau@univ.fr', ?, 'enseignant'),
+        ('AdminNom', 'AdminPrenom', 'admin.planning@univ.fr', ?, 'administratif')
+      `,
+        [demoPasswordHash, demoPasswordHash, demoPasswordHash]
+      );
       console.log('Données de test ajoutées avec succès !');
     } else {
       console.log('La base contient déjà des données, aucune insertion nécessaire.');

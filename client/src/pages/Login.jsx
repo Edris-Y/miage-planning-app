@@ -1,39 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "../styles/Login.css";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showInfo, setShowInfo] = useState(false);
-
-  const navigate = useNavigate();
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/dashboard");
-      } else {
-        alert(data.message || "Identifiants invalides");
-      }
-    } catch (error) {
-      console.error("Erreur de connexion", error);
-      alert("Erreur serveur lors de la connexion");
-    }
-  };
+  const [showInfo, setShowInfo] = useState(true);
 
   return (
     <div className="login-page">
@@ -45,7 +14,7 @@ export default function Login() {
             type="button"
             className="info-btn"
             aria-label="Informations"
-            onClick={() => setShowInfo(!showInfo)}
+            onClick={() => setShowInfo((prev) => !prev)}
           >
             <svg
               width="16"
@@ -66,13 +35,22 @@ export default function Login() {
               <div className="info-arrow" />
               <p className="info-popup-title">COMPTES DE DEMONSTRATION</p>
               <p className="info-role">Etudiant</p>
-              <code className="info-email">student@univ.fr</code>
+              <code className="info-email">nom@etud.fr</code>
               <p className="info-role">Enseignant</p>
-              <code className="info-email">teacher@univ.fr</code>
+              <code className="info-email">nom@ens.fr</code>
               <p className="info-role">Admin</p>
-              <code className="info-email">admin@univ.fr</code>
+              <code className="info-email">nom@admin.fr</code>
               <hr className="info-divider" />
-              <p className="info-note">Mot de passe : n'importe lequel</p>
+              <p className="info-note">Utilisez un suffixe @etud.fr, @ens.fr ou @admin.fr</p>
+              <div className="password-rules-box">
+                <p className="password-rules-title">Contraintes mot de passe</p>
+                <ul className="password-rules-list">
+                  <li>Minimum 8 caracteres</li>
+                  <li>Au moins 1 majuscule et 1 minuscule</li>
+                  <li>Au moins 1 chiffre</li>
+                  <li>Au moins 1 caractere special</li>
+                </ul>
+              </div>
             </div>
           )}
         </div>
@@ -98,7 +76,7 @@ export default function Login() {
           Plateforme de gestion des emplois du temps
         </p>
 
-        <form className="login-form" onSubmit={handleLogin}>
+        <div className="login-form">
           <div className="field-group">
             <label className="field-label" htmlFor="email">
               Identifiant
@@ -121,11 +99,9 @@ export default function Login() {
                 id="email"
                 type="email"
                 className="login-input"
-                placeholder="nom.prenom@univ.fr"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="nom@domaine.fr"
                 autoComplete="email"
-                required
+                defaultValue=""
               />
             </div>
           </div>
@@ -139,7 +115,6 @@ export default function Login() {
               <button
                 type="button"
                 className="forgot-link"
-                onClick={() => alert("Fonction de réinitialisation à ajouter")}
               >
                 Mot de passe oublié ?
               </button>
@@ -161,54 +136,32 @@ export default function Login() {
               </span>
               <input
                 id="password"
-                type={showPassword ? "text" : "password"}
+                type="password"
                 className="login-input"
                 placeholder="************"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
-                required
+                defaultValue=""
               />
-              <button
-                type="button"
-                className="toggle-password"
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label="Afficher ou masquer le mot de passe"
-              >
-                {showPassword ? (
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#888"
-                    strokeWidth="2"
-                  >
-                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-                    <line x1="1" y1="1" x2="23" y2="23" />
-                  </svg>
-                ) : (
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#888"
-                    strokeWidth="2"
-                  >
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                )}
+              <button type="button" className="toggle-password" aria-label="Afficher ou masquer le mot de passe">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#888"
+                  strokeWidth="2"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
               </button>
             </div>
           </div>
 
-          <button className="login-btn" type="submit">
+          <button className="login-btn" type="button">
             Se connecter
           </button>
-        </form>
+        </div>
       </div>
     </div>
   );

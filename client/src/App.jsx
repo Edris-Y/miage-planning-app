@@ -1,22 +1,17 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-
-// Pages globales
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-
-// Enseignant
+import Profile from './pages/Profile';
 import EnseignantCalendar from './enseignant/pages/EnseignantCalendar';
 import EnseignantNotifications from './enseignant/pages/EnseignantNotifications';
 import EnseignantDemandes from './enseignant/pages/EnseignantDemandes';
 import EnseignantNouvelleDemandeReservation from './enseignant/pages/EnseignantNouvelleDemandeReservation';
 import EnseignantSeanceDetails from './enseignant/pages/EnseignantSeanceDetails';
 import EnseignantCohortes from './enseignant/pages/EnseignantCohortes';
-
-// Étudiant
 import EtudiantPage from './etudiant/pages/EtudiantPage';
-
-// Admin
+import EtudiantNotifications from './etudiant/pages/EtudiantNotifications';
+import EtudiantSeanceDetails from './etudiant/pages/EtudiantSeanceDetails';
 import AdminLayout from './admin/layout/AdminLayout';
 import AdminDashboard from './admin/pages/AdminDashboard';
 import AdminGeneration from './admin/pages/AdminGeneration';
@@ -32,6 +27,7 @@ function App() {
         <Route path="/" element={<EnseignantCalendar />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profil" element={<Profile />} />
         <Route path="/calendar" element={<EnseignantCalendar />} />
         <Route path="/enseignant/notifications" element={<EnseignantNotifications />} />
         <Route path="/enseignant/demandes" element={<EnseignantDemandes />} />
@@ -40,6 +36,8 @@ function App() {
         <Route path="/enseignant/cohortes" element={<EnseignantCohortes />} />
 
         <Route path="/etudiant" element={<EtudiantPage />} />
+        <Route path="/etudiant/notifications" element={<EtudiantNotifications />} />
+        <Route path="/etudiant/seance/:id" element={<EtudiantSeanceDetails />} />
 
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
