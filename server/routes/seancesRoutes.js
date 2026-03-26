@@ -5,7 +5,7 @@ const asyncHandler = require("../middleware/asyncHandler");
 const validate = require("../middleware/validationMiddleware");
 const authMiddleware = require("../middleware/authMiddleware");
 
-const controller = require("../controllers/reservationsController");
+const controller = require("../controllers/seancesController");
 
 router.get("/", asyncHandler(controller.getAll));
 router.get("/:id", asyncHandler(controller.getById));
@@ -13,11 +13,12 @@ router.get("/:id", asyncHandler(controller.getById));
 router.post(
   "/",
   authMiddleware,
-  validate(["salle_id", "seance_id"]),
+  validate(["dateSeance", "heureDebut", "duree", "typeSeance", "cohorte_id", "enseignant_id"]),
   asyncHandler(controller.create)
 );
 
 router.put("/:id", authMiddleware, asyncHandler(controller.update));
-router.patch("/:id/cancel", authMiddleware, asyncHandler(controller.cancel));
+router.patch("/:id/cancel", authMiddleware, asyncHandler(controller.remove));
+router.delete("/:id", authMiddleware, asyncHandler(controller.remove));
 
 module.exports = router;

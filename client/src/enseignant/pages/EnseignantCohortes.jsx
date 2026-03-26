@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import BackButton from '../../components/BackButton';
-import { mockFilieres } from '../../data/mockData';
+import { getCohortes } from '../../services/api';
 import '../../styles/enseignant.css';
 
 const IconUsers = () => (
@@ -135,7 +135,54 @@ function CohorteCard({ groupe, filiere, onOpen }) {
 
 export default function EnseignantCohortes() {
   const navigate = useNavigate();
-  const filieres = useMemo(() => (Array.isArray(mockFilieres) ? mockFilieres : []), []);
+  const [cohortes, setCohortes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState('');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadCohortes() {
+      setLoading(true);
+      setApiError('');
+      try {
+        const rows = await getCohortes();
+        if (isMounted) setCohortes(rows);
+      } catch (error) {
+        if (isMounted) {
+          setCohortes([]);
+          setApiError(error.message || "Impossible de charger les cohortes depuis l'API.");
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    loadCohortes();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const filieres = useMemo(() => {
+    const groupes = cohortes.map((c, index) => ({
+      id: String(c.id),
+      nom: c.nom,
+      description: c.niveau ? `Niveau ${c.niveau}` : 'Cohorte API',
+      etudiants: c.effectif ?? 0,
+      cours: 0,
+      niveau: c.niveau || 'N/A',
+      color: ['#3b82f6', '#22c55e', '#f97316', '#a855f7', '#14b8a6'][index % 5],
+    }));
+
+    return [{
+      id: 'api-cohortes',
+      nom: 'Cohortes',
+      niveau: 'API',
+      icon: '🎓',
+      groupes,
+    }];
+  }, [cohortes]);
 
   const summary = useMemo(() => ({
     filieres: filieres.length,
@@ -160,6 +207,8 @@ export default function EnseignantCohortes() {
       <Navbar />
 
       <div className="ens-content">
+        {loading && <div className="ens-card" style={{ marginBottom: 12 }}>Chargement des cohortes depuis l'API...</div>}
+        {!loading && apiError && <div className="ens-card" style={{ marginBottom: 12, color: '#b42318' }}>Erreur API: {apiError}</div>}
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
           <BackButton label="Retour au calendrier" to="/calendar" />

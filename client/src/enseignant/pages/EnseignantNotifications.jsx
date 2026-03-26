@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { mockNotifications } from '../../data/mockData';
+import { useEffect, useState } from 'react';
 import Navbar from '../../components/Navbar';
 import BackButton from '../../components/BackButton';
+import { getNotifications } from '../../services/api';
 import '../../styles/enseignant.css';
 
 const TABS = ['Toutes', 'Non lues', 'Importantes'];
@@ -15,7 +15,34 @@ const ICON_MAP = {
 
 export default function EnseignantNotifications() {
   const [activeTab, setActiveTab] = useState('Toutes');
-  const [items, setItems] = useState(mockNotifications);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState('');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadNotifications() {
+      setLoading(true);
+      setApiError('');
+      try {
+        const rows = await getNotifications({ role: 'enseignant' });
+        if (isMounted) setItems(rows);
+      } catch (error) {
+        if (isMounted) {
+          setItems([]);
+          setApiError(error.message || "Impossible de charger les notifications depuis l'API.");
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    loadNotifications();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const unreadCount     = items.filter(n => n.status !== 'lu').length;
   const importantCount  = items.filter(n => n.status === 'important').length;
@@ -67,6 +94,9 @@ export default function EnseignantNotifications() {
           </div>
 
           <div className="ens-divider" />
+
+          {loading && <div style={{ padding: '12px 0' }}>Chargement des notifications...</div>}
+          {!loading && apiError && <div style={{ padding: '12px 0', color: '#b42318' }}>Erreur API: {apiError}</div>}
 
           {filtered.length === 0 ? (
             <div className="ens-empty">

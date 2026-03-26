@@ -1,6 +1,7 @@
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
-import { mockEtudiantCours } from '../../data/mockData';
+import { getSeanceDetailsForEtudiant } from '../../services/api';
 import '../../styles/enseignant.css';
 import '../../styles/etudiant.css';
 
@@ -41,7 +42,40 @@ function resolveCohorte(seance) {
 export default function EtudiantSeanceDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const seance = mockEtudiantCours.find((s) => s.id === id);
+  const [seance, setSeance] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadSeance() {
+      setLoading(true);
+      try {
+        const row = await getSeanceDetailsForEtudiant(id);
+        if (isMounted) setSeance(row);
+      } catch {
+        if (isMounted) setSeance(null);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    loadSeance();
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="ens-page">
+        <Navbar onNotifications={() => navigate('/etudiant/notifications')} />
+        <div className="ens-content etu-detail-content">
+          <div className="ens-card">Chargement des détails de la séance...</div>
+        </div>
+      </div>
+    );
+  }
 
   if (!seance) {
     return (

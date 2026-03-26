@@ -1,13 +1,13 @@
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { mockEnseignantCours } from "../../data/mockData";
 import Navbar from "../../components/Navbar";
+import { getEnseignantCours } from "../../services/api";
 import "../../styles/enseignant.css";
 
 const VIEW_OPTIONS = ["Jour", "Semaine", "Mois"];
 const HOURS = Array.from({ length: 9 }, (_, i) => i + 8);
 const DAYS_FR = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
-const TYPE_COLORS = { CM: "cm", TD: "td", TP: "tp", Examen: "exam" };
+const TYPE_COLORS = { CM: "cm", TD: "td", TP: "tp", Examen: "exam", EXAM: "exam" };
 
 const LEGEND = [
   { label: "CM",     color: "#3b7cf4" },
@@ -67,11 +67,45 @@ function isSameDay(a, b) {
 
 function isToday(d) { return isSameDay(d, new Date()); }
 
+function getHourNumber(cours) {
+  if (cours?.debut) return Number(String(cours.debut).split(':')[0]);
+  if (cours?.heureDebut !== undefined) return Number(cours.heureDebut);
+  return 0;
+}
+
 export default function EnseignantCalendar() {
   const navigate = useNavigate();
+  const [cours, setCours] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState("");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState("Semaine");
   const [activeType, setActiveType] = useState("Tous");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadCours() {
+      setLoading(true);
+      setApiError("");
+      try {
+        const rows = await getEnseignantCours();
+        if (isMounted) setCours(rows);
+      } catch (error) {
+        if (isMounted) {
+          setCours([]);
+          setApiError(error.message || "Impossible de charger les cours depuis l'API.");
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    loadCours();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const weekDays = useMemo(() => {
     if (view === "Jour") return [new Date(currentDate)];
@@ -97,9 +131,9 @@ export default function EnseignantCalendar() {
 
   const filteredCours = useMemo(() =>
     activeType === "Tous"
-      ? mockEnseignantCours
-      : mockEnseignantCours.filter(c => c.type === activeType),
-    [activeType]
+      ? cours
+      : cours.filter(c => c.type === activeType),
+    [activeType, cours]
   );
 
   const exportCsv = () => {
@@ -108,14 +142,14 @@ export default function EnseignantCalendar() {
       return;
     }
     const csvRows = [
-      ["id","matiere","salle","jour","heureDebut","heureFin","type"],
+      ["id","matiere","salle","date","debut","fin","type"],
       ...filteredCours.map(c => [
         c.id,
         c.matiere,
         c.salle,
-        c.jour !== undefined ? c.jour : '',
-        c.heureDebut !== undefined ? c.heureDebut : '',
-        c.heureFin !== undefined ? c.heureFin : '',
+        c.date || '',
+        c.debut || (c.heureDebut !== undefined ? `${String(c.heureDebut).padStart(2, '0')}:00` : ''),
+        c.fin || (c.heureFin !== undefined ? `${String(c.heureFin).padStart(2, '0')}:00` : ''),
         c.type
       ])
     ];
@@ -150,13 +184,19 @@ export default function EnseignantCalendar() {
         if (typeof c.jour === "number") return c.jour === (dayDate.getDay() + 6) % 7;
         return false;
       })
-      .sort((a, b) => (a.heureDebut ?? 0) - (b.heureDebut ?? 0));
+      .sort((a, b) => getHourNumber(a) - getHourNumber(b));
 
   return (
     <div className="ens-page">
       <Navbar onExport={exportCsv} />
 
       <div className="ens-content">
+        {loading && <div className="ens-card" style={{ marginBottom: 12 }}>Chargement des cours depuis l'API...</div>}
+        {!loading && apiError && (
+          <div className="ens-card" style={{ marginBottom: 12, color: "#b42318" }}>
+            Erreur API: {apiError}
+          </div>
+        )}
 
         <div className="cal-block">
           <div className="cal-block-head">

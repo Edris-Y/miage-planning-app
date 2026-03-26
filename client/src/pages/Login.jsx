@@ -1,8 +1,48 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { login } from "../services/api";
 import "../styles/Login.css";
 
+function roleToPath(role) {
+  if (role === "etudiant") return "/etudiant";
+  if (role === "enseignant") return "/enseignant";
+  if (role === "administratif") return "/admin";
+  return "/login";
+}
+
 export default function Login() {
+  const navigate = useNavigate();
   const [showInfo, setShowInfo] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const navigateByRole = useCallback((role) => {
+    navigate(roleToPath(role), { replace: true });
+  }, [navigate]);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+
+    if (!email || !password) {
+      setError("Veuillez renseigner email et mot de passe.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await login(email, password);
+      const role = response?.user?.role;
+
+      navigateByRole(role);
+    } catch (err) {
+      setError(err.message || "Connexion impossible.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="login-page">
@@ -76,7 +116,7 @@ export default function Login() {
           Plateforme de gestion des emplois du temps
         </p>
 
-        <div className="login-form">
+        <form className="login-form" onSubmit={handleSubmit}>
           <div className="field-group">
             <label className="field-label" htmlFor="email">
               Identifiant
@@ -101,7 +141,8 @@ export default function Login() {
                 className="login-input"
                 placeholder="nom@domaine.fr"
                 autoComplete="email"
-                defaultValue=""
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
           </div>
@@ -140,7 +181,8 @@ export default function Login() {
                 className="login-input"
                 placeholder="************"
                 autoComplete="current-password"
-                defaultValue=""
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
               <button type="button" className="toggle-password" aria-label="Afficher ou masquer le mot de passe">
                 <svg
@@ -158,10 +200,12 @@ export default function Login() {
             </div>
           </div>
 
-          <button className="login-btn" type="button">
-            Se connecter
+          {error && <p style={{ color: "#b42318", margin: "0 0 8px" }}>{error}</p>}
+
+          <button className="login-btn" type="submit" disabled={loading}>
+            {loading ? "Connexion..." : "Se connecter"}
           </button>
-        </div>
+        </form>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { mockEnseignantCours } from '../../data/mockData';
 import Navbar from '../../components/Navbar';
+import { getSeanceDetailsForEnseignant } from '../../services/api';
 import '../../styles/enseignant.css';
 
 const TYPE_CLS = { CM: 'cm', TD: 'td', TP: 'tp', Examen: 'exam' };
@@ -25,7 +26,40 @@ function resolveSessionDate(seance) {
 export default function EnseignantSeanceDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const seance = mockEnseignantCours.find(s => s.id === id);
+  const [seance, setSeance] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadSeance() {
+      setLoading(true);
+      try {
+        const row = await getSeanceDetailsForEnseignant(id);
+        if (isMounted) setSeance(row);
+      } catch {
+        if (isMounted) setSeance(null);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    loadSeance();
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="ens-page">
+        <Navbar />
+        <div className="ens-content" style={{ maxWidth: 520 }}>
+          <div className="ens-card">Chargement des détails de la séance...</div>
+        </div>
+      </div>
+    );
+  }
 
   const notFound = (
     <div className="ens-page">

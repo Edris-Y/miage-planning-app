@@ -1,4 +1,5 @@
 const { getDbConnection } = require("./database.js");
+const bcrypt = require("bcryptjs");
 
 async function init() {
   try {
@@ -238,12 +239,37 @@ async function init() {
     if (count.total === 0) {
       console.log("Insertion des données de test...");
 
-      await db.run(`
-        INSERT INTO Utilisateur (nom, prenom, email, mot_de_passe, role) VALUES
-        ('Youssef', 'Edris', 'edris.youssef@univ.fr', 'changeme', 'etudiant'),
-        ('Beduneau', 'Jean', 'prof.beduneau@univ.fr', 'changeme', 'enseignant'),
-        ('AdminNom', 'AdminPrenom', 'admin.planning@univ.fr', 'changeme', 'administratif')
-      `);
+      const seedUsers = [
+        {
+          nom: "Youssef",
+          prenom: "Edris",
+          email: "edris.youssef@univ.fr",
+          role: "etudiant",
+        },
+        {
+          nom: "Beduneau",
+          prenom: "Jean",
+          email: "prof.beduneau@univ.fr",
+          role: "enseignant",
+        },
+        {
+          nom: "AdminNom",
+          prenom: "AdminPrenom",
+          email: "admin.planning@univ.fr",
+          role: "administratif",
+        },
+      ];
+
+      for (const user of seedUsers) {
+        const hashedPassword = await bcrypt.hash("changeme", 10);
+        await db.run(
+          `
+            INSERT INTO Utilisateur (nom, prenom, email, mot_de_passe, role)
+            VALUES (?, ?, ?, ?, ?)
+          `,
+          [user.nom, user.prenom, user.email, hashedPassword, user.role]
+        );
+      }
 
       console.log("Données de test ajoutées avec succès !");
     } else {

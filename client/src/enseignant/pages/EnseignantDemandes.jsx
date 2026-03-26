@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { mockDemandes } from '../../data/mockData';
 import Navbar from '../../components/Navbar';
 import BackButton from '../../components/BackButton';
+import { getDemandes } from '../../services/api';
 import '../../styles/enseignant.css';
 
 const STATUT_META = {
@@ -52,19 +52,35 @@ function StatIcon({ type }) {
 
 export default function EnseignantDemandes() {
   const navigate = useNavigate();
-  const [demandes, setDemandes] = useState(() => {
-    try {
-      const stored = JSON.parse(window.localStorage.getItem('enseignantDemandes') || '[]');
-      if (Array.isArray(stored) && stored.length > 0) {
-        return [...stored, ...mockDemandes];
+  const [demandes, setDemandes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState('');
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadDemandes() {
+      setLoading(true);
+      setApiError('');
+      try {
+        const rows = await getDemandes();
+        if (isMounted) setDemandes(rows);
+      } catch (error) {
+        if (isMounted) {
+          setDemandes([]);
+          setApiError(error.message || "Impossible de charger les demandes depuis l'API.");
+        }
+      } finally {
+        if (isMounted) setLoading(false);
       }
-    } catch {
-      return mockDemandes;
     }
 
-    return mockDemandes;
-  });
-  const [search, setSearch] = useState('');
+    loadDemandes();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const stats = useMemo(() => (
     demandes.reduce((acc, d) => {
@@ -206,6 +222,9 @@ export default function EnseignantDemandes() {
         </div>
 
         <div className="ens-card" style={{ padding: 0, overflow: 'hidden' }}>
+          {loading && <div style={{ padding: '16px 20px' }}>Chargement des demandes depuis l'API...</div>}
+          {!loading && apiError && <div style={{ padding: '16px 20px', color: '#b42318' }}>Erreur API: {apiError}</div>}
+
           <div style={{ padding: '18px 20px 12px', fontWeight: 700, fontSize: '1rem', borderBottom: '1px solid #f0f3fa' }}>
             Mes disponibilités
           </div>

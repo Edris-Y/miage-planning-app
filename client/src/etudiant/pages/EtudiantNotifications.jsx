@@ -1,45 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Navbar from '../../components/Navbar';
 import BackButton from '../../components/BackButton';
+import { getNotifications } from '../../services/api';
 import '../../styles/enseignant.css';
 import '../../styles/etudiant.css';
 
 const TABS = ['Toutes', 'Non lues', 'Importantes'];
-
-const ETUDIANT_NOTIFICATIONS = [
-  {
-    id: 'n1',
-    status: 'nouveau',
-    titre: 'Changement de salle',
-    message: 'Le cours de Mathematiques du 5 fevrier a ete deplace en Amphi B',
-    date: '4 fevrier 2026 a 16:30',
-    iconType: 'warning',
-  },
-  {
-    id: 'n2',
-    status: 'lu',
-    titre: 'Note publiee',
-    message: 'Votre note pour le TP de Base de donnees a ete publiee : 16/20',
-    date: '3 fevrier 2026 a 14:00',
-    iconType: 'check',
-  },
-  {
-    id: 'n3',
-    status: 'lu',
-    titre: 'Nouveau cours disponible',
-    message: 'Le support de cours pour Algorithmique Avancee est maintenant disponible',
-    date: '1 fevrier 2026 a 10:00',
-    iconType: 'info',
-  },
-  {
-    id: 'n4',
-    status: 'important',
-    titre: 'Examen a venir',
-    message: 'Rappel : Examen de Base de donnees le 15 fevrier a 09:00',
-    date: '28 janvier 2026 a 09:15',
-    iconType: 'warning',
-  },
-];
 
 const ICON_MAP = {
   location: { icon: '📍', cls: 'location' },
@@ -50,7 +16,34 @@ const ICON_MAP = {
 
 export default function EtudiantNotifications() {
   const [activeTab, setActiveTab] = useState('Toutes');
-  const [items, setItems] = useState(ETUDIANT_NOTIFICATIONS);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState('');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadNotifications() {
+      setLoading(true);
+      setApiError('');
+      try {
+        const rows = await getNotifications({ role: 'etudiant' });
+        if (isMounted) setItems(rows);
+      } catch (error) {
+        if (isMounted) {
+          setItems([]);
+          setApiError(error.message || "Impossible de charger les notifications depuis l'API.");
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    loadNotifications();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const unreadCount = items.filter((n) => n.status !== 'lu').length;
   const importantCount = items.filter((n) => n.status === 'important').length;
@@ -106,6 +99,9 @@ export default function EtudiantNotifications() {
           </div>
 
           <div className="etu-divider" />
+
+          {loading && <div style={{ padding: '12px 0' }}>Chargement des notifications...</div>}
+          {!loading && apiError && <div style={{ padding: '12px 0', color: '#b42318' }}>Erreur API: {apiError}</div>}
 
           {filtered.length === 0 ? (
             <div className="ens-empty">

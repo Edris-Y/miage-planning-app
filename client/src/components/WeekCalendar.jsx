@@ -1,6 +1,12 @@
 import { Fragment } from 'react';
-import { COURSE_TYPES } from '../data/mockData';
 import './WeekCalendar.css';
+
+const COURSE_TYPES = {
+  CM: { label: 'CM', color: '#DC2626' },
+  TD: { label: 'TD', color: '#F59E0B' },
+  TP: { label: 'TP', color: '#3B82F6' },
+  EXAM: { label: 'Examen', color: '#10B981' },
+};
 
 const DAYS_FR = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'];
 const HOURS = [8,9,10,11,12,13,14,15,16,17,18];

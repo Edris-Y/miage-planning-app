@@ -1,17 +1,46 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { mockCohortes, mockSalles, mockTypes } from '../../data/mockData';
 import Navbar from '../../components/Navbar';
+import { createDemande, getCohortes, getEtudiantCours, getSalles } from '../../services/api';
 import '../../styles/enseignant.css';
+
+const TYPES = ['CM', 'TD', 'TP', 'EXAM'];
 
 export default function EnseignantNouvelleDemandeReservation() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ type: '', date: '', debut: '', fin: '', cohorte: '', salle: '', commentaire: '' });
   const [error, setError] = useState('');
+  const [cohortes, setCohortes] = useState([]);
+  const [salles, setSalles] = useState([]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadData() {
+      try {
+        const [cohortesRows, sallesRows] = await Promise.all([
+          getCohortes(),
+          getSalles(),
+        ]);
+        if (!isMounted) return;
+        setCohortes(cohortesRows);
+        setSalles(sallesRows);
+      } catch {
+        if (!isMounted) return;
+        setCohortes([]);
+        setSalles([]);
+      }
+    }
+
+    loadData();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const setField = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
-  const submit = () => {
+  const submit = async () => {
     const required = ['type', 'date', 'debut', 'fin', 'cohorte', 'salle'];
     if (required.some((k) => !form[k])) {
       setError('Veuillez remplir tous les champs obligatoires.');
@@ -25,16 +54,32 @@ export default function EnseignantNouvelleDemandeReservation() {
 
     setError('');
 
-    const existing = JSON.parse(window.localStorage.getItem('enseignantDemandes') || '[]');
-    const newDemande = {
-      id: `d-${Date.now()}`,
-      ...form,
-      statut: 'EN ATTENTE',
-      createdAt: new Date().toISOString(),
-    };
-    window.localStorage.setItem('enseignantDemandes', JSON.stringify([newDemande, ...existing]));
+    const selectedSalle = salles.find((s) => String(s.id) === String(form.salle));
+    const cohorteCours = await getEtudiantCours({ cohorteId: Number(form.cohorte) });
+    const matchedSeance = cohorteCours.find((c) => {
+      const sameDate = c.date === form.date;
+      const sameStart = c.debut === form.debut;
+      const sameType = c.type === form.type;
+      return sameDate && sameStart && sameType;
+    });
 
-    navigate('/enseignant/demandes');
+    if (!selectedSalle || !matchedSeance) {
+      setError("Impossible d'identifier la séance/salle côté API. Vérifiez les données de planning puis réessayez.");
+      return;
+    }
+
+    try {
+      await createDemande(
+        {
+          salle_id: selectedSalle.id,
+          seance_id: Number(matchedSeance.id),
+          motif: form.commentaire || null,
+        }
+      );
+      navigate('/enseignant/demandes');
+    } catch (apiErr) {
+      setError(apiErr.message || "Envoi impossible. L'API peut exiger une authentification.");
+    }
   };
 
   return (
@@ -57,7 +102,7 @@ export default function EnseignantNouvelleDemandeReservation() {
                 <label>Type de séance <span>*</span></label>
                 <select value={form.type} onChange={setField('type')}>
                   <option value="">Sélectionner</option>
-                  {mockTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+                  {TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
                 </select>
               </div>
               <div className="ens-field">
@@ -82,14 +127,14 @@ export default function EnseignantNouvelleDemandeReservation() {
                 <label>Cohorte <span>*</span></label>
                 <select value={form.cohorte} onChange={setField('cohorte')}>
                   <option value="">Sélectionner</option>
-                  {mockCohortes.map((c) => <option key={c.id} value={c.id}>{c.fullLabel}</option>)}
+                  {cohortes.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
                 </select>
               </div>
               <div className="ens-field">
                 <label>Salle souhaitée <span>*</span></label>
                 <select value={form.salle} onChange={setField('salle')}>
                   <option value="">Sélectionner</option>
-                  {mockSalles.map((s) => <option key={s} value={s}>{s}</option>)}
+                  {salles.map((s) => <option key={s.id} value={s.id}>{s.code}</option>)}
                 </select>
               </div>
             </div>

@@ -144,3 +144,28 @@
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 16px;
 }
+
+.admin-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 680px;
+}
+
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e3e9f3;
+  font-size: 0.9rem;
+}
+
+.admin-table th {
+  background: #f6f9ff;
+  color: #1e2d4a;
+  font-weight: 600;
+}

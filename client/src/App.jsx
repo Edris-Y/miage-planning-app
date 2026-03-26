@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
@@ -24,11 +24,13 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<EnseignantCalendar />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/users" element={<Navigate to="/admin/utilisateurs" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profil" element={<Profile />} />
-        <Route path="/calendar" element={<EnseignantCalendar />} />
+        <Route path="/enseignant" element={<EnseignantCalendar />} />
+        <Route path="/calendar" element={<Navigate to="/enseignant" replace />} />
         <Route path="/enseignant/notifications" element={<EnseignantNotifications />} />
         <Route path="/enseignant/demandes" element={<EnseignantDemandes />} />
         <Route path="/enseignant/demandes/nouvelle-reservation" element={<EnseignantNouvelleDemandeReservation />} />
@@ -47,6 +49,8 @@ function App() {
           <Route path="salles" element={<AdminSalles />} />
           <Route path="utilisateurs" element={<AdminUtilisateurs />} />
         </Route>
+
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );

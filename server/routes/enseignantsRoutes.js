@@ -4,7 +4,7 @@ const router = express.Router();
 const asyncHandler = require("../middleware/asyncHandler");
 const validate = require("../middleware/validationMiddleware");
 const authMiddleware = require("../middleware/authMiddleware");
-const controller = require("../controllers/etudiantsController");
+const controller = require("../controllers/enseignantsController");
 
 router.get("/", asyncHandler(controller.getAll));
 router.get("/:id", asyncHandler(controller.getById));
@@ -12,7 +12,7 @@ router.get("/:id", asyncHandler(controller.getById));
 router.post(
   "/",
   authMiddleware,
-  validate(["id", "numeroEtudiant"]),
+  validate(["id"]),
   asyncHandler(controller.create)
 );
 

@@ -1,10 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
-import {
-  mockEtudiantCours,
-  mockEnseignants,
-} from '../../data/mockData';
+import { getEtudiantCours } from '../../services/api';
 import '../../styles/enseignant.css';
 import '../../styles/etudiant.css';
 
@@ -83,13 +80,52 @@ function isToday(d) {
   return isSameDay(d, new Date());
 }
 
+function getHourNumber(cours) {
+  if (cours?.debut) return Number(String(cours.debut).split(':')[0]);
+  if (cours?.heureDebut !== undefined) return Number(cours.heureDebut);
+  return 0;
+}
+
 export default function EtudiantPage() {
   const navigate = useNavigate();
+  const [cours, setCours] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState('');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState('Semaine');
   const [activeType, setActiveType] = useState('Tous');
   const [typeFilterLabel, setTypeFilterLabel] = useState('Tous les type');
   const [ensFilter, setEnsFilter] = useState('Tous les enseignants');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadCours() {
+      setLoading(true);
+      setApiError('');
+      try {
+        const rows = await getEtudiantCours();
+        if (isMounted) setCours(rows);
+      } catch (error) {
+        if (isMounted) {
+          setCours([]);
+          setApiError(error.message || "Impossible de charger les cours depuis l'API.");
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    loadCours();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const enseignants = useMemo(() => {
+    const names = Array.from(new Set(cours.map((c) => (c.enseignant || '').trim()).filter(Boolean)));
+    return ['Tous les enseignants', ...names];
+  }, [cours]);
 
   const weekDays = useMemo(() => {
     if (view === 'Jour') return [new Date(currentDate)];
@@ -116,15 +152,16 @@ export default function EtudiantPage() {
 
   const filteredCours = useMemo(() => {
     const selectType = TYPE_SELECT_MAP[typeFilterLabel] || 'Tous';
-    return mockEtudiantCours.filter((c) => {
+    return cours.filter((c) => {
       const legendTypeOk = activeType === 'Tous' || c.type === activeType;
       const selectTypeOk = selectType === 'Tous' || c.type === selectType;
       const ensOk = ensFilter === 'Tous les enseignants' || (c.enseignant || '').trim() === ensFilter;
       const dayIndex = (new Date(currentDate).getDay() + 6) % 7;
-      const dayOk = view !== 'Jour' || c.jour === dayIndex;
+      const dayOk = view !== 'Jour'
+        || (c.date ? isSameDay(new Date(c.date), currentDate) : c.jour === dayIndex);
       return legendTypeOk && selectTypeOk && ensOk && dayOk;
     });
-  }, [activeType, typeFilterLabel, ensFilter, currentDate, view]);
+  }, [activeType, typeFilterLabel, ensFilter, currentDate, view, cours]);
 
   const getCoursForDayHour = (dayDate, hour) =>
     filteredCours.filter((c) => {
@@ -144,7 +181,7 @@ export default function EtudiantPage() {
         if (typeof c.jour === 'number') return c.jour === (dayDate.getDay() + 6) % 7;
         return false;
       })
-      .sort((a, b) => (a.heureDebut ?? 0) - (b.heureDebut ?? 0));
+      .sort((a, b) => getHourNumber(a) - getHourNumber(b));
 
   const exportCsv = () => {
     if (!filteredCours.length) {
@@ -153,14 +190,14 @@ export default function EtudiantPage() {
     }
 
     const csvRows = [
-      ['id', 'matiere', 'salle', 'jour', 'heureDebut', 'heureFin', 'type', 'enseignant'],
+      ['id', 'matiere', 'salle', 'date', 'debut', 'fin', 'type', 'enseignant'],
       ...filteredCours.map((c) => [
         c.id,
         c.matiere,
         c.salle,
-        c.jour,
-        c.heureDebut,
-        c.heureFin,
+        c.date || '',
+        c.debut || (c.heureDebut !== undefined ? `${String(c.heureDebut).padStart(2, '0')}:00` : ''),
+        c.fin || (c.heureFin !== undefined ? `${String(c.heureFin).padStart(2, '0')}:00` : ''),
         c.type,
         c.enseignant || '',
       ]),
@@ -189,6 +226,13 @@ export default function EtudiantPage() {
       />
 
       <div className="ens-content">
+        {loading && <div className="ens-card" style={{ marginBottom: 12 }}>Chargement des cours depuis l'API...</div>}
+        {!loading && apiError && (
+          <div className="ens-card" style={{ marginBottom: 12, color: '#b42318' }}>
+            Erreur API: {apiError}
+          </div>
+        )}
+
         <div className="cal-toolbar">
           <div className="cal-toolbar-left">
             <button className="ens-today-btn" onClick={() => setCurrentDate(new Date())}>
@@ -235,8 +279,8 @@ export default function EtudiantPage() {
             </select>
 
             <select className="ens-btn-outline etu-select etu-select-ens" value={ensFilter} onChange={(e) => setEnsFilter(e.target.value)}>
-              {mockEnseignants.map((ens) => (
-                <option key={ens.id}>{ens.nom}</option>
+              {enseignants.map((ens) => (
+                <option key={ens}>{ens}</option>
               ))}
             </select>
           </div>
