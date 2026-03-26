@@ -1,49 +1,176 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/AdminReservations.css";
+
+function addDays(date, days) {
+  const nextDate = new Date(date);
+  nextDate.setDate(nextDate.getDate() + days);
+  return nextDate;
+}
+
+function toDateKey(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function getWeekBounds(referenceDate = new Date()) {
+  const start = new Date(referenceDate);
+  const dayIndex = (start.getDay() + 6) % 7;
+
+  start.setDate(start.getDate() - dayIndex);
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6);
+  end.setHours(23, 59, 59, 999);
+
+  return { start, end };
+}
+
+function isDateInCurrentWeek(dateString) {
+  const targetDate = new Date(`${dateString}T12:00:00`);
+  const { start, end } = getWeekBounds(new Date());
+  return targetDate >= start && targetDate <= end;
+}
+
+const TODAY_KEY = toDateKey(new Date());
+const YESTERDAY_KEY = toDateKey(addDays(new Date(), -1));
+const TOMORROW_KEY = toDateKey(addDays(new Date(), 1));
+const IN_TWO_DAYS_KEY = toDateKey(addDays(new Date(), 2));
+const IN_FIVE_DAYS_KEY = toDateKey(addDays(new Date(), 5));
+const NEXT_WEEK_KEY = toDateKey(addDays(new Date(), 9));
 
 const MOCK_RESERVATIONS = [
   {
     id: "res-001",
     teacher: "Dr. Martin",
     sessionType: "CM",
-    date: "2026-02-12",
+    date: TOMORROW_KEY,
     startTime: "14:00",
     endTime: "16:00",
     cohort: "M1 Informatique",
     room: "Amphi B",
     status: "EN_ATTENTE",
-    isConflict: false,
+    hasConflict: false,
+    priority: "HAUTE",
+    comment:
+      "Demande de réservation pour le cours d'ouverture du module d'architecture logicielle.",
+    conflictDetails: null,
+    statusUpdatedAt: YESTERDAY_KEY,
   },
   {
     id: "res-002",
     teacher: "Prof. Dupont",
     sessionType: "TP",
-    date: "2026-02-12",
+    date: TODAY_KEY,
     startTime: "14:00",
     endTime: "16:00",
     cohort: "L3 Informatique",
     room: "Amphi B",
     status: "EN_ATTENTE",
-    isConflict: true,
+    hasConflict: true,
+    priority: "HAUTE",
+    comment: "Besoin d'une salle disponible avec postes de travail pour la séance pratique.",
+    conflictDetails: {
+      type: "Salle déjà occupée",
+      linkedReservation: "Examen M2 Informatique",
+      suggestion: "Salle B12 ou créneau 16h-18h",
+    },
+    statusUpdatedAt: YESTERDAY_KEY,
   },
   {
     id: "res-003",
     teacher: "Prof. Rousseau",
     sessionType: "TD",
-    date: "2026-02-15",
+    date: IN_TWO_DAYS_KEY,
     startTime: "10:00",
     endTime: "12:00",
     cohort: "L2 Informatique",
     room: "Salle B12",
+    status: "AJUSTEE",
+    hasConflict: false,
+    priority: "MOYENNE",
+    comment: "Décalage demandé par la cohorte pour éviter un chevauchement de séminaire.",
+    conflictDetails: null,
+    statusUpdatedAt: TODAY_KEY,
+  },
+  {
+    id: "res-004",
+    teacher: "Mme Karim",
+    sessionType: "EXAMEN",
+    date: TODAY_KEY,
+    startTime: "08:00",
+    endTime: "10:00",
+    cohort: "M2 Informatique",
+    room: "Salle C21",
+    status: "VALIDEE",
+    hasConflict: false,
+    priority: "HAUTE",
+    comment: "Examen terminal nécessitant une salle calme et surveillable.",
+    conflictDetails: null,
+    statusUpdatedAt: TODAY_KEY,
+  },
+  {
+    id: "res-005",
+    teacher: "Dr. Benali",
+    sessionType: "REUNION",
+    date: IN_FIVE_DAYS_KEY,
+    startTime: "16:30",
+    endTime: "18:00",
+    cohort: "Équipe pédagogique",
+    room: "Salle A05",
+    status: "REFUSEE",
+    hasConflict: false,
+    priority: "FAIBLE",
+    comment: "Réunion de coordination reportée faute de disponibilité sur le créneau demandé.",
+    conflictDetails: null,
+    statusUpdatedAt: TODAY_KEY,
+  },
+  {
+    id: "res-006",
+    teacher: "Prof. Lemaire",
+    sessionType: "CM",
+    date: NEXT_WEEK_KEY,
+    startTime: "09:00",
+    endTime: "11:00",
+    cohort: "L1 Mathématiques",
+    room: "Amphi A",
     status: "EN_ATTENTE",
-    isConflict: false,
+    hasConflict: true,
+    priority: "MOYENNE",
+    comment: "Demande soumise en attente d'arbitrage entre deux affectations prioritaires.",
+    conflictDetails: {
+      type: "Cohorte déjà engagée sur un autre créneau",
+      linkedReservation: "TD Analyse L1",
+      suggestion: "Décaler au lendemain 09h-11h",
+    },
+    statusUpdatedAt: YESTERDAY_KEY,
   },
 ];
 
-const MOCK_STATS = [
-  { label: "EN ATTENTE", value: 3, tone: "waiting" },
-  { label: "AVEC CONFLITS", value: 1, tone: "conflict" },
-  { label: "VALIDÉES AUJOURD'HUI", value: 8, tone: "validated" },
+const STATUS_OPTIONS = [
+  { value: "ALL", label: "Tous les statuts" },
+  { value: "EN_ATTENTE", label: "EN_ATTENTE" },
+  { value: "VALIDEE", label: "VALIDEE" },
+  { value: "REFUSEE", label: "REFUSEE" },
+  { value: "AJUSTEE", label: "AJUSTEE" },
+];
+
+const TYPE_OPTIONS = [
+  { value: "ALL", label: "Tous les types" },
+  { value: "CM", label: "CM" },
+  { value: "TD", label: "TD" },
+  { value: "TP", label: "TP" },
+  { value: "EXAMEN", label: "EXAMEN" },
+  { value: "REUNION", label: "REUNION" },
+];
+
+const DATE_OPTIONS = [
+  { value: "all", label: "Toutes les dates" },
+  { value: "today", label: "Aujourd'hui" },
+  { value: "week", label: "Cette semaine" },
 ];
 
 const DATE_FORMATTER = new Intl.DateTimeFormat("fr-FR", {
@@ -55,6 +182,34 @@ const DATE_FORMATTER = new Intl.DateTimeFormat("fr-FR", {
 function formatDateLabel(dateString) {
   const formatted = DATE_FORMATTER.format(new Date(`${dateString}T12:00:00`));
   return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+}
+
+function getStatusTone(status) {
+  if (status === "VALIDEE") {
+    return "validated";
+  }
+
+  if (status === "REFUSEE") {
+    return "refused";
+  }
+
+  if (status === "AJUSTEE") {
+    return "adjusted";
+  }
+
+  return "waiting";
+}
+
+function getPriorityTone(priority) {
+  if (priority === "HAUTE") {
+    return "high";
+  }
+
+  if (priority === "FAIBLE") {
+    return "low";
+  }
+
+  return "medium";
 }
 
 function SearchIcon() {
@@ -85,20 +240,6 @@ function BellIcon() {
   );
 }
 
-function ClockIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M12 7V12L15 14M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 function WarningIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -113,11 +254,11 @@ function WarningIcon() {
   );
 }
 
-function CheckIcon() {
+function CloseIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
-        d="M20 6L9 17L4 12M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3"
+        d="M18 6L6 18M6 6L18 18"
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinecap="round"
@@ -127,175 +268,460 @@ function CheckIcon() {
   );
 }
 
-function StatIcon({ tone }) {
-  if (tone === "conflict") {
-    return <WarningIcon />;
-  }
-
-  if (tone === "validated") {
-    return <CheckIcon />;
-  }
-
-  return <ClockIcon />;
-}
-
 export default function AdminReservations() {
+  const navigate = useNavigate();
+  const [reservations, setReservations] = useState(MOCK_RESERVATIONS);
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [typeFilter, setTypeFilter] = useState("ALL");
+  const [dateFilter, setDateFilter] = useState("all");
+  const [selectedReservation, setSelectedReservation] = useState(null);
 
   const filteredReservations = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
 
-    if (!query) {
-      return MOCK_RESERVATIONS;
+    return reservations.filter((reservation) => {
+      const matchesSearch =
+        !query ||
+        [reservation.teacher, reservation.cohort, reservation.room]
+          .join(" ")
+          .toLowerCase()
+          .includes(query);
+
+      const matchesStatus =
+        statusFilter === "ALL" || reservation.status === statusFilter;
+      const matchesType = typeFilter === "ALL" || reservation.sessionType === typeFilter;
+      const matchesDate =
+        dateFilter === "all" ||
+        (dateFilter === "today" && reservation.date === TODAY_KEY) ||
+        (dateFilter === "week" && isDateInCurrentWeek(reservation.date));
+
+      return matchesSearch && matchesStatus && matchesType && matchesDate;
+    });
+  }, [dateFilter, reservations, searchTerm, statusFilter, typeFilter]);
+
+  function handleStatusChange(reservation, nextStatus, closeModal = false) {
+    const updatedReservation = {
+      ...reservation,
+      status: nextStatus,
+      statusUpdatedAt: TODAY_KEY,
+    };
+
+    setReservations((currentReservations) =>
+      currentReservations.map((currentReservation) =>
+        currentReservation.id === reservation.id ? updatedReservation : currentReservation
+      )
+    );
+
+    if (closeModal) {
+      setSelectedReservation(null);
+      return;
     }
 
-    return MOCK_RESERVATIONS.filter((reservation) =>
-      [
-        reservation.teacher,
-        reservation.sessionType,
-        reservation.cohort,
-        reservation.room,
-        reservation.status,
-        formatDateLabel(reservation.date),
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(query)
-    );
-  }, [searchTerm]);
+    setSelectedReservation(updatedReservation);
+  }
+
+  function handleViewConflicts(reservation) {
+    setSelectedReservation(null);
+    navigate(`/admin/conflits?reservation=${reservation.id}`);
+  }
 
   return (
     <>
       <div className="admin-reservations-page">
         <div className="admin-reservations-shell">
-          <section className="admin-reservations-frame">
-            <header className="admin-reservations-header">
+          <header className="admin-reservations-header">
+            <div className="admin-reservations-heading">
               <h1 className="admin-reservations-title">Gestion des réservations</h1>
+            </div>
 
-              <div className="admin-reservations-tools">
-                <label className="admin-reservations-search">
-                  <SearchIcon />
-                  <input
-                    type="search"
-                    placeholder="Rechercher..."
-                    value={searchTerm}
-                    onChange={(event) => setSearchTerm(event.target.value)}
-                    aria-label="Rechercher une réservation"
-                  />
-                </label>
+            <div className="admin-reservations-tools">
+              <label className="admin-reservations-search">
+                <SearchIcon />
+                <input
+                  type="search"
+                  placeholder="Rechercher un enseignant, une cohorte ou une salle..."
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  aria-label="Rechercher une réservation"
+                />
+              </label>
 
-                <button
-                  type="button"
-                  className="admin-reservations-notification"
-                  aria-label="Notifications"
-                >
-                  <BellIcon />
-                  <span className="admin-reservations-notification-badge">3</span>
-                </button>
-              </div>
-            </header>
+              <button
+                type="button"
+                className="admin-reservations-notification"
+                aria-label="Notifications"
+              >
+                <BellIcon />
+                <span className="admin-reservations-notification-badge">3</span>
+              </button>
+            </div>
+          </header>
 
-            <div className="admin-reservations-content">
-              <section className="admin-reservations-stats" aria-label="Statistiques">
-                {MOCK_STATS.map((stat) => (
-                  <article key={stat.label} className="admin-reservations-stat-card">
-                    <div>
-                      <span className="admin-reservations-stat-label">{stat.label}</span>
-                      <strong className="admin-reservations-stat-value">{stat.value}</strong>
-                    </div>
+          <div className="admin-reservations-content">
+            <section className="admin-reservations-panel">
+              <div className="admin-reservations-panel-top">
+                <div className="admin-reservations-panel-headline">
+                  <div className="admin-reservations-panel-heading">
+                    <h2 className="admin-reservations-panel-title">Demandes de réservation</h2>
+                  </div>
 
-                    <span
-                      className={`admin-reservations-stat-icon admin-reservations-stat-icon--${stat.tone}`}
-                    >
-                      <StatIcon tone={stat.tone} />
-                    </span>
-                  </article>
-                ))}
-              </section>
-
-              <section className="admin-reservations-panel">
-                <div className="admin-reservations-panel-header">
-                  <h2 className="admin-reservations-panel-title">
-                    Demandes de réservation ({filteredReservations.length})
-                  </h2>
+                  <span className="admin-reservations-panel-count">
+                    {filteredReservations.length} demande
+                    {filteredReservations.length > 1 ? "s" : ""}
+                  </span>
                 </div>
 
-                {filteredReservations.length > 0 ? (
-                  <div className="admin-reservations-table-wrap">
-                    <table className="admin-reservations-table">
-                      <thead>
-                        <tr>
-                          <th>Enseignant</th>
-                          <th>Type</th>
-                          <th>Date &amp; Horaire</th>
-                          <th>Cohorte</th>
-                          <th>Salle</th>
-                          <th>Statut</th>
-                          <th>Actions</th>
+                <div className="admin-reservations-filters" aria-label="Filtres des réservations">
+                  <label className="admin-reservations-filter">
+                    <span>Statut</span>
+                    <select
+                      value={statusFilter}
+                      onChange={(event) => setStatusFilter(event.target.value)}
+                      aria-label="Filtrer par statut"
+                    >
+                      {STATUS_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="admin-reservations-filter">
+                    <span>Type</span>
+                    <select
+                      value={typeFilter}
+                      onChange={(event) => setTypeFilter(event.target.value)}
+                      aria-label="Filtrer par type"
+                    >
+                      {TYPE_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="admin-reservations-filter">
+                    <span>Date</span>
+                    <select
+                      value={dateFilter}
+                      onChange={(event) => setDateFilter(event.target.value)}
+                      aria-label="Filtrer par date"
+                    >
+                      {DATE_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+              </div>
+
+              {filteredReservations.length > 0 ? (
+                <div className="admin-reservations-table-wrap">
+                  <table className="admin-reservations-table">
+                    <thead>
+                      <tr>
+                        <th>Enseignant</th>
+                        <th>Type</th>
+                        <th>Date &amp; Horaire</th>
+                        <th>Cohorte</th>
+                        <th>Salle</th>
+                        <th>Statut</th>
+                        <th>Conflit</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {filteredReservations.map((reservation) => (
+                        <tr
+                          key={reservation.id}
+                          className={
+                            reservation.hasConflict ? "admin-reservations-row--conflict" : ""
+                          }
+                        >
+                          <td>
+                            <div className="admin-reservations-teacher">
+                              {reservation.hasConflict ? (
+                                <span className="admin-reservations-conflict-icon">
+                                  <WarningIcon />
+                                </span>
+                              ) : null}
+                              <span>{reservation.teacher}</span>
+                            </div>
+                          </td>
+
+                          <td>
+                            <span className="admin-reservations-type-badge">
+                              {reservation.sessionType}
+                            </span>
+                          </td>
+
+                          <td>
+                            <div className="admin-reservations-datetime">
+                              <span className="admin-reservations-date">
+                                {formatDateLabel(reservation.date)}
+                              </span>
+                              <span className="admin-reservations-time">
+                                {reservation.startTime} - {reservation.endTime}
+                              </span>
+                            </div>
+                          </td>
+
+                          <td>{reservation.cohort}</td>
+                          <td>{reservation.room}</td>
+
+                          <td>
+                            <span
+                              className={`admin-reservations-status-badge admin-reservations-status-badge--${getStatusTone(
+                                reservation.status
+                              )}`}
+                            >
+                              {reservation.status}
+                            </span>
+                          </td>
+
+                          <td>
+                            {reservation.hasConflict ? (
+                              <span className="admin-reservations-conflict-badge">
+                                <WarningIcon />
+                                Conflit détecté
+                              </span>
+                            ) : (
+                              <span className="admin-reservations-conflict-neutral">
+                                Aucun conflit
+                              </span>
+                            )}
+                          </td>
+
+                          <td>
+                            <div className="admin-reservations-actions">
+                              <button
+                                type="button"
+                                className="admin-reservations-action admin-reservations-action--details"
+                                onClick={() => setSelectedReservation(reservation)}
+                              >
+                                Détails
+                              </button>
+                            </div>
+                          </td>
                         </tr>
-                      </thead>
-
-                      <tbody>
-                        {filteredReservations.map((reservation) => (
-                          <tr
-                            key={reservation.id}
-                            className={reservation.isConflict ? "admin-reservations-row--conflict" : ""}
-                          >
-                            <td>
-                              <div className="admin-reservations-teacher">
-                                {reservation.isConflict ? (
-                                  <span className="admin-reservations-conflict-icon">
-                                    <WarningIcon />
-                                  </span>
-                                ) : null}
-                                <span>{reservation.teacher}</span>
-                              </div>
-                            </td>
-
-                            <td>
-                              <span className="admin-reservations-type-badge">
-                                {reservation.sessionType}
-                              </span>
-                            </td>
-
-                            <td>
-                              <div className="admin-reservations-datetime">
-                                <span className="admin-reservations-date">
-                                  {formatDateLabel(reservation.date)}
-                                </span>
-                                <span className="admin-reservations-time">
-                                  {reservation.startTime} - {reservation.endTime}
-                                </span>
-                              </div>
-                            </td>
-
-                            <td>{reservation.cohort}</td>
-                            <td>{reservation.room}</td>
-
-                            <td>
-                              <span className="admin-reservations-status-badge">
-                                {reservation.status}
-                              </span>
-                            </td>
-
-                            <td>
-                              <span className="admin-reservations-details">Détails</span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="admin-reservations-empty">
-                    Aucune réservation ne correspond à la recherche.
-                  </div>
-                )}
-              </section>
-            </div>
-          </section>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="admin-reservations-empty">
+                  Aucune réservation ne correspond à la recherche ou aux filtres
+                  sélectionnés.
+                </div>
+              )}
+            </section>
+          </div>
         </div>
       </div>
+
+      {selectedReservation ? (
+        <div
+          className="admin-reservations-modal-overlay"
+          onClick={() => setSelectedReservation(null)}
+        >
+          <div
+            className="admin-reservations-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-reservations-modal-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="admin-reservations-modal-header">
+              <div className="admin-reservations-modal-heading">
+                <h3
+                  id="admin-reservations-modal-title"
+                  className="admin-reservations-modal-title"
+                >
+                  Détail de la demande
+                </h3>
+                <p className="admin-reservations-modal-description">
+                  Consulte les informations clés de la demande avant validation,
+                  ajustement ou refus.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="admin-reservations-modal-close"
+                onClick={() => setSelectedReservation(null)}
+                aria-label="Fermer"
+              >
+                <CloseIcon />
+              </button>
+            </div>
+
+            <div className="admin-reservations-modal-body">
+              <div className="admin-reservations-modal-grid">
+                <div className="admin-reservations-modal-card">
+                  <span className="admin-reservations-modal-label">Enseignant</span>
+                  <span className="admin-reservations-modal-value">
+                    {selectedReservation.teacher}
+                  </span>
+                </div>
+
+                <div className="admin-reservations-modal-card">
+                  <span className="admin-reservations-modal-label">Type</span>
+                  <span className="admin-reservations-modal-type">
+                    {selectedReservation.sessionType}
+                  </span>
+                </div>
+
+                <div className="admin-reservations-modal-card">
+                  <span className="admin-reservations-modal-label">Date</span>
+                  <span className="admin-reservations-modal-value">
+                    {formatDateLabel(selectedReservation.date)}
+                  </span>
+                </div>
+
+                <div className="admin-reservations-modal-card">
+                  <span className="admin-reservations-modal-label">Horaire</span>
+                  <span className="admin-reservations-modal-value">
+                    {selectedReservation.startTime} - {selectedReservation.endTime}
+                  </span>
+                </div>
+
+                <div className="admin-reservations-modal-card">
+                  <span className="admin-reservations-modal-label">Cohorte</span>
+                  <span className="admin-reservations-modal-value">
+                    {selectedReservation.cohort}
+                  </span>
+                </div>
+
+                <div className="admin-reservations-modal-card">
+                  <span className="admin-reservations-modal-label">Salle demandée</span>
+                  <span className="admin-reservations-modal-value">
+                    {selectedReservation.room}
+                  </span>
+                </div>
+
+                <div className="admin-reservations-modal-card">
+                  <span className="admin-reservations-modal-label">Statut</span>
+                  <span
+                    className={`admin-reservations-status-badge admin-reservations-status-badge--${getStatusTone(
+                      selectedReservation.status
+                    )}`}
+                  >
+                    {selectedReservation.status}
+                  </span>
+                </div>
+
+                <div className="admin-reservations-modal-card">
+                  <span className="admin-reservations-modal-label">Priorité</span>
+                  <span
+                    className={`admin-reservations-priority-badge admin-reservations-priority-badge--${getPriorityTone(
+                      selectedReservation.priority
+                    )}`}
+                  >
+                    {selectedReservation.priority}
+                  </span>
+                </div>
+              </div>
+
+              <section className="admin-reservations-modal-note">
+                <span className="admin-reservations-modal-section-title">Commentaire</span>
+                <p className="admin-reservations-modal-note-text">
+                  {selectedReservation.comment || "Aucun commentaire renseigné pour cette demande."}
+                </p>
+              </section>
+
+              {selectedReservation.hasConflict && selectedReservation.conflictDetails ? (
+                <section className="admin-reservations-modal-conflict">
+                  <div className="admin-reservations-modal-conflict-header">
+                    <span className="admin-reservations-modal-conflict-icon">
+                      <WarningIcon />
+                    </span>
+
+                    <div className="admin-reservations-modal-conflict-heading">
+                      <h4 className="admin-reservations-modal-conflict-title">
+                        Résumé du conflit
+                      </h4>
+                      <p className="admin-reservations-modal-conflict-text">
+                        Cette demande nécessite une vérification complémentaire avant
+                        affectation définitive.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="admin-reservations-modal-conflict-grid">
+                    <div className="admin-reservations-modal-conflict-card">
+                      <span className="admin-reservations-modal-label">Type de conflit</span>
+                      <span className="admin-reservations-modal-value">
+                        {selectedReservation.conflictDetails.type}
+                      </span>
+                    </div>
+
+                    <div className="admin-reservations-modal-conflict-card">
+                      <span className="admin-reservations-modal-label">
+                        Réservation en conflit
+                      </span>
+                      <span className="admin-reservations-modal-value">
+                        {selectedReservation.conflictDetails.linkedReservation}
+                      </span>
+                    </div>
+
+                    <div className="admin-reservations-modal-conflict-card admin-reservations-modal-conflict-card--wide">
+                      <span className="admin-reservations-modal-label">Suggestion alternative</span>
+                      <span className="admin-reservations-modal-value">
+                        {selectedReservation.conflictDetails.suggestion}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="admin-reservations-conflict-link"
+                    onClick={() => handleViewConflicts(selectedReservation)}
+                  >
+                    Voir dans Conflits
+                  </button>
+                </section>
+              ) : null}
+            </div>
+
+            <div className="admin-reservations-modal-footer">
+              <button
+                type="button"
+                className="admin-reservations-modal-action admin-reservations-modal-action--validate"
+                onClick={() => handleStatusChange(selectedReservation, "VALIDEE", true)}
+              >
+                Valider
+              </button>
+              <button
+                type="button"
+                className="admin-reservations-modal-action admin-reservations-modal-action--adjust"
+                onClick={() => handleStatusChange(selectedReservation, "AJUSTEE", true)}
+              >
+                Ajuster
+              </button>
+              <button
+                type="button"
+                className="admin-reservations-modal-action admin-reservations-modal-action--refuse"
+                onClick={() => handleStatusChange(selectedReservation, "REFUSEE", true)}
+              >
+                Refuser
+              </button>
+              <button
+                type="button"
+                className="admin-reservations-modal-action admin-reservations-modal-action--ghost"
+                onClick={() => setSelectedReservation(null)}
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }
