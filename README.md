@@ -103,17 +103,22 @@ miage-planning-app/
 ## 🎨 Répartition Frontend
 
 ### 👩‍💻 Belkacemi CIRINE
+- Réalisation de la maquette / conception visuelle de l’interface
 - Login  
-- Dashboard  
-- Emploi du Temps  
-- Gestion des Salles  
-- Gestion des Conflits  
+- Home  
+- Navbar  
+- Navigation/affichage du planning  
+- Interface enseignant  
+- Interface étudiant
 
 ### 👩‍💻 Lina EL HATHOUT
-- Filtres  
-- Gestion des Utilisateurs  
-- Réservation  
-
+- Mise en place de la structure frontend
+- Développement de l’interface administrateur :
+- Dashboard administrateur
+- Gestion des réservations
+- Gestion des utilisateurs
+- Gestion des salles
+- Gestion des conflits
 
 
 ## 🔧 Backend & Logique
