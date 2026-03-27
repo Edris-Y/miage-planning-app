@@ -15,32 +15,10 @@ function toDateKey(date) {
   return `${year}-${month}-${day}`;
 }
 
-function getWeekBounds(referenceDate = new Date()) {
-  const start = new Date(referenceDate);
-  const dayIndex = (start.getDay() + 6) % 7;
-
-  start.setDate(start.getDate() - dayIndex);
-  start.setHours(0, 0, 0, 0);
-
-  const end = new Date(start);
-  end.setDate(end.getDate() + 6);
-  end.setHours(23, 59, 59, 999);
-
-  return { start, end };
-}
-
-function isDateInCurrentWeek(dateString) {
-  const targetDate = new Date(`${dateString}T12:00:00`);
-  const { start, end } = getWeekBounds(new Date());
-  return targetDate >= start && targetDate <= end;
-}
-
 const TODAY_KEY = toDateKey(new Date());
-const YESTERDAY_KEY = toDateKey(addDays(new Date(), -1));
 const TOMORROW_KEY = toDateKey(addDays(new Date(), 1));
 const IN_TWO_DAYS_KEY = toDateKey(addDays(new Date(), 2));
-const IN_FIVE_DAYS_KEY = toDateKey(addDays(new Date(), 5));
-const NEXT_WEEK_KEY = toDateKey(addDays(new Date(), 9));
+const NEXT_WEEK_KEY = toDateKey(addDays(new Date(), 7));
 
 const MOCK_RESERVATIONS = [
   {
@@ -55,52 +33,37 @@ const MOCK_RESERVATIONS = [
     status: "EN_ATTENTE",
     hasConflict: false,
     priority: "HAUTE",
-    comment:
-      "Demande de réservation pour le cours d'ouverture du module d'architecture logicielle.",
+    comment: "Demande de réservation pour une séance de cours.",
     conflictDetails: null,
-    statusUpdatedAt: YESTERDAY_KEY,
   },
   {
     id: "res-002",
     teacher: "Prof. Dupont",
     sessionType: "TP",
     date: TODAY_KEY,
-    startTime: "14:00",
-    endTime: "16:00",
+    startTime: "10:00",
+    endTime: "12:00",
     cohort: "L3 Informatique",
-    room: "Amphi B",
+    room: "Salle B12",
     status: "EN_ATTENTE",
     hasConflict: true,
-    priority: "HAUTE",
-    comment: "Besoin d'une salle disponible avec postes de travail pour la séance pratique.",
+    priority: "MOYENNE",
+    comment: "Demande nécessitant une vérification.",
     conflictDetails: {
       type: "Salle déjà occupée",
-      linkedReservation: "Examen M2 Informatique",
-      suggestion: "Salle B12 ou créneau 16h-18h",
+      linkedItem: "Examen M2 Informatique",
+      linkedItemType: "EXAMEN",
+      systemRecommendation:
+        "La demande ne doit pas être validée automatiquement.",
+      suggestedAlternative: "Décaler au créneau 14h-16h",
+      priorityOrderExplanation: "EXAMEN > COURS RÉGULIER > ÉVÉNEMENT PONCTUEL",
     },
-    statusUpdatedAt: YESTERDAY_KEY,
   },
   {
     id: "res-003",
-    teacher: "Prof. Rousseau",
-    sessionType: "TD",
-    date: IN_TWO_DAYS_KEY,
-    startTime: "10:00",
-    endTime: "12:00",
-    cohort: "L2 Informatique",
-    room: "Salle B12",
-    status: "AJUSTEE",
-    hasConflict: false,
-    priority: "MOYENNE",
-    comment: "Décalage demandé par la cohorte pour éviter un chevauchement de séminaire.",
-    conflictDetails: null,
-    statusUpdatedAt: TODAY_KEY,
-  },
-  {
-    id: "res-004",
     teacher: "Mme Karim",
     sessionType: "EXAMEN",
-    date: TODAY_KEY,
+    date: IN_TWO_DAYS_KEY,
     startTime: "08:00",
     endTime: "10:00",
     cohort: "M2 Informatique",
@@ -108,45 +71,23 @@ const MOCK_RESERVATIONS = [
     status: "VALIDEE",
     hasConflict: false,
     priority: "HAUTE",
-    comment: "Examen terminal nécessitant une salle calme et surveillable.",
+    comment: "Examen nécessitant une salle dédiée.",
     conflictDetails: null,
-    statusUpdatedAt: TODAY_KEY,
   },
   {
-    id: "res-005",
-    teacher: "Dr. Benali",
-    sessionType: "REUNION",
-    date: IN_FIVE_DAYS_KEY,
-    startTime: "16:30",
-    endTime: "18:00",
-    cohort: "Équipe pédagogique",
+    id: "res-004",
+    teacher: "Prof. Lemaire",
+    sessionType: "TD",
+    date: NEXT_WEEK_KEY,
+    startTime: "09:00",
+    endTime: "11:00",
+    cohort: "L2 Informatique",
     room: "Salle A05",
     status: "REFUSEE",
     hasConflict: false,
     priority: "FAIBLE",
-    comment: "Réunion de coordination reportée faute de disponibilité sur le créneau demandé.",
+    comment: "Créneau non disponible.",
     conflictDetails: null,
-    statusUpdatedAt: TODAY_KEY,
-  },
-  {
-    id: "res-006",
-    teacher: "Prof. Lemaire",
-    sessionType: "CM",
-    date: NEXT_WEEK_KEY,
-    startTime: "09:00",
-    endTime: "11:00",
-    cohort: "L1 Mathématiques",
-    room: "Amphi A",
-    status: "EN_ATTENTE",
-    hasConflict: true,
-    priority: "MOYENNE",
-    comment: "Demande soumise en attente d'arbitrage entre deux affectations prioritaires.",
-    conflictDetails: {
-      type: "Cohorte déjà engagée sur un autre créneau",
-      linkedReservation: "TD Analyse L1",
-      suggestion: "Décaler au lendemain 09h-11h",
-    },
-    statusUpdatedAt: YESTERDAY_KEY,
   },
 ];
 
@@ -164,18 +105,17 @@ const TYPE_OPTIONS = [
   { value: "TD", label: "TD" },
   { value: "TP", label: "TP" },
   { value: "EXAMEN", label: "EXAMEN" },
-  { value: "REUNION", label: "REUNION" },
 ];
 
-const DATE_OPTIONS = [
-  { value: "all", label: "Toutes les dates" },
-  { value: "today", label: "Aujourd'hui" },
-  { value: "week", label: "Cette semaine" },
+const CONFLICT_OPTIONS = [
+  { value: "all", label: "Tous" },
+  { value: "with_conflict", label: "Avec conflit" },
+  { value: "without_conflict", label: "Sans conflit" },
 ];
 
 const DATE_FORMATTER = new Intl.DateTimeFormat("fr-FR", {
   day: "numeric",
-  month: "long",
+  month: "short",
   year: "numeric",
 });
 
@@ -185,30 +125,15 @@ function formatDateLabel(dateString) {
 }
 
 function getStatusTone(status) {
-  if (status === "VALIDEE") {
-    return "validated";
-  }
-
-  if (status === "REFUSEE") {
-    return "refused";
-  }
-
-  if (status === "AJUSTEE") {
-    return "adjusted";
-  }
-
+  if (status === "VALIDEE") return "validated";
+  if (status === "REFUSEE") return "refused";
+  if (status === "AJUSTEE") return "adjusted";
   return "waiting";
 }
 
 function getPriorityTone(priority) {
-  if (priority === "HAUTE") {
-    return "high";
-  }
-
-  if (priority === "FAIBLE") {
-    return "low";
-  }
-
+  if (priority === "HAUTE") return "high";
+  if (priority === "FAIBLE") return "low";
   return "medium";
 }
 
@@ -217,20 +142,6 @@ function SearchIcon() {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
         d="M21 21L16.65 16.65M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function BellIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M15 17H9M17 8.5C17 7.17392 16.4732 5.90215 15.5355 4.96447C14.5979 4.02678 13.3261 3.5 12 3.5C10.6739 3.5 9.40215 4.02678 8.46447 4.96447C7.52678 5.90215 7 7.17392 7 8.5V11.132C7.00004 11.648 6.84031 12.1513 6.54293 12.5728L5.75 13.697H18.25L17.4571 12.5728C17.1597 12.1513 17 11.648 17 11.132V8.5Z"
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinecap="round"
@@ -274,7 +185,7 @@ export default function AdminReservations() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [typeFilter, setTypeFilter] = useState("ALL");
-  const [dateFilter, setDateFilter] = useState("all");
+  const [conflictFilter, setConflictFilter] = useState("all");
   const [selectedReservation, setSelectedReservation] = useState(null);
 
   const filteredReservations = useMemo(() => {
@@ -290,21 +201,23 @@ export default function AdminReservations() {
 
       const matchesStatus =
         statusFilter === "ALL" || reservation.status === statusFilter;
-      const matchesType = typeFilter === "ALL" || reservation.sessionType === typeFilter;
-      const matchesDate =
-        dateFilter === "all" ||
-        (dateFilter === "today" && reservation.date === TODAY_KEY) ||
-        (dateFilter === "week" && isDateInCurrentWeek(reservation.date));
 
-      return matchesSearch && matchesStatus && matchesType && matchesDate;
+      const matchesType =
+        typeFilter === "ALL" || reservation.sessionType === typeFilter;
+
+      const matchesConflict =
+        conflictFilter === "all" ||
+        (conflictFilter === "with_conflict" && reservation.hasConflict) ||
+        (conflictFilter === "without_conflict" && !reservation.hasConflict);
+
+      return matchesSearch && matchesStatus && matchesType && matchesConflict;
     });
-  }, [dateFilter, reservations, searchTerm, statusFilter, typeFilter]);
+  }, [reservations, searchTerm, statusFilter, typeFilter, conflictFilter]);
 
   function handleStatusChange(reservation, nextStatus, closeModal = false) {
     const updatedReservation = {
       ...reservation,
       status: nextStatus,
-      statusUpdatedAt: TODAY_KEY,
     };
 
     setReservations((currentReservations) =>
@@ -346,15 +259,6 @@ export default function AdminReservations() {
                   aria-label="Rechercher une réservation"
                 />
               </label>
-
-              <button
-                type="button"
-                className="admin-reservations-notification"
-                aria-label="Notifications"
-              >
-                <BellIcon />
-                <span className="admin-reservations-notification-badge">3</span>
-              </button>
             </div>
           </header>
 
@@ -365,11 +269,6 @@ export default function AdminReservations() {
                   <div className="admin-reservations-panel-heading">
                     <h2 className="admin-reservations-panel-title">Demandes de réservation</h2>
                   </div>
-
-                  <span className="admin-reservations-panel-count">
-                    {filteredReservations.length} demande
-                    {filteredReservations.length > 1 ? "s" : ""}
-                  </span>
                 </div>
 
                 <div className="admin-reservations-filters" aria-label="Filtres des réservations">
@@ -404,13 +303,13 @@ export default function AdminReservations() {
                   </label>
 
                   <label className="admin-reservations-filter">
-                    <span>Date</span>
+                    <span>Conflit</span>
                     <select
-                      value={dateFilter}
-                      onChange={(event) => setDateFilter(event.target.value)}
-                      aria-label="Filtrer par date"
+                      value={conflictFilter}
+                      onChange={(event) => setConflictFilter(event.target.value)}
+                      aria-label="Filtrer par conflit"
                     >
-                      {DATE_OPTIONS.map((option) => (
+                      {CONFLICT_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>
                           {option.label}
                         </option>
@@ -427,10 +326,12 @@ export default function AdminReservations() {
                       <tr>
                         <th>Enseignant</th>
                         <th>Type</th>
-                        <th>Date &amp; Horaire</th>
+                        <th>Date</th>
+                        <th>Horaire</th>
                         <th>Cohorte</th>
                         <th>Salle</th>
                         <th>Statut</th>
+                        <th>Priorité</th>
                         <th>Conflit</th>
                         <th>Actions</th>
                       </tr>
@@ -462,14 +363,15 @@ export default function AdminReservations() {
                           </td>
 
                           <td>
-                            <div className="admin-reservations-datetime">
-                              <span className="admin-reservations-date">
-                                {formatDateLabel(reservation.date)}
-                              </span>
-                              <span className="admin-reservations-time">
-                                {reservation.startTime} - {reservation.endTime}
-                              </span>
-                            </div>
+                            <span className="admin-reservations-date">
+                              {formatDateLabel(reservation.date)}
+                            </span>
+                          </td>
+
+                          <td>
+                            <span className="admin-reservations-time">
+                              {reservation.startTime} - {reservation.endTime}
+                            </span>
                           </td>
 
                           <td>{reservation.cohort}</td>
@@ -482,6 +384,16 @@ export default function AdminReservations() {
                               )}`}
                             >
                               {reservation.status}
+                            </span>
+                          </td>
+
+                          <td>
+                            <span
+                              className={`admin-reservations-priority-badge admin-reservations-priority-badge--${getPriorityTone(
+                                reservation.priority
+                              )}`}
+                            >
+                              {reservation.priority}
                             </span>
                           </td>
 
@@ -516,8 +428,7 @@ export default function AdminReservations() {
                 </div>
               ) : (
                 <div className="admin-reservations-empty">
-                  Aucune réservation ne correspond à la recherche ou aux filtres
-                  sélectionnés.
+                  Aucune réservation ne correspond aux filtres sélectionnés.
                 </div>
               )}
             </section>
@@ -546,8 +457,7 @@ export default function AdminReservations() {
                   Détail de la demande
                 </h3>
                 <p className="admin-reservations-modal-description">
-                  Consulte les informations clés de la demande avant validation,
-                  ajustement ou refus.
+                  Consulte les informations principales avant validation, ajustement ou refus.
                 </p>
               </div>
 
@@ -599,7 +509,7 @@ export default function AdminReservations() {
                 </div>
 
                 <div className="admin-reservations-modal-card">
-                  <span className="admin-reservations-modal-label">Salle demandée</span>
+                  <span className="admin-reservations-modal-label">Salle</span>
                   <span className="admin-reservations-modal-value">
                     {selectedReservation.room}
                   </span>
@@ -628,13 +538,6 @@ export default function AdminReservations() {
                 </div>
               </div>
 
-              <section className="admin-reservations-modal-note">
-                <span className="admin-reservations-modal-section-title">Commentaire</span>
-                <p className="admin-reservations-modal-note-text">
-                  {selectedReservation.comment || "Aucun commentaire renseigné pour cette demande."}
-                </p>
-              </section>
-
               {selectedReservation.hasConflict && selectedReservation.conflictDetails ? (
                 <section className="admin-reservations-modal-conflict">
                   <div className="admin-reservations-modal-conflict-header">
@@ -647,8 +550,7 @@ export default function AdminReservations() {
                         Résumé du conflit
                       </h4>
                       <p className="admin-reservations-modal-conflict-text">
-                        Cette demande nécessite une vérification complémentaire avant
-                        affectation définitive.
+                        Cette demande nécessite une vérification complémentaire.
                       </p>
                     </div>
                   </div>
@@ -662,18 +564,41 @@ export default function AdminReservations() {
                     </div>
 
                     <div className="admin-reservations-modal-conflict-card">
-                      <span className="admin-reservations-modal-label">
-                        Réservation en conflit
-                      </span>
+                      <span className="admin-reservations-modal-label">Élément en conflit</span>
                       <span className="admin-reservations-modal-value">
-                        {selectedReservation.conflictDetails.linkedReservation}
+                        {selectedReservation.conflictDetails.linkedItem}
+                      </span>
+                    </div>
+
+                    <div className="admin-reservations-modal-conflict-card">
+                      <span className="admin-reservations-modal-label">Type concerné</span>
+                      <span className="admin-reservations-modal-value">
+                        {selectedReservation.conflictDetails.linkedItemType}
+                      </span>
+                    </div>
+
+                    <div className="admin-reservations-modal-conflict-card">
+                      <span className="admin-reservations-modal-label">Ordre de priorité</span>
+                      <span className="admin-reservations-modal-value">
+                        {selectedReservation.conflictDetails.priorityOrderExplanation}
                       </span>
                     </div>
 
                     <div className="admin-reservations-modal-conflict-card admin-reservations-modal-conflict-card--wide">
-                      <span className="admin-reservations-modal-label">Suggestion alternative</span>
+                      <span className="admin-reservations-modal-label">
+                        Recommandation du système
+                      </span>
                       <span className="admin-reservations-modal-value">
-                        {selectedReservation.conflictDetails.suggestion}
+                        {selectedReservation.conflictDetails.systemRecommendation}
+                      </span>
+                    </div>
+
+                    <div className="admin-reservations-modal-conflict-card admin-reservations-modal-conflict-card--wide">
+                      <span className="admin-reservations-modal-label">
+                        Alternative proposée
+                      </span>
+                      <span className="admin-reservations-modal-value">
+                        {selectedReservation.conflictDetails.suggestedAlternative}
                       </span>
                     </div>
                   </div>
@@ -694,9 +619,16 @@ export default function AdminReservations() {
                 type="button"
                 className="admin-reservations-modal-action admin-reservations-modal-action--validate"
                 onClick={() => handleStatusChange(selectedReservation, "VALIDEE", true)}
+                disabled={selectedReservation.hasConflict}
+                title={
+                  selectedReservation.hasConflict
+                    ? "Validation directe désactivée en cas de conflit"
+                    : "Valider la demande"
+                }
               >
                 Valider
               </button>
+
               <button
                 type="button"
                 className="admin-reservations-modal-action admin-reservations-modal-action--adjust"
@@ -704,6 +636,7 @@ export default function AdminReservations() {
               >
                 Ajuster
               </button>
+
               <button
                 type="button"
                 className="admin-reservations-modal-action admin-reservations-modal-action--refuse"
@@ -711,6 +644,7 @@ export default function AdminReservations() {
               >
                 Refuser
               </button>
+
               <button
                 type="button"
                 className="admin-reservations-modal-action admin-reservations-modal-action--ghost"
