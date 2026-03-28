@@ -11,14 +11,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-<<<<<<< HEAD
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
-    "express": "^5.2.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.11"
-=======
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -29,6 +21,5 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
->>>>>>> adjaz-ryma
   }
 }

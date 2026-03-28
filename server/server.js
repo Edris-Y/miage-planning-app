@@ -70,11 +70,7 @@ app.listen(port, async () => {
   try {
     const db = await getDbConnection();
 
-    const users = await db.all(`
-      SELECT id, nom, prenom, email, role
-      FROM Utilisateur
-      ORDER BY id ASC
-    `);
+    const users = await db.all(`SELECT id, nom, prenom FROM Utilisateur`);
 
     console.log("\n--- DONNÉES DE LA TABLE UTILISATEUR ---");
     console.log(users);

@@ -234,19 +234,154 @@ async function init() {
     // DONNEES DE TEST
     // ============================================================
     const count = await db.get("SELECT COUNT(*) as total FROM Utilisateur");
-
     if (count.total === 0) {
-      console.log("Insertion des données de test...");
+      console.log("🚀 Lancement du méga-remplissage de la base de données...");
 
-      await db.run(`
-        INSERT INTO Utilisateur (nom, prenom, email, mot_de_passe, role) VALUES
-        ('Youssef', 'Edris', 'edris.youssef@univ.fr', 'changeme', 'etudiant'),
-        ('Beduneau', 'Jean', 'prof.beduneau@univ.fr', 'changeme', 'enseignant'),
-        ('AdminNom', 'AdminPrenom', 'admin.planning@univ.fr', 'changeme', 'administratif')
+      await db.exec(`
+        -- ==========================================
+        -- 1. COHORTES
+        -- ==========================================
+        INSERT INTO Cohorte (nom, effectif, niveau) VALUES
+        ('L3 MIAGE', 45, 'Licence 3'),
+        ('M1 MIAGE', 35, 'Master 1'),
+        ('M2 MIAGE', 30, 'Master 2');
+
+        -- ==========================================
+        -- 2. UTILISATEURS
+        -- ==========================================
+        -- Admins (ID 1 à 2)
+        INSERT INTO Utilisateur (nom, prenom, email, role) VALUES
+        ('Admin', 'Principal', 'admin@univ.fr', 'administratif'),
+        ('Admin', 'Scolarite', 'scolarite@univ.fr', 'administratif');
+
+        -- Enseignants (ID 3 à 7)
+        INSERT INTO Utilisateur (nom, prenom, email, role) VALUES
+        ('Beduneau', 'Jean', 'prof.beduneau@univ.fr', 'enseignant'),
+        ('Dubois', 'Marie', 'prof.dubois@univ.fr', 'enseignant'),
+        ('Martin', 'Paul', 'prof.martin@univ.fr', 'enseignant'),
+        ('Leroy', 'Sophie', 'prof.leroy@univ.fr', 'enseignant'),
+        ('Moreau', 'Luc', 'prof.moreau@univ.fr', 'enseignant');
+
+        -- Étudiants (ID 8 à 17)
+        INSERT INTO Utilisateur (nom, prenom, email, role) VALUES
+        ('Youssef', 'Edris', 'edris.youssef@univ.fr', 'etudiant'),
+        ('El Hathout', 'Lina', 'lina.elhathout@univ.fr', 'etudiant'),
+        ('Belkacemi', 'Cirine', 'cirine.belkacemi@univ.fr', 'etudiant'),
+        ('Adjaz', 'Ryma', 'ryma.adjaz@univ.fr', 'etudiant'),
+        ('Dupont', 'Alice', 'alice.dupont@univ.fr', 'etudiant'),
+        ('Durand', 'Lucas', 'lucas.durand@univ.fr', 'etudiant'),
+        ('Bernard', 'Emma', 'emma.bernard@univ.fr', 'etudiant'),
+        ('Thomas', 'Hugo', 'hugo.thomas@univ.fr', 'etudiant'),
+        ('Petit', 'Chloé', 'chloe.petit@univ.fr', 'etudiant'),
+        ('Robert', 'Louis', 'louis.robert@univ.fr', 'etudiant');
+
+        -- ==========================================
+        -- 3. PROFILS SPECIFIQUES (Liés aux Utilisateurs)
+        -- ==========================================
+        -- Enseignants (ID Utilisateur 3 à 7)
+        INSERT INTO Enseignant (id, grade, service) VALUES
+        (3, 'Maitre de Conferences', 'Informatique'),
+        (4, 'Professeur des Universites', 'Mathematiques'),
+        (5, 'PRAG', 'Gestion'),
+        (6, 'Maitre de Conferences', 'Bases de donnees'),
+        (7, 'Vacataire', 'Droit');
+
+        -- Etudiants (ID Utilisateur 8 à 17, liés aux cohortes)
+        -- Les 4 fondateurs en M1 (cohorte_id = 2)
+        INSERT INTO Etudiant (id, numeroEtudiant, annee, filiere, cohorte_id) VALUES
+        (8, '20260001', 2026, 'MIAGE', 2),
+        (9, '20260002', 2026, 'MIAGE', 2),
+        (10, '20260003', 2026, 'MIAGE', 2),
+        (11, '20260004', 2026, 'MIAGE', 2),
+        (12, '20260005', 2026, 'MIAGE', 1), -- L3
+        (13, '20260006', 2026, 'MIAGE', 1),
+        (14, '20260007', 2026, 'MIAGE', 1),
+        (15, '20260008', 2026, 'MIAGE', 3), -- M2
+        (16, '20260009', 2026, 'MIAGE', 3),
+        (17, '20260010', 2026, 'MIAGE', 3);
+
+        -- ==========================================
+        -- 4. MATIERES
+        -- ==========================================
+        INSERT INTO Matiere (nom, volumeHoraireTotal) VALUES
+        ('Developpement Web (React/Node)', 40),
+        ('Conception de Bases de Donnees', 30),
+        ('Algorithmique Avancee', 35),
+        ('Gestion de Projet Agile', 20),
+        ('Architecture des Reseaux', 25),
+        ('Droit de l''Informatique', 15),
+        ('Intelligence Artificielle', 30);
+
+        -- ==========================================
+        -- 5. SALLES & EQUIPEMENTS
+        -- ==========================================
+        INSERT INTO Salle (code, capacite, type, accessibilitePMR) VALUES
+        ('AMPHI-A', 250, 'AMPHI', 1),
+        ('AMPHI-B', 150, 'AMPHI', 1),
+        ('TD-101', 40, 'TD', 1),
+        ('TD-102', 40, 'TD', 0),
+        ('TD-103', 40, 'TD', 0),
+        ('TP-201', 25, 'TP', 1),
+        ('TP-202', 25, 'TP', 0),
+        ('LABO-MAC', 20, 'LABO', 1),
+        ('INFO-1', 30, 'INFO', 1),
+        ('INFO-2', 30, 'INFO', 0);
+
+        INSERT INTO Equipement (nom, salle_id) VALUES
+        ('Videoprojecteur 4K', 1),
+        ('Microphone sans fil', 1),
+        ('Tableau Blanc Interactif', 3),
+        ('20 iMac M3', 8),
+        ('30 PC Dell', 9);
+
+        -- ==========================================
+        -- 6. SEANCES (Emploi du temps d'une semaine)
+        -- ==========================================
+        -- Lundi
+        INSERT INTO Seance (dateSeance, heureDebut, duree, typeSeance, matiere_id, cohorte_id, enseignant_id) VALUES
+        ('2026-03-30', '08:00', 120, 'CM', 1, 2, 3), -- M1: Dev Web (Beduneau) 2h
+        ('2026-03-30', '10:30', 180, 'TP', 1, 2, 3), -- M1: Dev Web TP (Beduneau) 3h
+        ('2026-03-30', '14:00', 120, 'CM', 2, 1, 6); -- L3: BDD (Leroy) 2h
+
+        -- Mardi
+        INSERT INTO Seance (dateSeance, heureDebut, duree, typeSeance, matiere_id, cohorte_id, enseignant_id) VALUES
+        ('2026-03-31', '09:00', 180, 'TD', 4, 2, 5), -- M1: Gestion Projet (Martin) 3h
+        ('2026-03-31', '13:30', 120, 'CM', 5, 3, 4); -- M2: Reseaux (Dubois) 2h
+
+        -- Mercredi (Avec conflits !)
+        INSERT INTO Seance (dateSeance, heureDebut, duree, typeSeance, matiere_id, cohorte_id, enseignant_id) VALUES
+        ('2026-04-01', '08:30', 120, 'TD', 3, 1, 4), -- Seance 6: L3 Algo (Dubois)
+        ('2026-04-01', '09:00', 120, 'CM', 6, 2, 7), -- Seance 7: M1 Droit (Moreau)
+        ('2026-04-01', '08:30', 120, 'TD', 2, 2, 4); -- Seance 8 (CONFLIT PROF): Le prof Dubois doit être à 2 endroits à 8h30 !
+
+        -- Jeudi
+        INSERT INTO Seance (dateSeance, heureDebut, duree, typeSeance, matiere_id, cohorte_id, enseignant_id) VALUES
+        ('2026-04-02', '10:00', 240, 'TP', 7, 3, 6); -- M2: IA TP (Leroy) 4h
+
+        -- Vendredi
+        INSERT INTO Seance (dateSeance, heureDebut, duree, typeSeance, matiere_id, cohorte_id, enseignant_id) VALUES
+        ('2026-04-03', '14:00', 180, 'EXAMEN', 1, 2, 3); -- M1: Examen Dev Web (Beduneau) 3h
+
+        -- ==========================================
+        -- 7. RESERVATIONS DES SALLES
+        -- ==========================================
+        INSERT INTO Reservation (seance_id, salle_id, demandeur_id, statut) VALUES
+        (1, 1, 1, 'VALIDEE'), -- Lundi matin en AMPHI-A
+        (2, 9, 1, 'VALIDEE'), -- Lundi TP en INFO-1
+        (3, 2, 1, 'VALIDEE'), -- Lundi aprem en AMPHI-B
+        (4, 3, 1, 'VALIDEE'), -- Mardi matin en TD-101
+        (5, 1, 1, 'VALIDEE'), -- Mardi aprem en AMPHI-A
+        (6, 4, 1, 'VALIDEE'), -- Mercredi matin en TD-102 (Seance 6)
+        (7, 4, 1, 'PLANIFIEE'), -- ⚠️ CONFLIT SALLE : La seance 7 essaie de prendre le TD-102 à 9h00, mais la seance 6 y est déjà de 8h30 à 10h30 !
+        (8, 5, 1, 'VALIDEE'), -- Mercredi matin en TD-103 (Le prof est déjà pris !)
+        (9, 8, 1, 'VALIDEE'), -- Jeudi IA dans le LABO-MAC
+        (10, 1, 1, 'VALIDEE'); -- Vendredi Examen en AMPHI-A
       `);
 
-      console.log("Données de test ajoutées avec succès !");
-    } else {
+      console.log("✅ Données massives ajoutées avec succès !");
+      console.log("🚨 2 conflits ont été injectés pour tester le système (Salle TD-102 et Prof Dubois le Mercredi matin).");
+    }
+    else {
       console.log("La base contient déjà des données, aucune insertion nécessaire.");
     }
 
