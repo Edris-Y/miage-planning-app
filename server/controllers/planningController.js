@@ -10,11 +10,13 @@ exports.getByCohorte = async (req, res) => {
     SELECT
       se.*,
       sa.code AS salle_code,
-      ma.nom AS matiere_nom
+      ma.nom AS matiere_nom,
+      prof.nom AS enseignant_nom 
     FROM Seance se
     LEFT JOIN Reservation r ON r.seance_id = se.id AND r.statut IN ('PLANIFIEE', 'VALIDEE', 'EN_ATTENTE')
     LEFT JOIN Salle sa ON sa.id = r.salle_id
     LEFT JOIN Matiere ma ON ma.id = se.matiere_id
+    LEFT JOIN Utilisateur prof ON prof.id = se.enseignant_id 
     WHERE se.cohorte_id = ?
     ORDER BY se.dateSeance ASC, se.heureDebut ASC
     `,
@@ -23,7 +25,6 @@ exports.getByCohorte = async (req, res) => {
 
   res.json(rows);
 };
-
 exports.getByEnseignant = async (req, res) => {
   const enseignantId = Number(req.params.enseignantId);
   if (!Number.isInteger(enseignantId)) throw new ApiError(400, "Id enseignant invalide");

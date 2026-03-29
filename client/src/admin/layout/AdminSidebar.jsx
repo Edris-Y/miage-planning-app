@@ -1,5 +1,7 @@
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
+import { getUser } from '../../services/api';
 const menuItems = [
   { path: '/admin', label: 'Tableau de bord', icon: '📊' },
   { path: '/admin/generation', label: 'Génération auto', icon: '⚙️' },
@@ -11,6 +13,14 @@ const menuItems = [
 
 export default function AdminSidebar() {
   const location = useLocation();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const currentUser = getUser();
+    if (currentUser) {
+      setUser(currentUser);
+    }
+  }, []);
 
   return (
     <aside className="admin-sidebar">
@@ -29,6 +39,9 @@ export default function AdminSidebar() {
           </Link>
         ))}
       </nav>
+      <div className="info_users" style={{ position: 'absolute', bottom: '20px', width: '100%'}}>
+        {user ? `Info : ${user.prenom} ${user.nom} ${user.role}` : "Invité"}
+      </div>
     </aside>
   );
 }
