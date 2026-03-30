@@ -27,8 +27,6 @@ function addMinutes(hhmm, minutes) {
   return `${String(eh).padStart(2, "0")}:${String(em).padStart(2, "0")}`;
 }
 
-
-
 export function setToken(token) {
   if (token) {
     localStorage.setItem(TOKEN_KEY, token);
@@ -136,6 +134,7 @@ function mapPlanningRow(row) {
     duree: Number(row.duree || 0),
   };
 }
+
 function mapReservationFrontRow(row) {
   const debut = row.debut || row.heureDebut || "00:00";
   const duree = Number(row.duree || 0);
@@ -215,6 +214,7 @@ export async function getDemandes() {
   const rows = await request("/api/reservations/front", { auth: true });
   return Array.isArray(rows) ? rows.map(mapReservationFrontRow) : [];
 }
+
 export async function createDemande(demande) {
   const {
     type,
@@ -304,12 +304,38 @@ export async function getCohortes() {
 export async function getSalles() {
   const rows = await request("/api/salles", { auth: true });
   if (!Array.isArray(rows)) return [];
+
   return rows.map((s) => ({
     id: s.id,
     code: s.code || `Salle ${s.id}`,
-    capacite: s.capacite,
-    type: s.type,
+    capacite: Number(s.capacite ?? 0),
+    type: String(s.type || "").toUpperCase(),
+    accessibilitePMR: Number(s.accessibilitePMR ?? 0),
+    isActive: Number(s.isActive ?? 0),
   }));
+}
+
+export async function createSalle(payload) {
+  return request("/api/salles", {
+    method: "POST",
+    data: payload,
+    auth: true,
+  });
+}
+
+export async function updateSalle(id, payload) {
+  return request(`/api/salles/${id}`, {
+    method: "PUT",
+    data: payload,
+    auth: true,
+  });
+}
+
+export async function deleteSalle(id) {
+  return request(`/api/salles/${id}`, {
+    method: "DELETE",
+    auth: true,
+  });
 }
 
 export async function getReservations() {

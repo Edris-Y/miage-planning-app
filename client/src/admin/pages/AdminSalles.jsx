@@ -1,47 +1,81 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "../styles/AdminSalles.css";
+import {
+  getSalles,
+  createSalle,
+  updateSalle,
+  deleteSalle,
+} from "../../services/api";
+
+const SALLE_TYPES = ["AMPHI", "TD", "TP", "LABO", "INFO"];
 
 const ROOM_TYPE_OPTIONS = [
   { value: "ALL", label: "Tous les types" },
-  { value: "Amphithéâtre", label: "Amphithéâtre" },
-  { value: "Salle de cours", label: "Salle de cours" },
-  { value: "Laboratoire", label: "Laboratoire" },
+  { value: "AMPHI", label: "Amphithéâtre" },
+  { value: "TD", label: "Salle TD" },
+  { value: "TP", label: "Salle TP" },
+  { value: "LABO", label: "Laboratoire" },
+  { value: "INFO", label: "Salle informatique" },
 ];
 
-const MOCK_ROOMS = [
-  {
-    id: "room-001",
-    name: "Amphi A",
-    type: "Amphithéâtre",
-    capacity: 200,
-    equipments: ["Projecteur", "Micro", "Wi-Fi"],
-    status: "Disponible",
-  },
-  {
-    id: "room-002",
-    name: "Salle B12",
-    type: "Salle de cours",
-    capacity: 40,
-    equipments: ["Projecteur", "Wi-Fi"],
-    status: "Disponible",
-  },
-  {
-    id: "room-003",
-    name: "Lab 1",
-    type: "Laboratoire",
-    capacity: 28,
-    equipments: ["Ordinateurs", "Projecteur", "Wi-Fi"],
-    status: "Maintenance",
-  },
-  {
-    id: "room-004",
-    name: "Salle C3",
-    type: "Salle de cours",
-    capacity: 34,
-    equipments: ["Tableau interactif", "Wi-Fi"],
-    status: "Réservée",
-  },
-];
+const INITIAL_FORM = {
+  code: "",
+  capacite: "",
+  type: "TD",
+  accessibilitePMR: "0",
+  isActive: "1",
+};
+
+function sortRooms(a, b) {
+  return a.code.localeCompare(b.code, "fr", { sensitivity: "base" });
+}
+
+function getSalleTypeLabel(type) {
+  switch (String(type || "").toUpperCase()) {
+    case "AMPHI":
+      return "Amphithéâtre";
+    case "TD":
+      return "Salle TD";
+    case "TP":
+      return "Salle TP";
+    case "LABO":
+      return "Laboratoire";
+    case "INFO":
+      return "Salle informatique";
+    default:
+      return type || "Non renseigné";
+  }
+}
+
+function getSalleStatusLabel(room) {
+  return Number(room?.isActive) === 1 ? "Disponible" : "Inactive";
+}
+
+function getSalleStatusTone(room) {
+  return Number(room?.isActive) === 1 ? "available" : "inactive";
+}
+
+function normalizeText(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function buildSallePayload(form) {
+  return {
+    code: String(form.code || "").trim(),
+    capacite: Number(form.capacite),
+    type: String(form.type || "").toUpperCase(),
+    accessibilitePMR: Number(form.accessibilitePMR),
+    isActive: Number(form.isActive),
+  };
+}
+
+async function fetchSalles() {
+  const rows = await getSalles();
+  return rows.sort(sortRooms);
+}
 
 function SearchIcon() {
   return (
@@ -113,38 +147,206 @@ function TrashIcon() {
   );
 }
 
-function getStatusTone(status) {
-  if (status === "Maintenance") return "maintenance";
-  if (status === "Réservée") return "occupied";
-  return "available";
-}
-
-function normalizeText(value) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-}
-
 export default function AdminSalles() {
+  const [rooms, setRooms] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("ALL");
+  const [deletingId, setDeletingId] = useState(null);
+
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [formMode, setFormMode] = useState("create");
+  const [editingRoomId, setEditingRoomId] = useState(null);
+  const [form, setForm] = useState(INITIAL_FORM);
+  const [formError, setFormError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadRooms() {
+      setLoading(true);
+      setApiError("");
+
+      try {
+        const nextRooms = await fetchSalles();
+        if (isMounted) {
+          setRooms(nextRooms);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setRooms([]);
+          setApiError(error.message || "Impossible de charger les salles depuis l'API.");
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadRooms();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const filteredRooms = useMemo(() => {
     const query = normalizeText(searchTerm.trim());
 
-    return MOCK_ROOMS.filter((room) => {
+    return rooms.filter((room) => {
       const matchesSearch =
         !query ||
-        normalizeText([room.name, room.type, room.status, ...room.equipments].join(" ")).includes(
-          query
-        );
+        normalizeText(
+          [
+            room.code,
+            room.type,
+            getSalleTypeLabel(room.type),
+            getSalleStatusLabel(room),
+            room.capacite,
+            room.accessibilitePMR ? "pmr" : "",
+          ].join(" ")
+        ).includes(query);
 
       const matchesType = typeFilter === "ALL" || room.type === typeFilter;
 
       return matchesSearch && matchesType;
     });
-  }, [searchTerm, typeFilter]);
+  }, [rooms, searchTerm, typeFilter]);
+
+  function resetForm() {
+    setForm(INITIAL_FORM);
+    setFormError("");
+    setFormMode("create");
+    setEditingRoomId(null);
+  }
+
+  function handleOpenCreate() {
+    setApiError("");
+    setIsFormOpen((current) => {
+      if (current && formMode === "create") {
+        resetForm();
+        return false;
+      }
+
+      resetForm();
+      return true;
+    });
+  }
+
+  function handleEdit(room) {
+    setApiError("");
+    setFormError("");
+    setFormMode("edit");
+    setEditingRoomId(room.id);
+    setForm({
+      code: room.code,
+      capacite: String(room.capacite),
+      type: room.type,
+      accessibilitePMR: String(room.accessibilitePMR),
+      isActive: String(room.isActive),
+    });
+    setIsFormOpen(true);
+  }
+
+  function handleFormChange(field) {
+    return (event) => {
+      setForm((current) => ({
+        ...current,
+        [field]: event.target.value,
+      }));
+    };
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setFormError("");
+    setApiError("");
+
+    const payload = buildSallePayload(form);
+
+    if (!payload.code || !Number.isInteger(payload.capacite) || payload.capacite <= 0) {
+      setFormError("Veuillez renseigner un code et une capacité valide.");
+      return;
+    }
+
+    if (!SALLE_TYPES.includes(payload.type)) {
+      setFormError("Veuillez sélectionner un type valide.");
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      if (formMode === "edit" && editingRoomId !== null) {
+        const response = await updateSalle(editingRoomId, payload);
+        const updatedRoom = response?.salle
+          ? {
+              id: response.salle.id,
+              code: response.salle.code || "",
+              capacite: Number(response.salle.capacite ?? 0),
+              type: String(response.salle.type || "").toUpperCase(),
+              accessibilitePMR: Number(response.salle.accessibilitePMR ?? 0),
+              isActive: Number(response.salle.isActive ?? 0),
+            }
+          : { id: editingRoomId, ...payload };
+
+        setRooms((currentRooms) =>
+          currentRooms
+            .map((room) => (room.id === editingRoomId ? updatedRoom : room))
+            .sort(sortRooms)
+        );
+      } else {
+        const response = await createSalle(payload);
+        const createdRoom = response?.salle
+          ? {
+              id: response.salle.id,
+              code: response.salle.code || "",
+              capacite: Number(response.salle.capacite ?? 0),
+              type: String(response.salle.type || "").toUpperCase(),
+              accessibilitePMR: Number(response.salle.accessibilitePMR ?? 0),
+              isActive: Number(response.salle.isActive ?? 0),
+            }
+          : { id: Date.now(), ...payload };
+
+        setRooms((currentRooms) => [...currentRooms, createdRoom].sort(sortRooms));
+      }
+
+      resetForm();
+      setIsFormOpen(false);
+    } catch (error) {
+      setFormError(error.message || "Enregistrement impossible.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleDelete(room) {
+    const confirmed = window.confirm(`Supprimer la salle ${room.code} ?`);
+    if (!confirmed) return;
+
+    setApiError("");
+    setDeletingId(room.id);
+
+    try {
+      await deleteSalle(room.id);
+
+      setRooms((currentRooms) =>
+        currentRooms.filter((currentRoom) => currentRoom.id !== room.id)
+      );
+
+      if (editingRoomId === room.id) {
+        resetForm();
+        setIsFormOpen(false);
+      }
+    } catch (error) {
+      setApiError(error.message || "Suppression impossible.");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   return (
     <div className="admin-salles-page">
@@ -153,7 +355,7 @@ export default function AdminSalles() {
           <div className="admin-salles-heading">
             <h1 className="admin-salles-title">Gestion des salles</h1>
             <p className="admin-salles-description">
-              Gérez les salles, leurs capacités et les équipements disponibles.
+              Gérez les salles, leurs capacités et les informations disponibles dans la base.
             </p>
           </div>
 
@@ -169,20 +371,189 @@ export default function AdminSalles() {
               />
             </label>
 
-            <button type="button" className="admin-salles-add-button">
+            <button type="button" className="admin-salles-add-button" onClick={handleOpenCreate}>
               <PlusIcon />
-              <span>Ajouter une salle</span>
+              <span>
+                {isFormOpen && formMode === "create"
+                  ? "Fermer le formulaire"
+                  : "Ajouter une salle"}
+              </span>
             </button>
           </div>
         </header>
+
+        {isFormOpen ? (
+          <section className="admin-salles-panel" style={{ marginBottom: 18 }}>
+            <div className="admin-salles-panel-top">
+              <div className="admin-salles-panel-heading">
+                <h2 className="admin-salles-panel-title">
+                  {formMode === "edit" ? "Modifier une salle" : "Ajouter une salle"}
+                </h2>
+                <p className="admin-salles-panel-text">
+                  Renseignez les champs backend réels : code, capacité, type, accessibilité PMR
+                  et statut.
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} style={{ padding: 18 }}>
+              {formError ? (
+                <div
+                  style={{
+                    marginBottom: 16,
+                    padding: "10px 12px",
+                    borderRadius: 12,
+                    border: "1px solid #ffd6d6",
+                    background: "#fff5f5",
+                    color: "#b42318",
+                    fontSize: "0.84rem",
+                    fontWeight: 600,
+                  }}
+                >
+                  {formError}
+                </div>
+              ) : null}
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
+                  gap: 14,
+                }}
+              >
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span
+                    style={{
+                      color: "#7b91b2",
+                      fontSize: "0.66rem",
+                      fontWeight: 700,
+                      letterSpacing: "0.03em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Code
+                  </span>
+                  <input
+                    type="text"
+                    value={form.code}
+                    onChange={handleFormChange("code")}
+                    placeholder="Ex: A101"
+                    style={{
+                      height: 40,
+                      padding: "0 12px",
+                      border: "1px solid #dbe3ed",
+                      borderRadius: 10,
+                      fontSize: "0.84rem",
+                      outline: "none",
+                    }}
+                  />
+                </label>
+
+                <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span
+                    style={{
+                      color: "#7b91b2",
+                      fontSize: "0.66rem",
+                      fontWeight: 700,
+                      letterSpacing: "0.03em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Capacité
+                  </span>
+                  <input
+                    type="number"
+                    min="1"
+                    value={form.capacite}
+                    onChange={handleFormChange("capacite")}
+                    placeholder="Ex: 40"
+                    style={{
+                      height: 40,
+                      padding: "0 12px",
+                      border: "1px solid #dbe3ed",
+                      borderRadius: 10,
+                      fontSize: "0.84rem",
+                      outline: "none",
+                    }}
+                  />
+                </label>
+
+                <label className="admin-salles-filter" style={{ minWidth: 0 }}>
+                  <span>Type</span>
+                  <select value={form.type} onChange={handleFormChange("type")}>
+                    {ROOM_TYPE_OPTIONS.filter((option) => option.value !== "ALL").map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="admin-salles-filter" style={{ minWidth: 0 }}>
+                  <span>Accessibilité PMR</span>
+                  <select
+                    value={form.accessibilitePMR}
+                    onChange={handleFormChange("accessibilitePMR")}
+                  >
+                    <option value="1">Oui</option>
+                    <option value="0">Non</option>
+                  </select>
+                </label>
+
+                <label className="admin-salles-filter" style={{ minWidth: 0 }}>
+                  <span>Statut</span>
+                  <select value={form.isActive} onChange={handleFormChange("isActive")}>
+                    <option value="1">Disponible</option>
+                    <option value="0">Inactive</option>
+                  </select>
+                </label>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  justifyContent: "flex-end",
+                  flexWrap: "wrap",
+                  marginTop: 18,
+                }}
+              >
+                <button
+                  type="button"
+                  className="admin-salles-action"
+                  onClick={() => {
+                    resetForm();
+                    setIsFormOpen(false);
+                  }}
+                  style={{ width: "auto", padding: "0 14px" }}
+                >
+                  Annuler
+                </button>
+
+                <button type="submit" className="admin-salles-add-button" disabled={submitting}>
+                  {submitting
+                    ? formMode === "edit"
+                      ? "Enregistrement..."
+                      : "Création..."
+                    : formMode === "edit"
+                    ? "Enregistrer"
+                    : "Créer la salle"}
+                </button>
+              </div>
+            </form>
+          </section>
+        ) : null}
 
         <section className="admin-salles-panel">
           <div className="admin-salles-panel-top">
             <div className="admin-salles-panel-heading">
               <h2 className="admin-salles-panel-title">Liste des salles</h2>
               <p className="admin-salles-panel-text">
-                {filteredRooms.length} salle{filteredRooms.length > 1 ? "s" : ""} affichée
-                {filteredRooms.length > 1 ? "s" : ""}
+                {loading
+                  ? "Chargement des salles..."
+                  : `${filteredRooms.length} salle${filteredRooms.length > 1 ? "s" : ""} affichée${
+                      filteredRooms.length > 1 ? "s" : ""
+                    }`}
               </p>
             </div>
 
@@ -202,7 +573,30 @@ export default function AdminSalles() {
             </label>
           </div>
 
-          {filteredRooms.length > 0 ? (
+          {apiError ? (
+            <div
+              style={{
+                margin: "16px 18px 0",
+                padding: "10px 12px",
+                borderRadius: 12,
+                border: "1px solid #ffd6d6",
+                background: "#fff5f5",
+                color: "#b42318",
+                fontSize: "0.84rem",
+                fontWeight: 600,
+              }}
+            >
+              {apiError}
+            </div>
+          ) : null}
+
+          {loading ? (
+            <div className="admin-salles-empty">Chargement des salles...</div>
+          ) : rooms.length === 0 ? (
+            <div className="admin-salles-empty">
+              Aucune salle n&apos;est enregistrée dans la base pour le moment.
+            </div>
+          ) : filteredRooms.length > 0 ? (
             <div className="admin-salles-table-wrap">
               <table className="admin-salles-table">
                 <thead>
@@ -221,38 +615,36 @@ export default function AdminSalles() {
                     <tr key={room.id}>
                       <td>
                         <div className="admin-salles-room-name">
-                          <span className="admin-salles-room-title">{room.name}</span>
+                          <span className="admin-salles-room-title">{room.code}</span>
                         </div>
                       </td>
 
                       <td>
-                        <span className="admin-salles-type-badge">{room.type}</span>
+                        <span className="admin-salles-type-badge">
+                          {getSalleTypeLabel(room.type)}
+                        </span>
                       </td>
 
                       <td>
                         <span className="admin-salles-capacity">
                           <CapacityIcon />
-                          {room.capacity}
+                          {room.capacite}
                         </span>
                       </td>
 
                       <td>
                         <div className="admin-salles-equipment-list">
-                          {room.equipments.map((equipment) => (
-                            <span key={equipment} className="admin-salles-equipment-badge">
-                              {equipment}
-                            </span>
-                          ))}
+                          <span className="admin-salles-equipment-badge">À connecter</span>
                         </div>
                       </td>
 
                       <td>
                         <span
-                          className={`admin-salles-status-badge admin-salles-status-badge--${getStatusTone(
-                            room.status
+                          className={`admin-salles-status-badge admin-salles-status-badge--${getSalleStatusTone(
+                            room
                           )}`}
                         >
-                          {room.status}
+                          {getSalleStatusLabel(room)}
                         </span>
                       </td>
 
@@ -261,7 +653,9 @@ export default function AdminSalles() {
                           <button
                             type="button"
                             className="admin-salles-action admin-salles-action--edit"
-                            aria-label={`Modifier ${room.name}`}
+                            aria-label={`Modifier ${room.code}`}
+                            onClick={() => handleEdit(room)}
+                            disabled={submitting || deletingId === room.id}
                           >
                             <EditIcon />
                           </button>
@@ -269,7 +663,14 @@ export default function AdminSalles() {
                           <button
                             type="button"
                             className="admin-salles-action admin-salles-action--delete"
-                            aria-label={`Supprimer ${room.name}`}
+                            aria-label={`Supprimer ${room.code}`}
+                            onClick={() => handleDelete(room)}
+                            disabled={deletingId === room.id}
+                            title={
+                              deletingId === room.id
+                                ? "Suppression..."
+                                : `Supprimer ${room.code}`
+                            }
                           >
                             <TrashIcon />
                           </button>

@@ -34,7 +34,10 @@
 .admin-salles-heading {
   min-width: 0;
 }
-
+.admin-salles-status-badge--inactive {
+  background: #edf3fb;
+  color: #516b8f;
+}
 .admin-salles-title {
   margin: 0 0 8px;
   font-size: 1.18rem;
