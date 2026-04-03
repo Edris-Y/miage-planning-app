@@ -5,7 +5,7 @@ require("dotenv").config();
 
 async function getDbConnection() {
   const db = await open({
-    filename: path.join(__dirname, process.env.DB_NAME || "planning.db"),
+    filename: path.join(__dirname, process.env.DB_NAME || "database.db"),
     driver: sqlite3.Database,
   });
 
