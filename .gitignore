@@ -15,9 +15,7 @@ server/node_modules/
 .env
 server/.env
 
-# Base de données locale (pour éviter de push tes tests)
-server/db/*.db
-server/db/*.db-journal
+
 
 # Logs et divers
 npm-debug.log*
