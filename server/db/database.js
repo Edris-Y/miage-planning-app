@@ -4,7 +4,6 @@ const { open } = require("sqlite");
 require("dotenv").config();
 
 async function getDbConnection() {
-  // process.cwd() pointe vers la racine du dossier où tu lances le serveur (le dossier server)
   const dbPath = path.join(process.cwd(), process.env.DB_NAME || "planning.db");
 
   const db = await open({
