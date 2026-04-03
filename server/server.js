@@ -94,9 +94,12 @@ async function checkDatabaseConnection() {
     const db = await getDbConnection();
 
     const users = await db.all(`SELECT id, nom, prenom FROM Utilisateur`);
+    const TestSalle = await db.all(`SELECT id,capacite FROM Salle`);
 
     console.log("\n--- DONNÉES DE LA TABLE UTILISATEUR ---");
     console.log(users);
+    console.log(TestSalle);
+
     console.log("---------------------------------------\n");
 
     await db.close();

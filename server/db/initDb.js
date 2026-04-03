@@ -7,9 +7,6 @@ async function init() {
   try {
     db = await getDbConnection();
 
-    // ==========================================
-    // 1. CREATION DES TABLES
-    // ==========================================
     await db.exec(`
       CREATE TABLE IF NOT EXISTS Utilisateur (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -180,14 +177,11 @@ async function init() {
       CREATE INDEX IF NOT EXISTS idx_notification_role ON Notification(role);
     `);
 
-    // ============================================================
-    // 3. DONNEES DE TEST HYBRIDES
-    // ============================================================
+    
     const count = await db.get("SELECT COUNT(*) as total FROM Utilisateur");
     if (count.total === 0) {
       console.log("🚀 Lancement du méga-remplissage de la base de données...");
 
-      // 🔥 Hachage du mot de passe (provenant de la branche main)
       const defaultPassword = await bcrypt.hash("changeme", 10);
 
       await db.exec(`
