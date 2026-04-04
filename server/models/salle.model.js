@@ -35,6 +35,17 @@ exports.findActive = () =>
     ORDER BY code ASC
   `);
 
+exports.findLinkedReservation = (salleId) =>
+  dbGet(
+    `
+    SELECT id
+    FROM Reservation
+    WHERE salle_id = ?
+    LIMIT 1
+    `,
+    [salleId]
+  );
+
 exports.create = ({
   code,
   capacite,
