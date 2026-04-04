@@ -1,18 +1,9 @@
 const ApiError = require("../utils/ApiError");
-const { dbAll, dbGet, dbRun } = require("../db/dbAsync");
+const equipementModel = require("../models/equipement.model");
+const { dbGet } = require("../db/dbAsync");
 
 exports.getAll = async (_req, res) => {
-  const rows = await dbAll(`
-    SELECT
-      e.id,
-      e.nom,
-      e.salle_id,
-      s.code AS salle_code
-    FROM Equipement e
-    LEFT JOIN Salle s ON e.salle_id = s.id
-    ORDER BY e.nom ASC
-  `);
-
+  const rows = await equipementModel.findAll();
   res.json(rows);
 };
 
@@ -23,19 +14,7 @@ exports.getById = async (req, res) => {
     throw new ApiError(400, "Id équipement invalide");
   }
 
-  const row = await dbGet(
-    `
-    SELECT
-      e.id,
-      e.nom,
-      e.salle_id,
-      s.code AS salle_code
-    FROM Equipement e
-    LEFT JOIN Salle s ON e.salle_id = s.id
-    WHERE e.id = ?
-    `,
-    [id]
-  );
+  const row = await equipementModel.findById(id);
 
   if (!row) {
     throw new ApiError(404, "Équipement introuvable");
@@ -64,27 +43,12 @@ exports.create = async (req, res) => {
     throw new ApiError(404, "Salle introuvable");
   }
 
-  const result = await dbRun(
-    `
-    INSERT INTO Equipement (nom, salle_id)
-    VALUES (?, ?)
-    `,
-    [String(nom).trim(), Number(salle_id)]
-  );
+  const result = await equipementModel.create({
+    nom: String(nom).trim(),
+    salle_id: Number(salle_id),
+  });
 
-  const created = await dbGet(
-    `
-    SELECT
-      e.id,
-      e.nom,
-      e.salle_id,
-      s.code AS salle_code
-    FROM Equipement e
-    LEFT JOIN Salle s ON e.salle_id = s.id
-    WHERE e.id = ?
-    `,
-    [result.lastID]
-  );
+  const created = await equipementModel.findById(result.lastID);
 
   res.status(201).json({
     message: "Équipement créé avec succès",
@@ -99,14 +63,7 @@ exports.update = async (req, res) => {
     throw new ApiError(400, "Id équipement invalide");
   }
 
-  const existing = await dbGet(
-    `
-    SELECT *
-    FROM Equipement
-    WHERE id = ?
-    `,
-    [id]
-  );
+  const existing = await equipementModel.findById(id);
 
   if (!existing) {
     throw new ApiError(404, "Équipement introuvable");
@@ -128,30 +85,12 @@ exports.update = async (req, res) => {
     throw new ApiError(404, "Salle introuvable");
   }
 
-  await dbRun(
-    `
-    UPDATE Equipement
-    SET
-      nom = ?,
-      salle_id = ?
-    WHERE id = ?
-    `,
-    [String(finalNom).trim(), Number(finalSalleId), id]
-  );
+  await equipementModel.update(id, {
+    nom: String(finalNom).trim(),
+    salle_id: Number(finalSalleId),
+  });
 
-  const updated = await dbGet(
-    `
-    SELECT
-      e.id,
-      e.nom,
-      e.salle_id,
-      s.code AS salle_code
-    FROM Equipement e
-    LEFT JOIN Salle s ON e.salle_id = s.id
-    WHERE e.id = ?
-    `,
-    [id]
-  );
+  const updated = await equipementModel.findById(id);
 
   res.json({
     message: "Équipement mis à jour",
@@ -166,26 +105,13 @@ exports.remove = async (req, res) => {
     throw new ApiError(400, "Id équipement invalide");
   }
 
-  const existing = await dbGet(
-    `
-    SELECT id
-    FROM Equipement
-    WHERE id = ?
-    `,
-    [id]
-  );
+  const existing = await equipementModel.findById(id);
 
   if (!existing) {
     throw new ApiError(404, "Équipement introuvable");
   }
 
-  await dbRun(
-    `
-    DELETE FROM Equipement
-    WHERE id = ?
-    `,
-    [id]
-  );
+  await equipementModel.remove(id);
 
   res.json({
     message: "Équipement supprimé",

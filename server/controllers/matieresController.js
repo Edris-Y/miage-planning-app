@@ -1,13 +1,8 @@
 const ApiError = require("../utils/ApiError");
-const { dbAll, dbGet, dbRun } = require("../db/dbAsync");
+const matiereModel = require("../models/matiere.model");
 
 exports.getAll = async (_req, res) => {
-  const rows = await dbAll(`
-    SELECT *
-    FROM Matiere
-    ORDER BY nom ASC
-  `);
-
+  const rows = await matiereModel.findAll();
   res.json(rows);
 };
 
@@ -18,14 +13,7 @@ exports.getById = async (req, res) => {
     throw new ApiError(400, "Id matière invalide");
   }
 
-  const row = await dbGet(
-    `
-    SELECT *
-    FROM Matiere
-    WHERE id = ?
-    `,
-    [id]
-  );
+  const row = await matiereModel.findById(id);
 
   if (!row) {
     throw new ApiError(404, "Matière introuvable");
@@ -37,39 +25,29 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   const { nom, volumeHoraireTotal = 0 } = req.body;
 
-  if (!nom || String(nom).trim() === "") {
+  const nomNettoye = String(nom || "").trim();
+  const volume = Number(volumeHoraireTotal);
+
+  if (!nomNettoye) {
     throw new ApiError(400, "Nom de matière requis");
   }
 
-  const existing = await dbGet(
-    `
-    SELECT id
-    FROM Matiere
-    WHERE nom = ?
-    `,
-    [String(nom).trim()]
-  );
+  if (!Number.isInteger(volume) || volume < 0) {
+    throw new ApiError(400, "volumeHoraireTotal invalide");
+  }
+
+  const existing = await matiereModel.findByNom(nomNettoye);
 
   if (existing) {
     throw new ApiError(409, "Cette matière existe déjà");
   }
 
-  const result = await dbRun(
-    `
-    INSERT INTO Matiere (nom, volumeHoraireTotal)
-    VALUES (?, ?)
-    `,
-    [String(nom).trim(), Number(volumeHoraireTotal) || 0]
-  );
+  const result = await matiereModel.create({
+    nom: nomNettoye,
+    volumeHoraireTotal: volume,
+  });
 
-  const created = await dbGet(
-    `
-    SELECT *
-    FROM Matiere
-    WHERE id = ?
-    `,
-    [result.lastID]
-  );
+  const created = await matiereModel.findById(result.lastID);
 
   res.status(201).json({
     message: "Matière créée avec succès",
@@ -84,54 +62,39 @@ exports.update = async (req, res) => {
     throw new ApiError(400, "Id matière invalide");
   }
 
-  const existing = await dbGet(
-    `
-    SELECT *
-    FROM Matiere
-    WHERE id = ?
-    `,
-    [id]
-  );
+  const existing = await matiereModel.findById(id);
 
   if (!existing) {
     throw new ApiError(404, "Matière introuvable");
   }
 
   const finalNom = req.body.nom ?? existing.nom;
-  const finalVolume = req.body.volumeHoraireTotal ?? existing.volumeHoraireTotal;
+  const finalVolume =
+    req.body.volumeHoraireTotal ?? existing.volumeHoraireTotal;
 
-  const duplicate = await dbGet(
-    `
-    SELECT id
-    FROM Matiere
-    WHERE nom = ? AND id != ?
-    `,
-    [String(finalNom).trim(), id]
-  );
+  const nomNettoye = String(finalNom || "").trim();
+  const volume = Number(finalVolume);
+
+  if (!nomNettoye) {
+    throw new ApiError(400, "Nom de matière requis");
+  }
+
+  if (!Number.isInteger(volume) || volume < 0) {
+    throw new ApiError(400, "volumeHoraireTotal invalide");
+  }
+
+  const duplicate = await matiereModel.findByNomExceptId(nomNettoye, id);
 
   if (duplicate) {
     throw new ApiError(409, "Une autre matière porte déjà ce nom");
   }
 
-  await dbRun(
-    `
-    UPDATE Matiere
-    SET
-      nom = ?,
-      volumeHoraireTotal = ?
-    WHERE id = ?
-    `,
-    [String(finalNom).trim(), Number(finalVolume) || 0, id]
-  );
+  await matiereModel.update(id, {
+    nom: nomNettoye,
+    volumeHoraireTotal: volume,
+  });
 
-  const updated = await dbGet(
-    `
-    SELECT *
-    FROM Matiere
-    WHERE id = ?
-    `,
-    [id]
-  );
+  const updated = await matiereModel.findById(id);
 
   res.json({
     message: "Matière mise à jour",
@@ -146,26 +109,13 @@ exports.remove = async (req, res) => {
     throw new ApiError(400, "Id matière invalide");
   }
 
-  const existing = await dbGet(
-    `
-    SELECT id
-    FROM Matiere
-    WHERE id = ?
-    `,
-    [id]
-  );
+  const existing = await matiereModel.findById(id);
 
   if (!existing) {
     throw new ApiError(404, "Matière introuvable");
   }
 
-  await dbRun(
-    `
-    DELETE FROM Matiere
-    WHERE id = ?
-    `,
-    [id]
-  );
+  await matiereModel.remove(id);
 
   res.json({
     message: "Matière supprimée",

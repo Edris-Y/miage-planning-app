@@ -2,72 +2,66 @@ const { dbAll, dbGet, dbRun } = require("../db/dbAsync");
 
 exports.findAll = () =>
   dbAll(`
-    SELECT
-      e.id,
-      e.nom,
-      e.salle_id,
-      s.code AS salle_code
-    FROM Equipement e
-    LEFT JOIN Salle s ON e.salle_id = s.id
-    ORDER BY e.nom ASC
+    SELECT *
+    FROM Matiere
+    ORDER BY nom ASC
   `);
 
 exports.findById = (id) =>
   dbGet(
     `
-    SELECT
-      e.id,
-      e.nom,
-      e.salle_id,
-      s.code AS salle_code
-    FROM Equipement e
-    LEFT JOIN Salle s ON e.salle_id = s.id
-    WHERE e.id = ?
+    SELECT *
+    FROM Matiere
+    WHERE id = ?
     `,
     [id]
   );
 
-exports.findBySalleId = (salleId) =>
-  dbAll(
+exports.findByNom = (nom) =>
+  dbGet(
     `
-    SELECT
-      e.id,
-      e.nom,
-      e.salle_id,
-      s.code AS salle_code
-    FROM Equipement e
-    LEFT JOIN Salle s ON e.salle_id = s.id
-    WHERE e.salle_id = ?
-    ORDER BY e.nom ASC
+    SELECT *
+    FROM Matiere
+    WHERE nom = ?
     `,
-    [salleId]
+    [nom]
   );
 
-exports.create = ({ nom, salle_id }) =>
+exports.findByNomExceptId = (nom, id) =>
+  dbGet(
+    `
+    SELECT *
+    FROM Matiere
+    WHERE nom = ? AND id != ?
+    `,
+    [nom, id]
+  );
+
+exports.create = ({ nom, volumeHoraireTotal = 0 }) =>
   dbRun(
     `
-    INSERT INTO Equipement (nom, salle_id)
+    INSERT INTO Matiere (nom, volumeHoraireTotal)
     VALUES (?, ?)
     `,
-    [nom, salle_id]
+    [nom, volumeHoraireTotal]
   );
 
-exports.update = (id, { nom, salle_id }) =>
+exports.update = (id, { nom, volumeHoraireTotal }) =>
   dbRun(
     `
-    UPDATE Equipement
+    UPDATE Matiere
     SET
       nom = ?,
-      salle_id = ?
+      volumeHoraireTotal = ?
     WHERE id = ?
     `,
-    [nom, salle_id, id]
+    [nom, volumeHoraireTotal, id]
   );
 
 exports.remove = (id) =>
   dbRun(
     `
-    DELETE FROM Equipement
+    DELETE FROM Matiere
     WHERE id = ?
     `,
     [id]
