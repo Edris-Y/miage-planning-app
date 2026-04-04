@@ -14,7 +14,7 @@ export default function Login() {
   const navigate = useNavigate();
   const supportEmail = "admin.planning@univ.fr";
   const [showInfo, setShowInfo] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); 
+  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -188,8 +188,12 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <button type="button" className="toggle-password" aria-label="Afficher ou masquer le mot de passe"
-              onClick={() => setShowPassword(!showPassword)} 
+              <button
+                type="button"
+                className="toggle-password"
+                aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                aria-pressed={showPassword}
+                onClick={() => setShowPassword((prev) => !prev)}
               >
                 <svg
                   width="16"

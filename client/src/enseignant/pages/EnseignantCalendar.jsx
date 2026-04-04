@@ -346,7 +346,6 @@ export default function EnseignantCalendar() {
                                 key={s.id}
                                 className={`ens-session ens-session-${TYPE_COLORS[s.type] ?? "cm"}`}
                                 style={{ height: `${Math.max(durationH * 60 - 4, 44)}px`, top: 2 }}
-                                onClick={() => navigate(`/enseignant/seance/${s.id}`)}
                               >
                                 <div className="ens-session-title">{s.titre ?? s.matiere ?? "Cours"}</div>
                                 <div className="ens-session-room">{s.salle}</div>
@@ -383,15 +382,13 @@ export default function EnseignantCalendar() {
                           const debut = s.debut ?? `${String(s.heureDebut ?? 0).padStart(2, "0")}:00`;
                           const fin = s.fin ?? `${String(s.heureFin ?? 0).padStart(2, "0")}:00`;
                           return (
-                            <button
+                            <div
                               key={s.id}
                               className={`cal-day-event-card ens-session-${TYPE_COLORS[s.type] ?? "cm"}`}
-                              onClick={() => navigate(`/enseignant/seance/${s.id}`)}
                             >
                               <span className="cal-day-event-title">{s.titre ?? s.matiere ?? "Cours"}</span>
                               <span className="cal-day-event-meta">{s.salle} - {debut} - {fin}</span>
-                              <span className="cal-day-event-teacher">{getTeacherName(s)}</span>
-                            </button>
+                            </div>
                           );
                         })
                       )}
@@ -423,15 +420,13 @@ export default function EnseignantCalendar() {
                         {sessions.slice(0, 2).map(s => {
                           const debut = s.debut ?? `${String(s.heureDebut ?? 0).padStart(2, "0")}:00`;
                           return (
-                            <button
+                            <div
                               key={s.id}
                               className={`cal-month-item ens-session-${TYPE_COLORS[s.type] ?? "cm"}`}
-                              onClick={() => navigate(`/enseignant/seance/${s.id}`)}
                             >
                               <span>{s.matiere}</span>
                               <small>{debut}</small>
-                              <small className="cal-month-item-teacher">{getTeacherName(s)}</small>
-                            </button>
+                            </div>
                           );
                         })}
                         {sessions.length > 2 && <div className="cal-month-more">+{sessions.length - 2}</div>}

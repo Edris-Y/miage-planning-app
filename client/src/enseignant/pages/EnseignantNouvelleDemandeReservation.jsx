@@ -5,6 +5,15 @@ import { createDemande, getCohortes, getDemandes, getSalles } from '../../servic
 import '../../styles/enseignant.css';
 
 const TYPES = ['CM', 'TD', 'TP', 'EXAMEN'];
+<<<<<<< HEAD
+=======
+
+function normalizeReservationType(type) {
+  const t = String(type || '').toUpperCase();
+  if (t === 'EXAM') return 'EXAMEN';
+  return t;
+}
+>>>>>>> d8cbbe0 (feat: update login, calendar interactions, and reservation request flow)
 
 export default function EnseignantNouvelleDemandeReservation() {
   const navigate = useNavigate();
@@ -57,7 +66,7 @@ export default function EnseignantNouvelleDemandeReservation() {
     if (!sourceReservation) return;
 
     setForm({
-      type: sourceReservation.type || '',
+      type: normalizeReservationType(sourceReservation.type),
       date: sourceReservation.date || '',
       debut: sourceReservation.debut || '',
       fin: sourceReservation.fin || '',
@@ -105,7 +114,7 @@ export default function EnseignantNouvelleDemandeReservation() {
     try {
       // C'est ICI que payload est défini !
       const payload = {
-        type: form.type,
+        type: normalizeReservationType(form.type),
         date: form.date,
         debut: form.debut,
         fin: form.fin,
