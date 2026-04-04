@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
+import BackButton from '../../components/BackButton';
 import { getEtudiantCours, getUser } from '../../services/api';
 import '../../styles/enseignant.css';
 import '../../styles/etudiant.css';
@@ -88,6 +89,7 @@ function getHourNumber(cours) {
 
 export default function EtudiantPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [cours, setCours] = useState([]);
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState('');
@@ -96,6 +98,8 @@ export default function EtudiantPage() {
   const [activeType, setActiveType] = useState('Tous');
   const [typeFilterLabel, setTypeFilterLabel] = useState('Tous les type');
   const [ensFilter, setEnsFilter] = useState('Tous les enseignants');
+
+  const openedFromEnseignant = Boolean(location.state?.fromEnseignant);
 
   useEffect(() => {
     let isMounted = true;
@@ -234,6 +238,12 @@ export default function EtudiantPage() {
       />
 
       <div className="ens-content">
+        {openedFromEnseignant && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+            <BackButton label="Retour enseignant" to="/enseignant" fallback="/enseignant" />
+          </div>
+        )}
+
         {loading && <div className="ens-card" style={{ marginBottom: 12 }}>Chargement des cours depuis l'API...</div>}
         {!loading && apiError && (
           <div className="ens-card" style={{ marginBottom: 12, color: '#b42318' }}>
@@ -374,7 +384,6 @@ export default function EtudiantPage() {
                                 key={s.id}
                                 className={`ens-session ens-session-${TYPE_COLORS[s.type] ?? 'cm'}`}
                                 style={{ height: `${Math.max(durationH * 60 - 4, 44)}px`, top: 2 }}
-                                onClick={() => navigate(`/etudiant/seance/${s.id}`)}
                               >
                                 <div className="ens-session-title">{s.titre ?? s.matiere ?? 'Cours'}</div>
                                 <div className="ens-session-room">{s.salle}</div>
@@ -412,14 +421,13 @@ export default function EtudiantPage() {
                           const debut = s.debut ?? `${String(s.heureDebut ?? 0).padStart(2, '0')}:00`;
                           const fin = s.fin ?? `${String(s.heureFin ?? 0).padStart(2, '0')}:00`;
                           return (
-                            <button
+                            <div
                               key={s.id}
                               className={`cal-day-event-card ens-session-${TYPE_COLORS[s.type] ?? 'cm'}`}
-                              onClick={() => navigate(`/etudiant/seance/${s.id}`)}
                             >
                               <span className="cal-day-event-title">{s.titre ?? s.matiere ?? 'Cours'}</span>
                               <span className="cal-day-event-meta">{s.salle} - {debut} - {fin}</span>
-                            </button>
+                            </div>
                           );
                         })
                       )}
@@ -451,14 +459,13 @@ export default function EtudiantPage() {
                         {sessions.slice(0, 2).map(s => {
                           const debut = s.debut ?? `${String(s.heureDebut ?? 0).padStart(2, '0')}:00`;
                           return (
-                            <button
+                            <div
                               key={s.id}
                               className={`cal-month-item ens-session-${TYPE_COLORS[s.type] ?? 'cm'}`}
-                              onClick={() => navigate(`/etudiant/seance/${s.id}`)}
                             >
                               <span>{s.matiere}</span>
                               <small>{debut}</small>
-                            </button>
+                            </div>
                           );
                         })}
                         {sessions.length > 2 && <div className="cal-month-more">+{sessions.length - 2}</div>}

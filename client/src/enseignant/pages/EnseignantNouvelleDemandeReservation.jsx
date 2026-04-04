@@ -4,7 +4,13 @@ import Navbar from '../../components/Navbar';
 import { createDemande, getCohortes, getDemandes, getSalles } from '../../services/api';
 import '../../styles/enseignant.css';
 
-const TYPES = ['CM', 'TD', 'TP', 'EXAM'];
+const TYPES = ['CM', 'TD', 'TP', 'EXAMEN'];
+
+function normalizeReservationType(type) {
+  const t = String(type || '').toUpperCase();
+  if (t === 'EXAM') return 'EXAMEN';
+  return t;
+}
 
 export default function EnseignantNouvelleDemandeReservation() {
   const navigate = useNavigate();
@@ -57,7 +63,7 @@ export default function EnseignantNouvelleDemandeReservation() {
     if (!sourceReservation) return;
 
     setForm({
-      type: sourceReservation.type || '',
+      type: normalizeReservationType(sourceReservation.type),
       date: sourceReservation.date || '',
       debut: sourceReservation.debut || '',
       fin: sourceReservation.fin || '',
@@ -103,7 +109,7 @@ export default function EnseignantNouvelleDemandeReservation() {
 
     try {
       const payload = {
-        type: form.type,
+        type: normalizeReservationType(form.type),
         date: form.date,
         debut: form.debut,
         fin: form.fin,
