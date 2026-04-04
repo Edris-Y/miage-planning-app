@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
-import { getEnseignantCours } from "../../services/api";
+import { getEnseignantCours, getUser } from "../../services/api";
 import "../../styles/enseignant.css";
 
 const VIEW_OPTIONS = ["Jour", "Semaine", "Mois"];
@@ -81,6 +81,7 @@ export default function EnseignantCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState("Semaine");
   const [activeType, setActiveType] = useState("Tous");
+  const currentUser = getUser();
 
   useEffect(() => {
     let isMounted = true;
@@ -185,6 +186,13 @@ export default function EnseignantCalendar() {
         return false;
       })
       .sort((a, b) => getHourNumber(a) - getHourNumber(b));
+
+  const getTeacherName = (course) => {
+    const teacher = String(course.enseignant || "").trim();
+    if (teacher) return teacher;
+    const fallback = `${currentUser?.prenom || ""} ${currentUser?.nom || ""}`.trim();
+    return fallback || "Professeur";
+  };
 
   return (
     <div className="ens-page">
@@ -343,6 +351,7 @@ export default function EnseignantCalendar() {
                                 <div className="ens-session-title">{s.titre ?? s.matiere ?? "Cours"}</div>
                                 <div className="ens-session-room">{s.salle}</div>
                                 <div className="ens-session-time">{debut} – {fin}</div>
+                                <div className="ens-session-teacher">{getTeacherName(s)}</div>
                               </div>
                             );
                           })}
@@ -381,6 +390,7 @@ export default function EnseignantCalendar() {
                             >
                               <span className="cal-day-event-title">{s.titre ?? s.matiere ?? "Cours"}</span>
                               <span className="cal-day-event-meta">{s.salle} - {debut} - {fin}</span>
+                              <span className="cal-day-event-teacher">{getTeacherName(s)}</span>
                             </button>
                           );
                         })
@@ -420,6 +430,7 @@ export default function EnseignantCalendar() {
                             >
                               <span>{s.matiere}</span>
                               <small>{debut}</small>
+                              <small className="cal-month-item-teacher">{getTeacherName(s)}</small>
                             </button>
                           );
                         })}

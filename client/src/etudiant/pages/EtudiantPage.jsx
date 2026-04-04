@@ -458,6 +458,7 @@ export default function EtudiantPage() {
                             >
                               <span>{s.matiere}</span>
                               <small>{debut}</small>
+                              <small className="cal-month-item-teacher">{s.enseignant}</small>
                             </button>
                           );
                         })}

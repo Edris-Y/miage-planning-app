@@ -12,6 +12,7 @@ function roleToPath(role) {
 
 export default function Login() {
   const navigate = useNavigate();
+  const supportEmail = "admin.planning@univ.fr";
   const [showInfo, setShowInfo] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,6 +22,16 @@ export default function Login() {
   const navigateByRole = useCallback((role) => {
     navigate(roleToPath(role), { replace: true });
   }, [navigate]);
+
+  function handleForgotPassword() {
+    const subject = encodeURIComponent("Réinitialisation du mot de passe");
+    const body = encodeURIComponent(
+      `Bonjour,\n\nJe souhaite réinitialiser mon mot de passe pour le compte: ${email || "(email non renseigné)"}.\n\nMerci.`
+    );
+
+    window.location.href = `mailto:${supportEmail}?subject=${subject}&body=${body}`;
+    setError("Une demande de réinitialisation va s'ouvrir dans votre messagerie.");
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -92,7 +103,7 @@ export default function Login() {
             height="28"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#1e2d4a"
+            stroke="#ffffff"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -147,6 +158,7 @@ export default function Login() {
               <button
                 type="button"
                 className="forgot-link"
+                onClick={handleForgotPassword}
               >
                 Mot de passe oublié ?
               </button>
