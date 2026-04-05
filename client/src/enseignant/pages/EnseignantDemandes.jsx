@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import BackButton from '../../components/BackButton';
-import { getDemandes } from '../../services/api';
+import { getDemandes, request } from '../../services/api';
 import '../../styles/enseignant.css';
 
 const STATUT_META = {
@@ -102,11 +102,29 @@ export default function EnseignantDemandes() {
     { key: 'refuse',  label: 'Refusées',   type: 'refuse' },
   ];
 
-  const handleSupprimer = id => {
-    if (window.confirm('Supprimer cette demande ?'))
-      setDemandes(ds => ds.filter(d => d.id !== id));
-  };
+  
 
+  
+
+  const handleSupprimer = async (id) => {
+    if (window.confirm('Voulez-vous vraiment annuler cette demande ?')) {
+      try {
+        await request(`/api/reservations/${id}/cancel`, {
+          method: 'PATCH',
+          auth: true
+        });
+
+        // On met à jour l'affichage en retirant la demande de la liste
+        setDemandes(ds => ds.filter(d => d.id !== id));
+        
+        alert("La demande a bien été annulée !");
+
+      } catch (error) {
+        console.error("Erreur lors de l'annulation :", error);
+        alert("Erreur : Impossible d'annuler cette demande. Vérifiez vos droits.");
+      }
+    }
+  };
   const filtered = useMemo(() => {
     const query = normalise(search.trim());
     if (!query) return demandes;
