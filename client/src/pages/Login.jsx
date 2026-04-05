@@ -14,6 +14,7 @@ export default function Login() {
   const navigate = useNavigate();
   const supportEmail = "admin.planning@univ.fr";
   const [showInfo, setShowInfo] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -180,14 +181,16 @@ export default function Login() {
               </span>
               <input
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 className="login-input"
                 placeholder="************"
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <button type="button" className="toggle-password" aria-label="Afficher ou masquer le mot de passe">
+              <button type="button" className="toggle-password" aria-label="Afficher ou masquer le mot de passe"
+              onClick={() => setShowPassword(!showPassword)} 
+              >
                 <svg
                   width="16"
                   height="16"
@@ -196,6 +199,7 @@ export default function Login() {
                   stroke="#888"
                   strokeWidth="2"
                 >
+                  
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                   <circle cx="12" cy="12" r="3" />
                 </svg>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // 👈 AJOUTÉ
+import '../styles/AdminDashboard.css';
 
 export default function AdminDashboard() {
   const navigate = useNavigate(); // 👈 AJOUTÉ
