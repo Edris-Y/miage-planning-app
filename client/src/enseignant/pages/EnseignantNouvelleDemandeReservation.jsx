@@ -35,10 +35,10 @@ export default function EnseignantNouvelleDemandeReservation() {
     async function loadData() {
       try {
         const [cohortesRows, sallesRows, demandesRows] = await Promise.all([
-          getCohortes(),
-          getSalles(),
-          getDemandes(),
-        ]);
+        getCohortes(),
+        getSalles(),
+        getDemandes()]
+        );
         if (!isMounted) return;
         setCohortes(cohortesRows);
         setSalles(sallesRows);
@@ -68,7 +68,7 @@ export default function EnseignantNouvelleDemandeReservation() {
       debut: sourceReservation.debut || '',
       fin: sourceReservation.fin || '',
       cohorte: sourceReservation.cohorteId ? String(sourceReservation.cohorteId) : '',
-      salle: sourceReservation.salleId ? String(sourceReservation.salleId) : '',
+      salle: sourceReservation.salleId ? String(sourceReservation.salleId) : ''
     });
   };
 
@@ -77,7 +77,7 @@ export default function EnseignantNouvelleDemandeReservation() {
       fillFromSource(sourceReservationFromNav);
     }
   }, [mode, sourceReservationFromNav]);
-  
+
 
   useEffect(() => {
     if (mode !== 'DEPLACEMENT') return;
@@ -109,24 +109,24 @@ export default function EnseignantNouvelleDemandeReservation() {
     setError('');
 
     try {
-      // C'est ICI que payload est défini !
+
       const payload = {
         type: normalizeReservationType(form.type),
         date: form.date,
         debut: form.debut,
         fin: form.fin,
         cohorte_id: Number(form.cohorte),
-        salle_id: Number(form.salle),
+        salle_id: Number(form.salle)
       };
 
       if (mode === 'DEPLACEMENT') {
         payload.demande_type = 'DEPLACEMENT';
         payload.source_reservation_id = Number(sourceReservationId);
-        
-        // 🚀 On récupère la réservation sélectionnée pour extraire son seance_id
+
+
         const selectedRes = eligibleReservations.find((d) => String(d.id) === String(sourceReservationId)) || sourceReservationFromNav;
-        
-        // On attache le seance_id au payload pour le backend
+
+
         if (selectedRes && selectedRes.seanceId) {
           payload.seance_id = Number(selectedRes.seanceId);
         } else if (selectedRes && selectedRes.seance_id) {
@@ -166,22 +166,22 @@ export default function EnseignantNouvelleDemandeReservation() {
               </select>
             </div>
 
-            {mode === 'DEPLACEMENT' && (
-              <div className="ens-field">
+            {mode === 'DEPLACEMENT' &&
+            <div className="ens-field">
                 <label>Créneau à déplacer <span>*</span></label>
                 <select
-                  value={sourceReservationId}
-                  onChange={(e) => setSourceReservationId(e.target.value)}
-                >
+                value={sourceReservationId}
+                onChange={(e) => setSourceReservationId(e.target.value)}>
+
                   <option value="">Sélectionner une réservation validée</option>
-                  {eligibleReservations.map((d) => (
-                    <option key={d.id} value={d.id}>
+                  {eligibleReservations.map((d) =>
+                <option key={d.id} value={d.id}>
                       {`${d.type} - ${d.date} ${d.debut}-${d.fin} - ${d.cohorte} - ${d.salle}`}
                     </option>
-                  ))}
+                )}
                 </select>
               </div>
-            )}
+            }
 
             <div className="ens-form-row">
               <div className="ens-field">
@@ -234,6 +234,6 @@ export default function EnseignantNouvelleDemandeReservation() {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }

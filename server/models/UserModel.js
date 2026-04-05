@@ -1,21 +1,21 @@
 const { dbGet } = require("../db/dbAsync");
 
 exports.findByEmail = (email) =>
-  dbGet(
-    `
+dbGet(
+  `
     SELECT *
     FROM Utilisateur
     WHERE email = ?
     `,
-    [email]
-  );
+  [email]
+);
 
 exports.findById = (id) =>
-  dbGet(
-    `
+dbGet(
+  `
     SELECT id, nom, prenom, email, role
     FROM Utilisateur
     WHERE id = ?
     `,
-    [id]
-  );
+  [id]
+);

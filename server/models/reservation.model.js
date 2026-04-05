@@ -1,24 +1,24 @@
 const { dbAll, dbGet, dbRun } = require("../db/dbAsync");
 
 exports.findAll = () =>
-  dbAll(`
+dbAll(`
     SELECT *
     FROM Reservation
     ORDER BY created_at DESC
   `);
 
 exports.findById = (id) =>
-  dbGet(
-    `
+dbGet(
+  `
     SELECT *
     FROM Reservation
     WHERE id = ?
     `,
-    [id]
-  );
+  [id]
+);
 
 exports.findFrontDemandes = () =>
-  dbAll(`
+dbAll(`
     SELECT
       r.id,
       r.type_demande,
@@ -66,10 +66,10 @@ exports.create = ({
   enseignant_id = null,
   statut = "EN_ATTENTE",
   priorite = 2,
-  motif = null,
+  motif = null
 }) =>
-  dbRun(
-    `
+dbRun(
+  `
     INSERT INTO Reservation (
       type_demande,
       seance_id,
@@ -87,26 +87,26 @@ exports.create = ({
     )
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
-    [
-      type_demande,
-      seance_id,
-      salle_id,
-      demandeur_id,
-      date_souhaitee,
-      heure_debut_souhaitee,
-      duree_souhaitee,
-      type_seance_souhaitee,
-      cohorte_id,
-      enseignant_id,
-      statut,
-      priorite,
-      motif,
-    ]
-  );
+  [
+  type_demande,
+  seance_id,
+  salle_id,
+  demandeur_id,
+  date_souhaitee,
+  heure_debut_souhaitee,
+  duree_souhaitee,
+  type_seance_souhaitee,
+  cohorte_id,
+  enseignant_id,
+  statut,
+  priorite,
+  motif]
+
+);
 
 exports.update = (id, data) =>
-  dbRun(
-    `
+dbRun(
+  `
     UPDATE Reservation
     SET
       type_demande = ?,
@@ -122,31 +122,31 @@ exports.update = (id, data) =>
       motif = ?
     WHERE id = ?
     `,
-    [
-      data.type_demande,
-      data.seance_id,
-      data.salle_id,
-      data.date_souhaitee,
-      data.heure_debut_souhaitee,
-      data.duree_souhaitee,
-      data.type_seance_souhaitee,
-      data.cohorte_id,
-      data.enseignant_id,
-      data.priorite,
-      data.motif,
-      id,
-    ]
-  );
+  [
+  data.type_demande,
+  data.seance_id,
+  data.salle_id,
+  data.date_souhaitee,
+  data.heure_debut_souhaitee,
+  data.duree_souhaitee,
+  data.type_seance_souhaitee,
+  data.cohorte_id,
+  data.enseignant_id,
+  data.priorite,
+  data.motif,
+  id]
+
+);
 
 exports.updateStatus = (id, statut) =>
-  dbRun(
-    `
+dbRun(
+  `
     UPDATE Reservation
     SET statut = ?
     WHERE id = ?
     `,
-    [statut, id]
-  );
+  [statut, id]
+);
 
 exports.findActiveBySeance = (seanceId, excludeReservationId = null) => {
   const sql = `
@@ -162,7 +162,7 @@ exports.findActiveBySeance = (seanceId, excludeReservationId = null) => {
   return dbGet(sql, params);
 };
 
-// 🚀 REQUÊTE SALLE CORRIGÉE (Ajout du typeSeance pour les priorités)
+
 exports.findSalleConflicts = (salleId, startSql, endSql, excludeSeanceId = null) => {
   const sql = `
     SELECT se.id, se.typeSeance
@@ -175,14 +175,14 @@ exports.findSalleConflicts = (salleId, startSql, endSql, excludeSeanceId = null)
       AND datetime(se.dateSeance || ' ' || se.heureDebut) < datetime(?)
       AND datetime(se.dateSeance || ' ' || se.heureDebut, '+' || se.duree || ' minutes') > datetime(?)
   `;
-  const params = excludeSeanceId 
-    ? [salleId, excludeSeanceId, endSql, startSql] 
-    : [salleId, endSql, startSql];
-    
+  const params = excludeSeanceId ?
+  [salleId, excludeSeanceId, endSql, startSql] :
+  [salleId, endSql, startSql];
+
   return dbAll(sql, params);
 };
 
-// 🚀 REQUÊTE COHORTE CORRIGÉE (Ajout du typeSeance)
+
 exports.findCohorteConflicts = (cohorteId, startSql, endSql, excludeSeanceId = null) => {
   const sql = `
     SELECT id, typeSeance FROM Seance 
@@ -192,14 +192,14 @@ exports.findCohorteConflicts = (cohorteId, startSql, endSql, excludeSeanceId = n
       AND datetime(dateSeance || ' ' || heureDebut) < datetime(?)
       AND datetime(dateSeance || ' ' || heureDebut, '+' || duree || ' minutes') > datetime(?)
   `;
-  const params = excludeSeanceId 
-    ? [cohorteId, excludeSeanceId, endSql, startSql] 
-    : [cohorteId, endSql, startSql];
-    
+  const params = excludeSeanceId ?
+  [cohorteId, excludeSeanceId, endSql, startSql] :
+  [cohorteId, endSql, startSql];
+
   return dbAll(sql, params);
 };
 
-// 🚀 REQUÊTE ENSEIGNANT CORRIGÉE (Ajout du typeSeance)
+
 exports.findEnseignantConflicts = (enseignantId, startSql, endSql, excludeSeanceId = null) => {
   const sql = `
     SELECT id, typeSeance FROM Seance 
@@ -209,15 +209,15 @@ exports.findEnseignantConflicts = (enseignantId, startSql, endSql, excludeSeance
       AND datetime(dateSeance || ' ' || heureDebut) < datetime(?)
       AND datetime(dateSeance || ' ' || heureDebut, '+' || duree || ' minutes') > datetime(?)
   `;
-  const params = excludeSeanceId 
-    ? [enseignantId, excludeSeanceId, endSql, startSql] 
-    : [enseignantId, endSql, startSql];
-    
+  const params = excludeSeanceId ?
+  [enseignantId, excludeSeanceId, endSql, startSql] :
+  [enseignantId, endSql, startSql];
+
   return dbAll(sql, params);
 };
 exports.findAlternativeSalles = ({ excludeSalleId, type, effectif, pmr, limit = 5 }) =>
-  dbAll(
-    `
+dbAll(
+  `
     SELECT *
     FROM Salle
     WHERE id != ?
@@ -228,5 +228,5 @@ exports.findAlternativeSalles = ({ excludeSalleId, type, effectif, pmr, limit = 
     ORDER BY capacite ASC
     LIMIT ?
     `,
-    [excludeSalleId, type, effectif, pmr ? 1 : 0, limit]
-  );
+  [excludeSalleId, type, effectif, pmr ? 1 : 0, limit]
+);

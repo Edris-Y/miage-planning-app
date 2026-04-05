@@ -14,7 +14,7 @@ exports.login = async (req, res) => {
 
   if (!email || !password) {
     return res.status(400).json({
-      message: "Email et mot de passe requis",
+      message: "Email et mot de passe requis"
     });
   }
 
@@ -52,7 +52,7 @@ exports.login = async (req, res) => {
     console.error("Erreur serveur login :", error);
     return res.status(500).json({
       message: "Erreur serveur",
-      error: error.message,
+      error: error.message
     });
   }
 };

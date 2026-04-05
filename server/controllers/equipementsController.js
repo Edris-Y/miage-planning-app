@@ -88,7 +88,7 @@ exports.create = async (req, res) => {
 
   res.status(201).json({
     message: "Équipement créé avec succès",
-    equipement: created,
+    equipement: created
   });
 };
 
@@ -155,7 +155,7 @@ exports.update = async (req, res) => {
 
   res.json({
     message: "Équipement mis à jour",
-    equipement: updated,
+    equipement: updated
   });
 };
 
@@ -189,6 +189,6 @@ exports.remove = async (req, res) => {
 
   res.json({
     message: "Équipement supprimé",
-    id,
+    id
   });
 };

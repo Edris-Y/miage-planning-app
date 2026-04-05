@@ -8,11 +8,11 @@ async function getDbConnection() {
 
   const db = await open({
     filename: dbPath,
-    driver: sqlite3.Database,
+    driver: sqlite3.Database
   });
 
   await db.exec("PRAGMA foreign_keys = ON;");
-  
+
   return db;
 }
 

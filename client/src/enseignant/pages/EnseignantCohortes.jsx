@@ -5,37 +5,37 @@ import BackButton from '../../components/BackButton';
 import { getCohortes } from '../../services/api';
 import '../../styles/enseignant.css';
 
-const IconUsers = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-    <circle cx="9" cy="7" r="4"/>
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-  </svg>
-);
+const IconUsers = () =>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>;
 
-const IconBook = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-  </svg>
-);
 
-const IconAward = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="8" r="6"/>
-    <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
-  </svg>
-);
+const IconBook = () =>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+  </svg>;
 
-const IconGroupSummary = () => (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-    <circle cx="9" cy="7" r="4"/>
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-  </svg>
-);
+
+const IconAward = () =>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="8" r="6" />
+    <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+  </svg>;
+
+
+const IconGroupSummary = () =>
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>;
+
 
 function MetaRow({ icon, iconBg, iconColor, label, value }) {
   return (
@@ -46,7 +46,7 @@ function MetaRow({ icon, iconBg, iconColor, label, value }) {
         background: iconBg,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         color: iconColor,
-        flexShrink: 0,
+        flexShrink: 0
       }}>
         {icon}
       </div>
@@ -58,8 +58,8 @@ function MetaRow({ icon, iconBg, iconColor, label, value }) {
           {value}
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
 function CohorteCard({ groupe, filiere, onOpen }) {
@@ -73,11 +73,11 @@ function CohorteCard({ groupe, filiere, onOpen }) {
       flexDirection: 'column',
       boxShadow: '0 1px 6px rgba(15,35,66,.06)',
       transition: 'box-shadow .2s, border-color .2s',
-      cursor: 'default',
+      cursor: 'default'
     }}
-      onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(26,79,158,.13)'; e.currentTarget.style.borderColor = '#b8cef5'; }}
-      onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 6px rgba(15,35,66,.06)'; e.currentTarget.style.borderColor = '#e4eaf4'; }}
-    >
+    onMouseEnter={(e) => {e.currentTarget.style.boxShadow = '0 4px 20px rgba(26,79,158,.13)';e.currentTarget.style.borderColor = '#b8cef5';}}
+    onMouseLeave={(e) => {e.currentTarget.style.boxShadow = '0 1px 6px rgba(15,35,66,.06)';e.currentTarget.style.borderColor = '#e4eaf4';}}>
+
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
         <span style={{ width: 10, height: 10, borderRadius: '50%', background: groupe.color, flexShrink: 0 }} />
         <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text)', margin: 0 }}>
@@ -93,20 +93,20 @@ function CohorteCard({ groupe, filiere, onOpen }) {
         icon={<IconUsers />}
         iconBg="#e8f0fd" iconColor="#1a4f9e"
         label="Étudiants"
-        value={groupe.etudiants}
-      />
+        value={groupe.etudiants} />
+
       <MetaRow
         icon={<IconBook />}
         iconBg="#e6f8ee" iconColor="#14845a"
         label="Cours"
-        value={`${groupe.cours} cours`}
-      />
+        value={`${groupe.cours} cours`} />
+
       <MetaRow
         icon={<IconAward />}
         iconBg="#fff5e2" iconColor="#a06700"
         label="Niveau"
-        value={groupe.niveau}
-      />
+        value={groupe.niveau} />
+
 
       <button
         onClick={() => onOpen(groupe, filiere)}
@@ -122,15 +122,15 @@ function CohorteCard({ groupe, filiere, onOpen }) {
           fontSize: '.9rem',
           fontWeight: 700,
           cursor: 'pointer',
-          transition: 'background .15s',
+          transition: 'background .15s'
         }}
-        onMouseEnter={e => { e.currentTarget.style.background = '#162d52'; }}
-        onMouseLeave={e => { e.currentTarget.style.background = '#0f2342'; }}
-      >
+        onMouseEnter={(e) => {e.currentTarget.style.background = '#162d52';}}
+        onMouseLeave={(e) => {e.currentTarget.style.background = '#0f2342';}}>
+
         Voir l'emploi du temps
       </button>
-    </div>
-  );
+    </div>);
+
 }
 
 export default function EnseignantCohortes() {
@@ -172,7 +172,7 @@ export default function EnseignantCohortes() {
       etudiants: c.effectif ?? 0,
       cours: 0,
       niveau: c.niveau || 'N/A',
-      color: ['#3b82f6', '#22c55e', '#f97316', '#a855f7', '#14b8a6'][index % 5],
+      color: ['#3b82f6', '#22c55e', '#f97316', '#a855f7', '#14b8a6'][index % 5]
     }));
 
     return [{
@@ -180,13 +180,13 @@ export default function EnseignantCohortes() {
       nom: 'Cohortes',
       niveau: 'API',
       icon: '🎓',
-      groupes,
+      groupes
     }];
   }, [cohortes]);
 
   const summary = useMemo(() => ({
     filieres: filieres.length,
-    groupes: filieres.reduce((n, f) => n + (f.groupes?.length ?? 0), 0),
+    groupes: filieres.reduce((n, f) => n + (f.groupes?.length ?? 0), 0)
   }), [filieres]);
 
   const handleOpen = (groupe, filiere) => {
@@ -197,8 +197,8 @@ export default function EnseignantCohortes() {
         groupName: groupe.nom,
         groupDescription: groupe.description,
         groupInitial: (groupe.nom || 'G').charAt(0).toUpperCase(),
-        filiereName: filiere.nom,
-      },
+        filiereName: filiere.nom
+      }
     });
   };
 
@@ -223,14 +223,14 @@ export default function EnseignantCohortes() {
           borderRadius: 14,
           padding: '16px 22px',
           marginBottom: 28,
-          boxShadow: '0 1px 6px rgba(15,35,66,.06)',
+          boxShadow: '0 1px 6px rgba(15,35,66,.06)'
         }}>
           <div style={{
             width: 56, height: 56,
             borderRadius: 14,
             background: '#0f2342',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
+            flexShrink: 0
           }}>
             <IconGroupSummary />
           </div>
@@ -244,18 +244,18 @@ export default function EnseignantCohortes() {
           </div>
         </div>
 
-        {filieres.map(filiere => (
-          <section key={filiere.id} style={{ marginBottom: 36 }}>
+        {filieres.map((filiere) =>
+        <section key={filiere.id} style={{ marginBottom: 36 }}>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
               <div style={{
-                width: 38, height: 38,
-                borderRadius: 10,
-                background: '#eef4ff',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '1.1rem',
-                flexShrink: 0,
-              }}>
+              width: 38, height: 38,
+              borderRadius: 10,
+              background: '#eef4ff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '1.1rem',
+              flexShrink: 0
+            }}>
                 {filiere.icon}
               </div>
               <div>
@@ -269,18 +269,18 @@ export default function EnseignantCohortes() {
             </div>
 
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: 16,
-            }}>
-              {(filiere.groupes ?? []).map(groupe => (
-                <CohorteCard key={groupe.id} groupe={groupe} filiere={filiere} onOpen={handleOpen} />
-              ))}
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            gap: 16
+          }}>
+              {(filiere.groupes ?? []).map((groupe) =>
+            <CohorteCard key={groupe.id} groupe={groupe} filiere={filiere} onOpen={handleOpen} />
+            )}
             </div>
           </section>
-        ))}
+        )}
         
       </div>
-    </div>
-  );
+    </div>);
+
 }

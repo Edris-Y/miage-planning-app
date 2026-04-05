@@ -59,14 +59,14 @@ exports.create = async (req, res) => {
   await enseignantModel.create({
     id: userId,
     grade,
-    service,
+    service
   });
 
   const created = await enseignantModel.findById(userId);
 
   res.status(201).json({
     message: "Enseignant créé avec succès",
-    enseignant: created,
+    enseignant: created
   });
 };
 
@@ -87,14 +87,14 @@ exports.update = async (req, res) => {
 
   await enseignantModel.update(id, {
     grade: finalGrade,
-    service: finalService,
+    service: finalService
   });
 
   const updated = await enseignantModel.findById(id);
 
   res.json({
     message: "Enseignant mis à jour",
-    enseignant: updated,
+    enseignant: updated
   });
 };
 
@@ -114,6 +114,6 @@ exports.remove = async (req, res) => {
 
   res.json({
     message: "Enseignant supprimé",
-    id,
+    id
   });
 };

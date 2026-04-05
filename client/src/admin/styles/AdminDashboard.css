@@ -138,7 +138,7 @@
   line-height: 1.6;
 }
 
-/* Grille des cartes de statistiques */
+
 .stats-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -146,7 +146,7 @@
   margin-top: 16px;
 }
 
-/* Carte de statistique individuelle */
+
 .stat-card {
   display: flex;
   align-items: center;
@@ -163,7 +163,7 @@
   transform: translateY(-2px);
 }
 
-/* Conteneur icône */
+
 .stat-icon-container {
   display: flex;
   align-items: center;
@@ -175,7 +175,7 @@
   font-size: 24px;
 }
 
-/* Variantes de couleurs pour les icônes */
+
 .stat-icon-teal {
   background: rgba(76, 209, 180, 0.15);
   color: #10b981;
@@ -196,7 +196,7 @@
   color: #ef4444;
 }
 
-/* Contenu de la carte */
+
 .stat-content {
   display: flex;
   flex-direction: column;
@@ -276,7 +276,7 @@
   overflow-x: auto;
 }
 
-/* User Preview List - Affichage compact des utilisateurs dans le dashboard */
+
 .user-preview-list {
   margin-bottom: 16px;
   border-top: 1px solid #e9eef7;
@@ -374,7 +374,7 @@
   border-color: #ddd3f7;
 }
 
-/* Bouton pour voir la liste complète */
+
 .btn-view-all {
   align-self: flex-start;
   padding: 8px 20px;
@@ -405,7 +405,7 @@
   color: #1e2d4a;
 }
 
-/* Pie Chart Styles */
+
 .pie-chart-container {
   display: flex;
   flex-direction: column;

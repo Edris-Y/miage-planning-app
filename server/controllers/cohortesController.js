@@ -31,7 +31,7 @@ exports.create = async (req, res) => {
   const r = await cohorteModel.create({
     nom,
     effectif: effectifNum,
-    niveau,
+    niveau
   });
 
   await historiqueService.logAction({
@@ -39,12 +39,12 @@ exports.create = async (req, res) => {
     entite: "Cohorte",
     entite_id: r.lastID,
     action: "CREATE",
-    detail: `Création de la cohorte ${nom}`,
+    detail: `Création de la cohorte ${nom}`
   });
 
   res.status(201).json({
     message: "Cohorte créée avec succès",
-    id: r.lastID,
+    id: r.lastID
   });
 };
 
@@ -60,10 +60,10 @@ exports.update = async (req, res) => {
   const data = {
     nom: req.body.nom ?? existing.nom,
     effectif:
-      req.body.effectif !== undefined
-        ? Number(req.body.effectif)
-        : existing.effectif,
-    niveau: req.body.niveau ?? existing.niveau,
+    req.body.effectif !== undefined ?
+    Number(req.body.effectif) :
+    existing.effectif,
+    niveau: req.body.niveau ?? existing.niveau
   };
 
   if (!data.nom || !Number.isInteger(data.effectif) || data.effectif < 0) {
@@ -77,7 +77,7 @@ exports.update = async (req, res) => {
     entite: "Cohorte",
     entite_id: id,
     action: "UPDATE",
-    detail: `Mise à jour de la cohorte ${data.nom}`,
+    detail: `Mise à jour de la cohorte ${data.nom}`
   });
 
   res.json({ message: "Cohorte mise à jour" });
@@ -99,7 +99,7 @@ exports.remove = async (req, res) => {
     entite: "Cohorte",
     entite_id: id,
     action: "DELETE",
-    detail: `Suppression de la cohorte ${existing.nom}`,
+    detail: `Suppression de la cohorte ${existing.nom}`
   });
 
   res.json({ message: "Cohorte supprimée" });

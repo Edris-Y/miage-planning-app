@@ -178,9 +178,9 @@ export default function Navbar({ notifCount, onExport, onNotifications, onProfil
       try {
         const rows = await getNotifications({ role });
         if (!isMounted) return;
-        const unreadCount = Array.isArray(rows)
-          ? rows.filter((n) => n.status !== 'lu').length
-          : 0;
+        const unreadCount = Array.isArray(rows) ?
+        rows.filter((n) => n.status !== 'lu').length :
+        0;
         setResolvedNotifCount(unreadCount);
       } catch {
         if (isMounted) {
@@ -272,22 +272,22 @@ export default function Navbar({ notifCount, onExport, onNotifications, onProfil
             </svg>
             {resolvedNotifCount > 0 && <span className="notif-badge">{resolvedNotifCount}</span>}
           </button>
-          <button className="navbar-icon-btn" aria-label="Profil" onClick={() => setIsProfileOpen(v => !v)}>
+          <button className="navbar-icon-btn" aria-label="Profil" onClick={() => setIsProfileOpen((v) => !v)}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
               <circle cx="12" cy="7" r="4" />
             </svg>
           </button>
 
-          {isProfileOpen && (
-            <div className="profile-dropdown">
+          {isProfileOpen &&
+          <div className="profile-dropdown">
               <button
-                className="profile-item"
-                onClick={() => {
-                  setIsProfileOpen(false);
-                  handleProfile();
-                }}
-              >
+              className="profile-item"
+              onClick={() => {
+                setIsProfileOpen(false);
+                handleProfile();
+              }}>
+
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                   <circle cx="12" cy="7" r="4" />
@@ -296,12 +296,12 @@ export default function Navbar({ notifCount, onExport, onNotifications, onProfil
               </button>
               <div className="profile-separator" />
               <button
-                className="profile-item logout"
-                onClick={() => {
-                  setIsProfileOpen(false);
-                  handleLogout();
-                }}
-              >
+              className="profile-item logout"
+              onClick={() => {
+                setIsProfileOpen(false);
+                handleLogout();
+              }}>
+
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                   <polyline points="16 17 21 12 16 7" />
@@ -310,9 +310,9 @@ export default function Navbar({ notifCount, onExport, onNotifications, onProfil
                 Se déconnecter
               </button>
             </div>
-          )}
+          }
         </div>
       </nav>
-    </>
-  );
+    </>);
+
 }

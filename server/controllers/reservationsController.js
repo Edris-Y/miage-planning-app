@@ -27,9 +27,9 @@ function computeDuration(start, end) {
   const [eh, em] = String(end).split(":").map(Number);
 
   if (
-    Number.isNaN(sh) || Number.isNaN(sm) ||
-    Number.isNaN(eh) || Number.isNaN(em)
-  ) {
+  Number.isNaN(sh) || Number.isNaN(sm) ||
+  Number.isNaN(eh) || Number.isNaN(em))
+  {
     throw new ApiError(400, "Heure de début ou de fin invalide");
   }
 
@@ -79,8 +79,8 @@ function ensureReservationAccess(row, user) {
   if (String(user.role).toLowerCase() === "enseignant") {
     const currentUserId = Number(user.id);
     const isOwner =
-      Number(row.demandeur_id) === currentUserId ||
-      Number(row.enseignant_id) === currentUserId;
+    Number(row.demandeur_id) === currentUserId ||
+    Number(row.enseignant_id) === currentUserId;
 
     if (!isOwner) {
       throw new ApiError(403, "Accès interdit");
@@ -94,11 +94,11 @@ function ensureReservationAccess(row, user) {
 
 async function buildCreatePayload(body, currentUser) {
   const hasNativeBackendShape =
-    body.type_demande !== undefined ||
-    body.date_souhaitee !== undefined ||
-    body.heure_debut_souhaitee !== undefined ||
-    body.duree_souhaitee !== undefined ||
-    body.type_seance_souhaitee !== undefined;
+  body.type_demande !== undefined ||
+  body.date_souhaitee !== undefined ||
+  body.heure_debut_souhaitee !== undefined ||
+  body.duree_souhaitee !== undefined ||
+  body.type_seance_souhaitee !== undefined;
 
   if (hasNativeBackendShape) {
     return {
@@ -110,24 +110,24 @@ async function buildCreatePayload(body, currentUser) {
       date_souhaitee: body.date_souhaitee || null,
       heure_debut_souhaitee: body.heure_debut_souhaitee || null,
       duree_souhaitee:
-        body.duree_souhaitee !== undefined && body.duree_souhaitee !== null
-          ? Number(body.duree_souhaitee)
-          : null,
-      type_seance_souhaitee: body.type_seance_souhaitee
-        ? toUpper(body.type_seance_souhaitee)
-        : null,
+      body.duree_souhaitee !== undefined && body.duree_souhaitee !== null ?
+      Number(body.duree_souhaitee) :
+      null,
+      type_seance_souhaitee: body.type_seance_souhaitee ?
+      toUpper(body.type_seance_souhaitee) :
+      null,
       cohorte_id: body.cohorte_id ? Number(body.cohorte_id) : null,
-      enseignant_id: body.enseignant_id
-        ? Number(body.enseignant_id)
-        : currentUser?.role === "enseignant"
-        ? Number(currentUser.id)
-        : null,
+      enseignant_id: body.enseignant_id ?
+      Number(body.enseignant_id) :
+      currentUser?.role === "enseignant" ?
+      Number(currentUser.id) :
+      null
     };
   }
 
   const demandeTypeFront = toUpper(body.demande_type || body.demandeType || "CREATION");
   const isMove =
-    demandeTypeFront === "DEPLACEMENT" || demandeTypeFront === "MODIFICATION";
+  demandeTypeFront === "DEPLACEMENT" || demandeTypeFront === "MODIFICATION";
 
   let sourceReservation = null;
   let seanceId = body.seance_id ? Number(body.seance_id) : null;
@@ -141,9 +141,9 @@ async function buildCreatePayload(body, currentUser) {
       throw new ApiError(404, "Réservation source introuvable");
     }
 
-    seanceId = sourceReservation.seance_id
-      ? Number(sourceReservation.seance_id)
-      : null;
+    seanceId = sourceReservation.seance_id ?
+    Number(sourceReservation.seance_id) :
+    null;
   }
 
   if (isMove && !seanceId) {
@@ -153,39 +153,39 @@ async function buildCreatePayload(body, currentUser) {
     );
   }
 
-  const enseignantId = body.enseignant_id
-    ? Number(body.enseignant_id)
-    : currentUser?.role === "enseignant"
-    ? Number(currentUser.id)
-    : sourceReservation?.enseignant_id
-    ? Number(sourceReservation.enseignant_id)
-    : null;
+  const enseignantId = body.enseignant_id ?
+  Number(body.enseignant_id) :
+  currentUser?.role === "enseignant" ?
+  Number(currentUser.id) :
+  sourceReservation?.enseignant_id ?
+  Number(sourceReservation.enseignant_id) :
+  null;
 
-  const cohorteId = body.cohorte_id
-    ? Number(body.cohorte_id)
-    : sourceReservation?.cohorte_id
-    ? Number(sourceReservation.cohorte_id)
-    : null;
+  const cohorteId = body.cohorte_id ?
+  Number(body.cohorte_id) :
+  sourceReservation?.cohorte_id ?
+  Number(sourceReservation.cohorte_id) :
+  null;
 
   return {
     type_demande: isMove ? "MODIFICATION" : "AJOUT",
-    salle_id: body.salle_id
-      ? Number(body.salle_id)
-      : sourceReservation?.salle_id
-      ? Number(sourceReservation.salle_id)
-      : null,
+    salle_id: body.salle_id ?
+    Number(body.salle_id) :
+    sourceReservation?.salle_id ?
+    Number(sourceReservation.salle_id) :
+    null,
     seance_id: isMove ? seanceId : null,
     created_by: currentUser?.id || null,
     motif: body.motif || null,
     date_souhaitee: body.date || null,
     heure_debut_souhaitee: body.debut || null,
     duree_souhaitee:
-      !body.debut || !body.fin
-        ? null
-        : computeDuration(body.debut, body.fin),
+    !body.debut || !body.fin ?
+    null :
+    computeDuration(body.debut, body.fin),
     type_seance_souhaitee: body.type ? toUpper(body.type) : null,
     cohorte_id: cohorteId,
-    enseignant_id: enseignantId,
+    enseignant_id: enseignantId
   };
 }
 
@@ -210,7 +210,7 @@ exports.getById = async (req, res) => {
   res.json(row);
 };
 
-// 🚀 LA FAMEUSE CORRECTION (CETTE FOIS UNIQUE DANS LE FICHIER !)
+
 exports.getFrontDemandes = async (req, res) => {
   const rows = await reservationModel.findFrontDemandes();
 
@@ -218,12 +218,12 @@ exports.getFrontDemandes = async (req, res) => {
   const userId = req.user?.id ? Number(req.user.id) : null;
 
   const filtered =
-    userRole === "administratif"
-      ? rows
-      : rows.filter((r) => Number(r.enseignant_id) === userId);
+  userRole === "administratif" ?
+  rows :
+  rows.filter((r) => Number(r.enseignant_id) === userId);
 
   const formatted = filtered.map((r) => {
-    // Priorité absolue aux champs souhaités
+
     const heureDebut = r.heure_debut_souhaitee || r.heureDebut || "00:00";
     const duree = Number(r.duree_souhaitee || r.duree || 0);
     const dateAffichage = r.date_souhaitee || r.dateSeance || "";
@@ -244,11 +244,11 @@ exports.getFrontDemandes = async (req, res) => {
       duree,
       salle: r.salle_code || "-",
       cohorte: r.cohorte_nom || "-",
-      enseignant: r.enseignant_nom
-        ? `${r.enseignant_prenom} ${r.enseignant_nom}`
-        : "",
+      enseignant: r.enseignant_nom ?
+      `${r.enseignant_prenom} ${r.enseignant_nom}` :
+      "",
       motif: r.motif || "",
-      createdAt: r.created_at || new Date().toISOString(),
+      createdAt: r.created_at || new Date().toISOString()
     };
   });
 

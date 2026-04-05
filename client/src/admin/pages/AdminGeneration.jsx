@@ -4,13 +4,13 @@ import '../styles/AdminGeneration.css';
 function AdminGeneration() {
   const [loading, setLoading] = useState(false);
   const [resultat, setResultat] = useState(null);
-  const [erreur, setErreur] = useState(null); // 🚀 On ajoute un state pour gérer l'erreur
+  const [erreur, setErreur] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [derniereGeneration, setDerniereGeneration] = useState({
     places: 0,
     echecs: 0,
     conflitsRestants: 0,
-    executedAt: null,
+    executedAt: null
   });
 
   function formatDerniereExecution(date) {
@@ -20,9 +20,9 @@ function AdminGeneration() {
 
     const now = new Date();
     const sameDay =
-      date.getDate() === now.getDate() &&
-      date.getMonth() === now.getMonth() &&
-      date.getFullYear() === now.getFullYear();
+    date.getDate() === now.getDate() &&
+    date.getMonth() === now.getMonth() &&
+    date.getFullYear() === now.getFullYear();
 
     const heure = String(date.getHours()).padStart(2, '0');
     const minute = String(date.getMinutes()).padStart(2, '0');
@@ -39,7 +39,7 @@ function AdminGeneration() {
     setLoading(true);
     setErreur(null);
     setResultat(null);
-    
+
     try {
       const token = localStorage.getItem("token");
       const res = await fetch('http://localhost:5000/api/generation/generer', {
@@ -49,7 +49,7 @@ function AdminGeneration() {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       const data = await res.json();
 
       if (!res.ok) {
@@ -66,11 +66,11 @@ function AdminGeneration() {
 
         if (conflitsRes.ok) {
           const conflitsData = await conflitsRes.json();
-          conflitsRestants = Array.isArray(conflitsData)
-            ? conflitsData.length
-            : Array.isArray(conflitsData?.data)
-            ? conflitsData.data.length
-            : 0;
+          conflitsRestants = Array.isArray(conflitsData) ?
+          conflitsData.length :
+          Array.isArray(conflitsData?.data) ?
+          conflitsData.data.length :
+          0;
         }
       } catch (_e) {
         conflitsRestants = 0;
@@ -81,11 +81,11 @@ function AdminGeneration() {
         places: Number(data?.stats?.places || 0),
         echecs: Number(data?.stats?.echecs || 0),
         conflitsRestants,
-        executedAt: new Date(),
+        executedAt: new Date()
       });
     } catch (err) {
       console.error(err);
-      setErreur(err.message); // 🚀 On stocke l'erreur pour l'afficher
+      setErreur(err.message);
     } finally {
       setLoading(false);
     }
@@ -103,8 +103,8 @@ function AdminGeneration() {
             <button
               className="admin-generation-btn"
               onClick={() => setShowConfirmModal(true)}
-              disabled={loading}
-            >
+              disabled={loading}>
+
               {loading ? '🧠 Réflexion en cours...' : '⚡ Lancer la génération gloutonne'}
             </button>
           </div>
@@ -120,14 +120,14 @@ function AdminGeneration() {
             </p>
           </section>
 
-          {erreur ? (
-            <div className="admin-generation-alert admin-generation-alert--error">
+          {erreur ?
+          <div className="admin-generation-alert admin-generation-alert--error">
               <strong>Erreur :</strong> {erreur}
-            </div>
-          ) : null}
+            </div> :
+          null}
 
-          {resultat && resultat.stats && (
-            <div className="admin-generation-result">
+          {resultat && resultat.stats &&
+          <div className="admin-generation-result">
               <h2 className="admin-generation-result-title">✅ Bilan de la génération</h2>
 
               <div className="admin-generation-stats">
@@ -142,40 +142,40 @@ function AdminGeneration() {
                 </div>
               </div>
 
-              {resultat.stats.echecs > 0 && (
-                <div className="admin-generation-failures">
+              {resultat.stats.echecs > 0 &&
+            <div className="admin-generation-failures">
                   <h3 className="admin-generation-failures-title">
                     Liste des échecs (salles ou profs indisponibles)
                   </h3>
                   <ul className="admin-generation-failures-list">
-                    {resultat.echecs.map((e, index) => (
-                      <li key={index}>
+                    {resultat.echecs.map((e, index) =>
+                <li key={index}>
                         {e.type_seance_souhaitee} (Prof: {e.enseignant_id}, Effectif demandé: {e.effectif})
                       </li>
-                    ))}
+                )}
                   </ul>
                 </div>
-              )}
+            }
             </div>
-          )}
+          }
 
           <p className="admin-generation-panel-note">
             Cet algorithme place automatiquement les demandes de cours en attente dans les premiers créneaux disponibles.
           </p>
         </section>
 
-        {showConfirmModal ? (
-          <div
-            className="admin-generation-confirm-overlay"
-            onClick={() => setShowConfirmModal(false)}
-          >
+        {showConfirmModal ?
+        <div
+          className="admin-generation-confirm-overlay"
+          onClick={() => setShowConfirmModal(false)}>
+
             <div
-              className="admin-generation-confirm-modal"
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="admin-generation-confirm-title"
-              onClick={(event) => event.stopPropagation()}
-            >
+            className="admin-generation-confirm-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-generation-confirm-title"
+            onClick={(event) => event.stopPropagation()}>
+
               <h2 id="admin-generation-confirm-title" className="admin-generation-confirm-title">
                 Confirmer le lancement
               </h2>
@@ -185,33 +185,33 @@ function AdminGeneration() {
 
               <div className="admin-generation-confirm-actions">
                 <button
-                  type="button"
-                  className="admin-generation-confirm-btn admin-generation-confirm-btn--ghost"
-                  onClick={() => setShowConfirmModal(false)}
-                >
+                type="button"
+                className="admin-generation-confirm-btn admin-generation-confirm-btn--ghost"
+                onClick={() => setShowConfirmModal(false)}>
+
                   Annuler
                 </button>
                 <button
-                  type="button"
-                  className="admin-generation-confirm-btn admin-generation-confirm-btn--primary"
-                  onClick={() => {
-                    setShowConfirmModal(false);
-                    setDerniereGeneration((current) => ({
-                      ...current,
-                      executedAt: new Date(),
-                    }));
-                    lancerAlgorithme();
-                  }}
-                >
+                type="button"
+                className="admin-generation-confirm-btn admin-generation-confirm-btn--primary"
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  setDerniereGeneration((current) => ({
+                    ...current,
+                    executedAt: new Date()
+                  }));
+                  lancerAlgorithme();
+                }}>
+
                   Confirmer
                 </button>
               </div>
             </div>
-          </div>
-        ) : null}
+          </div> :
+        null}
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
 export default AdminGeneration;

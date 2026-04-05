@@ -1,40 +1,40 @@
 const { dbAll, dbGet, dbRun } = require("../db/dbAsync");
 
 exports.findAll = () =>
-  dbAll(`
+dbAll(`
     SELECT *
     FROM Conflit
     ORDER BY created_at DESC
   `);
 
 exports.findById = (id) =>
-  dbGet(
-    `
+dbGet(
+  `
     SELECT *
     FROM Conflit
     WHERE id = ?
     `,
-    [id]
-  );
+  [id]
+);
 
-// 1. On force resolu = 0 à la création
+
 exports.create = ({
   type,
   description,
   reservation_id = null,
   seance_id_1 = null,
-  seance_id_2 = null,
+  seance_id_2 = null
 }) =>
-  dbRun(
-    `
+dbRun(
+  `
     INSERT INTO Conflit (type, description, reservation_id, seance_id_1, seance_id_2, resolu)
     VALUES (?, ?, ?, ?, ?, 0)
     `,
-    [type, description, reservation_id, seance_id_1, seance_id_2]
-  );
+  [type, description, reservation_id, seance_id_1, seance_id_2]
+);
 
 exports.findUnresolved = () =>
-  dbAll(`
+dbAll(`
     SELECT 
       c.*, 
       u.nom AS enseignant_nom, 
@@ -48,20 +48,20 @@ exports.findUnresolved = () =>
     ORDER BY c.created_at DESC
   `);
 exports.markResolved = (id) =>
-  dbRun(
-    `
+dbRun(
+  `
     UPDATE Conflit
     SET resolu = 1
     WHERE id = ?
     `,
-    [id]
-  );
+  [id]
+);
 
 exports.remove = (id) =>
-  dbRun(
-    `
+dbRun(
+  `
     DELETE FROM Conflit
     WHERE id = ?
     `,
-    [id]
-  );
+  [id]
+);

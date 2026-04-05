@@ -38,7 +38,7 @@ exports.create = async (req, res) => {
     jour,
     heureDebut,
     heureFin,
-    disponible = 1,
+    disponible = 1
   } = req.body;
 
   if (!enseignant_id || !jour || !heureDebut || !heureFin) {
@@ -81,14 +81,14 @@ exports.create = async (req, res) => {
     jour: String(jour).trim(),
     heureDebut: String(heureDebut).trim(),
     heureFin: String(heureFin).trim(),
-    disponible: disponible ? 1 : 0,
+    disponible: disponible ? 1 : 0
   });
 
   const created = await disponibiliteModel.findById(result.lastID);
 
   res.status(201).json({
     message: "Disponibilité créée avec succès",
-    disponibilite: created,
+    disponibilite: created
   });
 };
 
@@ -141,14 +141,14 @@ exports.update = async (req, res) => {
     jour: String(finalJour).trim(),
     heureDebut: String(finalHeureDebut).trim(),
     heureFin: String(finalHeureFin).trim(),
-    disponible: finalDisponible ? 1 : 0,
+    disponible: finalDisponible ? 1 : 0
   });
 
   const updated = await disponibiliteModel.findById(id);
 
   res.json({
     message: "Disponibilité mise à jour",
-    disponibilite: updated,
+    disponibilite: updated
   });
 };
 
@@ -169,6 +169,6 @@ exports.remove = async (req, res) => {
 
   res.json({
     message: "Disponibilité supprimée",
-    id,
+    id
   });
 };

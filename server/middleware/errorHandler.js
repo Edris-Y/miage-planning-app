@@ -3,6 +3,6 @@ module.exports = (err, req, res, next) => {
 
   res.status(status).json({
     message: err.message || "Erreur serveur",
-    details: err.details || null,
+    details: err.details || null
   });
 };

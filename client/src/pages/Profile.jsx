@@ -21,9 +21,9 @@ export default function Profile() {
     <div className="profile-page-shell">
       <Navbar
         onNotifications={() =>
-          navigate(role === 'etudiant' ? '/etudiant/notifications' : '/enseignant/notifications')
-        }
-      />
+        navigate(role === 'etudiant' ? '/etudiant/notifications' : '/enseignant/notifications')
+        } />
+
 
       <div className="profile-container">
         <section className="profile-card">
@@ -63,13 +63,13 @@ export default function Profile() {
               onClick={() => {
                 clearToken();
                 navigate('/login');
-              }}
-            >
+              }}>
+
               Se deconnecter
             </button>
           </div>
         </section>
       </div>
-    </div>
-  );
+    </div>);
+
 }

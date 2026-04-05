@@ -6,9 +6,9 @@ import '../../styles/enseignant.css';
 
 const ICON_MAP = {
   location: { icon: '📍', cls: 'location' },
-  check:    { icon: '✔',  cls: 'check' },
-  info:     { icon: 'ℹ',  cls: 'info' },
-  warning:  { icon: '⚠',  cls: 'warning' },
+  check: { icon: '✔', cls: 'check' },
+  info: { icon: 'ℹ', cls: 'info' },
+  warning: { icon: '⚠', cls: 'warning' }
 };
 
 export default function EnseignantNotifications() {
@@ -92,20 +92,20 @@ export default function EnseignantNotifications() {
           {loading && <div style={{ padding: '12px 0' }}>Chargement des notifications...</div>}
           {!loading && apiError && <div style={{ padding: '12px 0', color: '#b42318' }}>Erreur API: {apiError}</div>}
 
-          {unread.length === 0 ? (
-            <div className="ens-empty">
+          {unread.length === 0 ?
+          <div className="ens-empty">
               <div className="ens-empty-icon">🔔</div>
               <h3>Aucune notification</h3>
               <p>Vous êtes à jour !</p>
-            </div>
-          ) : (
-            <div className="notif-list">
-              {unread.map((note, idx) => {
-                const iconMeta = ICON_MAP[note.iconType] ?? ICON_MAP.info;
-                const isNew = note.status === 'nouveau';
+            </div> :
 
-                return (
-                  <div key={note.id}>
+          <div className="notif-list">
+              {unread.map((note, idx) => {
+              const iconMeta = ICON_MAP[note.iconType] ?? ICON_MAP.info;
+              const isNew = note.status === 'nouveau';
+
+              return (
+                <div key={note.id}>
                     <div className="notif-item unread">
                       <div className={`notif-icon-wrap ${iconMeta.cls}`}>
                         {iconMeta.icon}
@@ -119,23 +119,23 @@ export default function EnseignantNotifications() {
                         <div className="notif-time">{note.date}</div>
                         <div className="notif-actions">
                           <button
-                            type="button"
-                            className="notif-read-btn"
-                            onClick={() => handleMarkOneAsRead(note.id)}
-                          >
+                          type="button"
+                          className="notif-read-btn"
+                          onClick={() => handleMarkOneAsRead(note.id)}>
+
                             J'ai vu
                           </button>
                         </div>
                       </div>
                     </div>
                     {idx < unread.length - 1 && <div className="notif-divider" />}
-                  </div>
-                );
-              })}
+                  </div>);
+
+            })}
             </div>
-          )}
+          }
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }

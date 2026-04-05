@@ -45,7 +45,7 @@ exports.resolve = async (req, res) => {
 
   res.json({
     message: "Conflit marqué comme résolu",
-    id,
+    id
   });
 };
 
@@ -66,7 +66,7 @@ exports.remove = async (req, res) => {
 
   res.json({
     message: "Conflit supprimé",
-    id,
+    id
   });
 };
 
@@ -74,27 +74,27 @@ exports.remove = async (req, res) => {
 
 
 exports.trancherConflit = async (req, res) => {
-  const { id } = req.params; 
-  
+  const { id } = req.params;
+
   console.log("📥 DONNÉES REÇUES DU FRONTEND :", req.body);
 
-  // 🚀 LA CORRECTION EST ICI : On accepte tous les noms de variables possibles !
+
   const rawExamId = req.body.reservation_exam_id || req.body.reservation_id || req.body.examenAReserver;
   const rawOldSeanceId = req.body.seance_old_id || req.body.seance_id_1 || req.body.coursA_Deplacer;
-  
+
   const examId = Number(rawExamId);
   const oldSeanceId = Number(rawOldSeanceId);
   const { nouvelleDate, nouvelleHeure } = req.body;
 
   try {
-    // Sécurité Anti-NaN
+
     if (!rawExamId || isNaN(examId)) {
       throw new Error(`L'ID de réservation est introuvable ou invalide. Le frontend a envoyé : ${JSON.stringify(req.body)}`);
     }
 
     console.log(`🔍 Recherche de la réservation ID: ${examId}...`);
     const resaExam = await dbGet("SELECT * FROM Reservation WHERE id = ?", [examId]);
-    
+
     if (!resaExam) {
       throw new Error(`Réservation ${examId} introuvable en base de données.`);
     }
@@ -105,35 +105,35 @@ exports.trancherConflit = async (req, res) => {
     console.log("🔨 Création de la séance d'examen sur l'EDT...");
     const resultInsert = await dbRun(
       `INSERT INTO Seance (dateSeance, heureDebut, duree, typeSeance, statut, description, cohorte_id, enseignant_id, salle_id, matiere_id) 
-       VALUES (?, ?, ?, ?, 'VALIDE', ?, ?, ?, ?, ?)`, 
+       VALUES (?, ?, ?, ?, 'VALIDE', ?, ?, ?, ?, ?)`,
       [
-        resaExam.date_souhaitee, 
-        resaExam.heure_debut_souhaitee, 
-        resaExam.duree_souhaitee, 
-        resaExam.type_seance_souhaitee, 
-        resaExam.motif || "Examen prioritaire (Arbitrage)", 
-        resaExam.cohorte_id, 
-        resaExam.enseignant_id,
-        resaExam.salle_id, 
-        matiereId
-      ]
+      resaExam.date_souhaitee,
+      resaExam.heure_debut_souhaitee,
+      resaExam.duree_souhaitee,
+      resaExam.type_seance_souhaitee,
+      resaExam.motif || "Examen prioritaire (Arbitrage)",
+      resaExam.cohorte_id,
+      resaExam.enseignant_id,
+      resaExam.salle_id,
+      matiereId]
+
     );
 
     const newSeanceId = resultInsert.lastID || resultInsert.id;
 
     await dbRun(
-      "UPDATE Reservation SET statut = 'VALIDEE', seance_id = ? WHERE id = ?", 
+      "UPDATE Reservation SET statut = 'VALIDEE', seance_id = ? WHERE id = ?",
       [newSeanceId, examId]
     );
 
     if (oldSeanceId) {
       if (nouvelleDate && nouvelleHeure) {
         await dbRun(
-          "UPDATE Seance SET dateSeance = ?, heureDebut = ?, statut = 'VALIDE' WHERE id = ?", 
+          "UPDATE Seance SET dateSeance = ?, heureDebut = ?, statut = 'VALIDE' WHERE id = ?",
           [nouvelleDate, nouvelleHeure, oldSeanceId]
         );
         await dbRun(
-          "UPDATE Reservation SET date_souhaitee = ?, heure_debut_souhaitee = ?, statut = 'VALIDEE' WHERE seance_id = ?", 
+          "UPDATE Reservation SET date_souhaitee = ?, heure_debut_souhaitee = ?, statut = 'VALIDEE' WHERE seance_id = ?",
           [nouvelleDate, nouvelleHeure, oldSeanceId]
         );
       } else {
@@ -143,7 +143,7 @@ exports.trancherConflit = async (req, res) => {
     }
 
     await dbRun("UPDATE Conflit SET resolu = 1 WHERE id = ?", [id]);
-    
+
     console.log("🎉 ARBITRAGE TERMINÉ AVEC SUCCÈS !");
     res.json({ message: "Arbitrage réussi ! L'emploi du temps a été mis à jour." });
 

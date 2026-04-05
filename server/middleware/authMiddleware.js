@@ -14,9 +14,9 @@ function authMiddleware(req, res, next) {
     return res.status(401).json({ message: "Accès refusé : token manquant" });
   }
 
-  const token = authHeader.startsWith("Bearer ")
-    ? authHeader.slice(7).trim()
-    : authHeader.trim();
+  const token = authHeader.startsWith("Bearer ") ?
+  authHeader.slice(7).trim() :
+  authHeader.trim();
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);

@@ -101,7 +101,7 @@ async function init() {
           CHECK(type_demande IN ('MODIFICATION', 'AJOUT')),
         seance_id INTEGER REFERENCES Seance(id) ON DELETE SET NULL,
         source_reservation_id INTEGER REFERENCES Reservation(id) ON DELETE SET NULL,
-        salle_id INTEGER REFERENCES Salle(id) ON DELETE RESTRICT,
+        salle_id INTEGER REFERENCES Salle(id) ON DELETE CASCADE,
         demandeur_id INTEGER REFERENCES Utilisateur(id) ON DELETE SET NULL,
         date_souhaitee TEXT,
         heure_debut_souhaitee TEXT,
@@ -152,9 +152,9 @@ async function init() {
       );
     `);
 
-    // ==========================================
-    // 2. TRIGGERS ET INDEXES
-    // ==========================================
+
+
+
     await db.exec(`
       CREATE TRIGGER IF NOT EXISTS trg_reservation_updated_at
       AFTER UPDATE ON Reservation
@@ -178,7 +178,7 @@ async function init() {
       CREATE INDEX IF NOT EXISTS idx_notification_role ON Notification(role);
     `);
 
-    
+
     const count = await db.get("SELECT COUNT(*) as total FROM Utilisateur");
     if (count.total === 0) {
       console.log("🚀 Lancement du méga-remplissage de la base de données...");
@@ -192,7 +192,7 @@ async function init() {
         ('M2 MIAGE', 30, 'Master 2');
       `);
 
-      // ⚠️ Insertion des utilisateurs avec le mot de passe sécurisé
+
       await db.run(`
         INSERT INTO Utilisateur (nom, prenom, email, mot_de_passe, role) VALUES
         ('Admin', 'Principal', 'admin.planning@univ.fr', ?, 'administratif'),
@@ -213,11 +213,11 @@ async function init() {
         ('Petit', 'Chloé', 'chloe.petit@univ.fr', ?, 'etudiant'),
         ('Robert', 'Louis', 'louis.robert@univ.fr', ?, 'etudiant')
       `, [
-        defaultPassword, defaultPassword, defaultPassword, defaultPassword, defaultPassword, 
-        defaultPassword, defaultPassword, defaultPassword, defaultPassword, defaultPassword, 
-        defaultPassword, defaultPassword, defaultPassword, defaultPassword, defaultPassword, 
-        defaultPassword, defaultPassword
-      ]);
+      defaultPassword, defaultPassword, defaultPassword, defaultPassword, defaultPassword,
+      defaultPassword, defaultPassword, defaultPassword, defaultPassword, defaultPassword,
+      defaultPassword, defaultPassword, defaultPassword, defaultPassword, defaultPassword,
+      defaultPassword, defaultPassword]
+      );
 
       await db.exec(`
         INSERT INTO Enseignant (id, grade, service) VALUES
@@ -299,8 +299,8 @@ async function init() {
 
       console.log("✅ Données massives ajoutées avec succès !");
       console.log("🚨 Les mots de passe sont tous définis sur 'changeme'");
-    }
-    else {
+    } else
+    {
       console.log("La base contient déjà des données, aucune insertion nécessaire.");
     }
 

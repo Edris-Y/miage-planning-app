@@ -12,24 +12,24 @@ const DAYS_FR = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'd
 const TYPE_COLORS = { CM: 'cm', TD: 'td', TP: 'tp', EXAM: 'exam', Examen: 'exam' };
 
 const LEGEND = [
-  { label: 'CM', color: '#3b7cf4' },
-  { label: 'TD', color: '#22c17a' },
-  { label: 'TP', color: '#f59e0b' },
-  { label: 'Examen', color: '#ef4444' },
-];
+{ label: 'CM', color: '#3b7cf4' },
+{ label: 'TD', color: '#22c17a' },
+{ label: 'TP', color: '#f59e0b' },
+{ label: 'Examen', color: '#ef4444' }];
+
 
 const TYPE_SELECT_MAP = {
   'Tous les type': 'Tous',
   'Cours Magistral': 'CM',
   'Travaux Diriges': 'TD',
   'Travaux Pratiques': 'TP',
-  Examen: 'EXAM',
+  Examen: 'EXAM'
 };
 
 function getWeekDays(date) {
   const d = new Date(date);
   const monday = new Date(d);
-  monday.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  monday.setDate(d.getDate() - (d.getDay() + 6) % 7);
   return Array.from({ length: 7 }, (_, i) => {
     const dd = new Date(monday);
     dd.setDate(monday.getDate() + i);
@@ -73,8 +73,8 @@ function isSameDay(a, b) {
   return (
     a.getDate() === b.getDate() &&
     a.getMonth() === b.getMonth() &&
-    a.getFullYear() === b.getFullYear()
-  );
+    a.getFullYear() === b.getFullYear());
+
 }
 
 function isToday(d) {
@@ -108,19 +108,19 @@ export default function EtudiantPage() {
       setLoading(true);
       setApiError('');
       try {
-        // 1. On récupère l'étudiant connecté
+
         const user = getUser();
-        const userCohorteId = user?.cohorte_id || 1;    
-        // 2. On demande les cours à l'API
+        const userCohorteId = user?.cohorte_id || 1;
+
         const rows = await getEtudiantCours({ cohorteId: userCohorteId });
         console.log("📥 DONNÉES BRUTES REÇUES DE L'API :", rows);
-        // 🚀 3. LE TRADUCTEUR (La correction est ici)
-        const coursFormates = rows.map(c => {
-          // On récupère l'heure de base
+
+        const coursFormates = rows.map((c) => {
+
           const heureDebutBase = c.debut || c.heureDebut;
           let heureFinCalc = c.fin;
-          
-          // Si on a l'heure de début et la durée (ex: 120 min), on calcule l'heure de fin !
+
+
           if (heureDebutBase && c.duree && !c.fin) {
             const [h, m] = heureDebutBase.split(':').map(Number);
             const minutesTotales = h * 60 + m + Number(c.duree);
@@ -129,22 +129,22 @@ export default function EtudiantPage() {
             heureFinCalc = `${String(finH).padStart(2, '0')}:${String(finM).padStart(2, '0')}`;
           }
 
-          // On renvoie un objet "propre" pour le calendrier
+
           return {
             ...c,
-            date: c.date || c.dateSeance,         // BDD: dateSeance -> Calendrier: date
-            debut: heureDebutBase,                // BDD: heureDebut -> Calendrier: debut
-            fin: heureFinCalc,                    // Heure de fin calculée
-            type: c.type || c.typeSeance,         // BDD: typeSeance -> Calendrier: type
-            matiere: c.matiere || "Matière",      
+            date: c.date || c.dateSeance,
+            debut: heureDebutBase,
+            fin: heureFinCalc,
+            type: c.type || c.typeSeance,
+            matiere: c.matiere || "Matière",
             salle: c.salle || "Salle",
             enseignant: c.enseignant || "Professeur"
           };
         });
 
-        // On donne les données traduites à React
+
         if (isMounted) setCours(coursFormates);
-        
+
       } catch (error) {
         if (isMounted) {
           setCours([]);
@@ -175,17 +175,17 @@ export default function EtudiantPage() {
 
   const goToPrev = () => {
     const d = new Date(currentDate);
-    if (view === 'Jour') d.setDate(d.getDate() - 1);
-    else if (view === 'Mois') d.setMonth(d.getMonth() - 1);
-    else d.setDate(d.getDate() - 7);
+    if (view === 'Jour') d.setDate(d.getDate() - 1);else
+    if (view === 'Mois') d.setMonth(d.getMonth() - 1);else
+    d.setDate(d.getDate() - 7);
     setCurrentDate(d);
   };
 
   const goToNext = () => {
     const d = new Date(currentDate);
-    if (view === 'Jour') d.setDate(d.getDate() + 1);
-    else if (view === 'Mois') d.setMonth(d.getMonth() + 1);
-    else d.setDate(d.getDate() + 7);
+    if (view === 'Jour') d.setDate(d.getDate() + 1);else
+    if (view === 'Mois') d.setMonth(d.getMonth() + 1);else
+    d.setDate(d.getDate() + 7);
     setCurrentDate(d);
   };
 
@@ -196,31 +196,31 @@ export default function EtudiantPage() {
       const selectTypeOk = selectType === 'Tous' || c.type === selectType;
       const ensOk = ensFilter === 'Tous les enseignants' || (c.enseignant || '').trim() === ensFilter;
       const dayIndex = (new Date(currentDate).getDay() + 6) % 7;
-      const dayOk = view !== 'Jour'
-        || (c.date ? isSameDay(new Date(c.date), currentDate) : c.jour === dayIndex);
+      const dayOk = view !== 'Jour' || (
+      c.date ? isSameDay(new Date(c.date), currentDate) : c.jour === dayIndex);
       return legendTypeOk && selectTypeOk && ensOk && dayOk;
     });
   }, [activeType, typeFilterLabel, ensFilter, currentDate, view, cours]);
 
   const getCoursForDayHour = (dayDate, hour) =>
-    filteredCours.filter((c) => {
-      if (c.date && c.debut) {
-        return isSameDay(new Date(c.date), dayDate) && Number(c.debut.split(':')[0]) === hour;
-      }
-      if (typeof c.jour === 'number') {
-        return c.jour === (dayDate.getDay() + 6) % 7 && c.heureDebut === hour;
-      }
-      return false;
-    });
+  filteredCours.filter((c) => {
+    if (c.date && c.debut) {
+      return isSameDay(new Date(c.date), dayDate) && Number(c.debut.split(':')[0]) === hour;
+    }
+    if (typeof c.jour === 'number') {
+      return c.jour === (dayDate.getDay() + 6) % 7 && c.heureDebut === hour;
+    }
+    return false;
+  });
 
   const getCoursForDate = (dayDate) =>
-    filteredCours
-      .filter(c => {
-        if (c.date && c.debut) return isSameDay(new Date(c.date), dayDate);
-        if (typeof c.jour === 'number') return c.jour === (dayDate.getDay() + 6) % 7;
-        return false;
-      })
-      .sort((a, b) => getHourNumber(a) - getHourNumber(b));
+  filteredCours.
+  filter((c) => {
+    if (c.date && c.debut) return isSameDay(new Date(c.date), dayDate);
+    if (typeof c.jour === 'number') return c.jour === (dayDate.getDay() + 6) % 7;
+    return false;
+  }).
+  sort((a, b) => getHourNumber(a) - getHourNumber(b));
 
   const exportCsv = () => {
     if (!filteredCours.length) {
@@ -229,22 +229,22 @@ export default function EtudiantPage() {
     }
 
     const csvRows = [
-      ['id', 'matiere', 'salle', 'date', 'debut', 'fin', 'type', 'enseignant'],
-      ...filteredCours.map((c) => [
-        c.id,
-        c.matiere,
-        c.salle,
-        c.date || '',
-        c.debut || (c.heureDebut !== undefined ? `${String(c.heureDebut).padStart(2, '0')}:00` : ''),
-        c.fin || (c.heureFin !== undefined ? `${String(c.heureFin).padStart(2, '0')}:00` : ''),
-        c.type,
-        c.enseignant || '',
-      ]),
-    ];
+    ['id', 'matiere', 'salle', 'date', 'debut', 'fin', 'type', 'enseignant'],
+    ...filteredCours.map((c) => [
+    c.id,
+    c.matiere,
+    c.salle,
+    c.date || '',
+    c.debut || (c.heureDebut !== undefined ? `${String(c.heureDebut).padStart(2, '0')}:00` : ''),
+    c.fin || (c.heureFin !== undefined ? `${String(c.heureFin).padStart(2, '0')}:00` : ''),
+    c.type,
+    c.enseignant || '']
+    )];
 
-    const csvContent = csvRows
-      .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))
-      .join('\n');
+
+    const csvContent = csvRows.
+    map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).
+    join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -261,22 +261,22 @@ export default function EtudiantPage() {
     <div className="ens-page">
       <Navbar
         onExport={exportCsv}
-        onNotifications={() => navigate('/etudiant/notifications')}
-      />
+        onNotifications={() => navigate('/etudiant/notifications')} />
+
 
       <div className="ens-content">
-        {openedFromEnseignant && (
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+        {openedFromEnseignant &&
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
             <BackButton label="Retour enseignant" to="/enseignant" fallback="/enseignant" />
           </div>
-        )}
+        }
 
         {loading && <div className="ens-card" style={{ marginBottom: 12 }}>Chargement des cours depuis l'API...</div>}
-        {!loading && apiError && (
-          <div className="ens-card" style={{ marginBottom: 12, color: '#b42318' }}>
+        {!loading && apiError &&
+        <div className="ens-card" style={{ marginBottom: 12, color: '#b42318' }}>
             Erreur API: {apiError}
           </div>
-        )}
+        }
 
         <div className="cal-toolbar">
           <div className="cal-toolbar-left">
@@ -297,11 +297,11 @@ export default function EtudiantPage() {
           </div>
 
           <div className="ens-toggle-group">
-            {VIEW_OPTIONS.map((opt) => (
-              <button key={opt} className={view === opt ? 'active' : ''} onClick={() => setView(opt)}>
+            {VIEW_OPTIONS.map((opt) =>
+            <button key={opt} className={view === opt ? 'active' : ''} onClick={() => setView(opt)}>
                 {opt}
               </button>
-            ))}
+            )}
           </div>
         </div>
 
@@ -324,29 +324,29 @@ export default function EtudiantPage() {
             </select>
 
             <select className="ens-btn-outline etu-select etu-select-ens" value={ensFilter} onChange={(e) => setEnsFilter(e.target.value)}>
-              {enseignants.map((ens) => (
-                <option key={ens}>{ens}</option>
-              ))}
+              {enseignants.map((ens) =>
+              <option key={ens}>{ens}</option>
+              )}
             </select>
           </div>
         </div>
 
         <div className="cal-legend-row">
-          {LEGEND.map(({ label, color }) => (
-            <button
-              key={label}
-              onClick={() => setActiveType(activeType === label ? 'Tous' : label)}
-              className={`cal-legend-btn ${activeType === label ? 'active' : ''}`}
-            >
+          {LEGEND.map(({ label, color }) =>
+          <button
+            key={label}
+            onClick={() => setActiveType(activeType === label ? 'Tous' : label)}
+            className={`cal-legend-btn ${activeType === label ? 'active' : ''}`}>
+
               <span className="cal-legend-dot" style={{ background: color }} />
               {label}
             </button>
-          ))}
+          )}
         </div>
 
         <div className="ens-card cal-grid-card">
-          {view === 'Semaine' && (
-            <div className="ens-calendar-wrapper">
+          {view === 'Semaine' &&
+          <div className="ens-calendar-wrapper">
               <table className="ens-calendar">
               <thead>
                 <tr>
@@ -356,12 +356,12 @@ export default function EtudiantPage() {
                     return (
                       <th key={i} style={{
                         textAlign: 'center', padding: '12px 4px 10px',
-                        borderBottom: '1px solid #edf1f8', background: '#fff',
+                        borderBottom: '1px solid #edf1f8', background: '#fff'
                       }}>
                         <span style={{
                           display: 'block', fontSize: '.72rem', fontWeight: 700,
                           textTransform: 'capitalize', letterSpacing: '.04em',
-                          color: today ? 'var(--primary)' : 'var(--muted)',
+                          color: today ? 'var(--primary)' : 'var(--muted)'
                         }}>
                           {DAYS_FR[(day.getDay() + 6) % 7]}
                         </span>
@@ -371,140 +371,140 @@ export default function EtudiantPage() {
                           fontSize: '.92rem', fontWeight: 700,
                           background: today ? '#eef4ff' : 'transparent',
                           color: today ? 'var(--primary)' : 'var(--text)',
-                          border: today ? '1.5px solid #b8d0f9' : 'none',
+                          border: today ? '1.5px solid #b8d0f9' : 'none'
                         }}>
                           {day.getDate()}
                         </span>
                         <span style={{ display: 'block', fontSize: '.7rem', color: 'var(--muted)', marginTop: 1 }}>
                           {day.toLocaleDateString('fr-FR', { month: 'short' })}.
                         </span>
-                      </th>
-                    );
+                      </th>);
+
                   })}
                 </tr>
               </thead>
               <tbody>
-                {HOURS.map((hour) => (
-                  <tr key={hour} style={{ height: 60 }}>
+                {HOURS.map((hour) =>
+                <tr key={hour} style={{ height: 60 }}>
                     <td style={{
-                      width: 56, textAlign: 'right', paddingRight: 12,
-                      fontSize: '.72rem', fontWeight: 500, color: 'var(--muted)',
-                      verticalAlign: 'top', paddingTop: 8,
-                      border: 'none', borderTop: '1px solid #f0f3fa',
-                      fontFamily: '\'DM Mono\', monospace', whiteSpace: 'nowrap',
-                      background: '#fff',
-                    }}>
+                    width: 56, textAlign: 'right', paddingRight: 12,
+                    fontSize: '.72rem', fontWeight: 500, color: 'var(--muted)',
+                    verticalAlign: 'top', paddingTop: 8,
+                    border: 'none', borderTop: '1px solid #f0f3fa',
+                    fontFamily: '\'DM Mono\', monospace', whiteSpace: 'nowrap',
+                    background: '#fff'
+                  }}>
                       {hour}:00
                     </td>
                     {weekDays.map((day, di) => {
-                      const sessions = getCoursForDayHour(day, hour);
-                      return (
-                        <td key={di} style={{ position: 'relative', padding: 2, border: '1px solid #f0f3fa' }}>
+                    const sessions = getCoursForDayHour(day, hour);
+                    return (
+                      <td key={di} style={{ position: 'relative', padding: 2, border: '1px solid #f0f3fa' }}>
                           {sessions.map((s) => {
-                            const debut = s.debut ?? `${String(s.heureDebut ?? 0).padStart(2, '0')}:00`;
-                            const fin = s.fin ?? `${String(s.heureFin ?? 0).padStart(2, '0')}:00`;
-                            const [sh, sm] = debut.split(':').map(Number);
-                            const [eh, em] = fin.split(':').map(Number);
-                            const durationH = eh + em / 60 - (sh + sm / 60);
-                            return (
-                              <div
-                                key={s.id}
-                                className={`ens-session ens-session-${TYPE_COLORS[s.type] ?? 'cm'}`}
-                                style={{ height: `${Math.max(durationH * 60 - 4, 44)}px`, top: 2 }}
-                              >
+                          const debut = s.debut ?? `${String(s.heureDebut ?? 0).padStart(2, '0')}:00`;
+                          const fin = s.fin ?? `${String(s.heureFin ?? 0).padStart(2, '0')}:00`;
+                          const [sh, sm] = debut.split(':').map(Number);
+                          const [eh, em] = fin.split(':').map(Number);
+                          const durationH = eh + em / 60 - (sh + sm / 60);
+                          return (
+                            <div
+                              key={s.id}
+                              className={`ens-session ens-session-${TYPE_COLORS[s.type] ?? 'cm'}`}
+                              style={{ height: `${Math.max(durationH * 60 - 4, 44)}px`, top: 2 }}>
+
                                 <div className="ens-session-title">{s.titre ?? s.matiere ?? 'Cours'}</div>
                                 <div className="ens-session-room">{s.salle}</div>
                                 <div className="ens-session-time">{debut} - {fin}</div>
                                 <div className="ens-session-teacher">{s.enseignant}</div>
 
-                              </div>
-                            );
-                          })}
-                        </td>
-                      );
-                    })}
+                              </div>);
+
+                        })}
+                        </td>);
+
+                  })}
                   </tr>
-                ))}
+                )}
               </tbody>
               </table>
             </div>
-          )}
+          }
 
-          {view === 'Jour' && (
-            <div className="cal-day-view">
+          {view === 'Jour' &&
+          <div className="cal-day-view">
               <div className="cal-day-title">
                 {currentDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
               </div>
-              {HOURS.map(hour => {
-                const sessions = getCoursForDayHour(currentDate, hour);
-                return (
-                  <div key={hour} className="cal-day-row">
+              {HOURS.map((hour) => {
+              const sessions = getCoursForDayHour(currentDate, hour);
+              return (
+                <div key={hour} className="cal-day-row">
                     <div className="cal-day-time">{hour}:00</div>
                     <div className="cal-day-events">
-                      {sessions.length === 0 ? (
-                        <div className="cal-day-empty">Aucun cours</div>
-                      ) : (
-                        sessions.map(s => {
-                          const debut = s.debut ?? `${String(s.heureDebut ?? 0).padStart(2, '0')}:00`;
-                          const fin = s.fin ?? `${String(s.heureFin ?? 0).padStart(2, '0')}:00`;
-                          return (
-                            <div
-                              key={s.id}
-                              className={`cal-day-event-card ens-session-${TYPE_COLORS[s.type] ?? 'cm'}`}
-                            >
+                      {sessions.length === 0 ?
+                    <div className="cal-day-empty">Aucun cours</div> :
+
+                    sessions.map((s) => {
+                      const debut = s.debut ?? `${String(s.heureDebut ?? 0).padStart(2, '0')}:00`;
+                      const fin = s.fin ?? `${String(s.heureFin ?? 0).padStart(2, '0')}:00`;
+                      return (
+                        <div
+                          key={s.id}
+                          className={`cal-day-event-card ens-session-${TYPE_COLORS[s.type] ?? 'cm'}`}>
+
                               <span className="cal-day-event-title">{s.titre ?? s.matiere ?? 'Cours'}</span>
                               <span className="cal-day-event-meta">{s.salle} - {debut} - {fin}</span>
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                            </div>);
 
-          {view === 'Mois' && (
-            <div className="cal-month-view">
+                    })
+                    }
+                    </div>
+                  </div>);
+
+            })}
+            </div>
+          }
+
+          {view === 'Mois' &&
+          <div className="cal-month-view">
               <div className="cal-month-weekdays">
-                {DAYS_FR.map(day => (
-                  <div key={day} className="cal-month-weekday">{day}</div>
-                ))}
+                {DAYS_FR.map((day) =>
+              <div key={day} className="cal-month-weekday">{day}</div>
+              )}
               </div>
               <div className="cal-month-grid">
                 {monthWeeks.flat().map((day, idx) => {
-                  const inCurrentMonth = day.getMonth() === currentDate.getMonth();
-                  const sessions = inCurrentMonth ? getCoursForDate(day) : [];
-                  const today = isToday(day);
-                  return (
-                    <div key={`${day.toISOString()}-${idx}`} className={`cal-month-cell ${!inCurrentMonth ? 'outside' : ''}`}>
+                const inCurrentMonth = day.getMonth() === currentDate.getMonth();
+                const sessions = inCurrentMonth ? getCoursForDate(day) : [];
+                const today = isToday(day);
+                return (
+                  <div key={`${day.toISOString()}-${idx}`} className={`cal-month-cell ${!inCurrentMonth ? 'outside' : ''}`}>
                       <div className="cal-month-cell-head">
                         <span className={`cal-month-date ${today ? 'today' : ''}`}>{day.getDate()}</span>
                       </div>
                       <div className="cal-month-items">
-                        {sessions.slice(0, 2).map(s => {
-                          const debut = s.debut ?? `${String(s.heureDebut ?? 0).padStart(2, '0')}:00`;
-                          return (
-                            <div
-                              key={s.id}
-                              className={`cal-month-item ens-session-${TYPE_COLORS[s.type] ?? 'cm'}`}
-                            >
+                        {sessions.slice(0, 2).map((s) => {
+                        const debut = s.debut ?? `${String(s.heureDebut ?? 0).padStart(2, '0')}:00`;
+                        return (
+                          <div
+                            key={s.id}
+                            className={`cal-month-item ens-session-${TYPE_COLORS[s.type] ?? 'cm'}`}>
+
                               <span>{s.matiere}</span>
                               <small>{debut}</small>
-                            </div>
-                          );
-                        })}
+                            </div>);
+
+                      })}
                         {sessions.length > 2 && <div className="cal-month-more">+{sessions.length - 2}</div>}
                       </div>
-                    </div>
-                  );
-                })}
+                    </div>);
+
+              })}
               </div>
             </div>
-          )}
+          }
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }

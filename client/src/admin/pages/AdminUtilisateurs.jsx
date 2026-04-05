@@ -3,9 +3,9 @@ import { request } from "../../services/api";
 import "../styles/AdminUtilisateurs.css";
 
 const TABS = [
-  { key: "etudiants", label: "Étudiants" },
-  { key: "enseignants", label: "Enseignants" },
-];
+{ key: "etudiants", label: "Étudiants" },
+{ key: "enseignants", label: "Enseignants" }];
+
 
 const EMPTY_FORM = {
   nom: "",
@@ -18,33 +18,33 @@ const EMPTY_FORM = {
   numeroEtudiant: "",
   annee: "",
   filiere: "",
-  cohorte_id: "",
+  cohorte_id: ""
 };
 
 const normalizeText = (value) =>
-  String(value || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
+String(value || "").
+normalize("NFD").
+replace(/[\u0300-\u036f]/g, "").
+toLowerCase();
 
 const sortByName = (a, b) => {
   const byNom = String(a.nom || "").localeCompare(String(b.nom || ""), "fr", {
-    sensitivity: "base",
+    sensitivity: "base"
   });
   if (byNom !== 0) return byNom;
   return String(a.prenom || "").localeCompare(String(b.prenom || ""), "fr", {
-    sensitivity: "base",
+    sensitivity: "base"
   });
 };
 
 const getInitials = (prenom, nom) =>
-  `${String(prenom || "").trim().charAt(0)}${String(nom || "").trim().charAt(0)}`
-    .toUpperCase() || "US";
+`${String(prenom || "").trim().charAt(0)}${String(nom || "").trim().charAt(0)}`.
+toUpperCase() || "US";
 
 const buildCsv = (rows) =>
-  rows
-    .map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(","))
-    .join("\n");
+rows.
+map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(",")).
+join("\n");
 
 async function safeDelete(path) {
   try {
@@ -64,7 +64,7 @@ function mapTeacher(row) {
     service: row.service || "",
     grade: row.grade || "",
     created_at: row.created_at || null,
-    initials: getInitials(row.prenom, row.nom),
+    initials: getInitials(row.prenom, row.nom)
   };
 }
 
@@ -81,7 +81,7 @@ function mapStudent(row) {
     cohorte_id: row.cohorte_id ?? "",
     cohorte_nom: row.cohorte_nom || "",
     created_at: row.created_at || null,
-    initials: getInitials(row.prenom, row.nom),
+    initials: getInitials(row.prenom, row.nom)
   };
 }
 
@@ -109,10 +109,10 @@ export default function AdminUtilisateurs() {
     setError("");
     try {
       const [teachersRows, studentsRows, cohortesRows] = await Promise.all([
-        request("/api/enseignants", { auth: true }),
-        request("/api/etudiants", { auth: true }),
-        request("/api/cohortes", { auth: true }),
-      ]);
+      request("/api/enseignants", { auth: true }),
+      request("/api/etudiants", { auth: true }),
+      request("/api/cohortes", { auth: true })]
+      );
       setTeachers(Array.isArray(teachersRows) ? teachersRows.map(mapTeacher).sort(sortByName) : []);
       setStudents(Array.isArray(studentsRows) ? studentsRows.map(mapStudent).sort(sortByName) : []);
       setCohortes(Array.isArray(cohortesRows) ? cohortesRows : []);
@@ -133,11 +133,11 @@ export default function AdminUtilisateurs() {
     const query = normalizeText(search.trim());
     if (!query) return rows;
     return rows.filter((row) =>
-      normalizeText(
-        tab === "enseignants"
-          ? [row.nom, row.prenom, row.email, row.service, row.grade].join(" ")
-          : [row.nom, row.prenom, row.email, row.filiere, row.cohorte_nom, row.numeroEtudiant].join(" ")
-      ).includes(query)
+    normalizeText(
+      tab === "enseignants" ?
+      [row.nom, row.prenom, row.email, row.service, row.grade].join(" ") :
+      [row.nom, row.prenom, row.email, row.filiere, row.cohorte_nom, row.numeroEtudiant].join(" ")
+    ).includes(query)
     );
   }, [rows, search, tab]);
 
@@ -146,7 +146,7 @@ export default function AdminUtilisateurs() {
       etudiants: students.length,
       enseignants: teachers.length,
       actifs: students.length + teachers.length,
-      total: students.length + teachers.length,
+      total: students.length + teachers.length
     }),
     [students.length, teachers.length]
   );
@@ -178,7 +178,7 @@ export default function AdminUtilisateurs() {
       numeroEtudiant: row.numeroEtudiant || "",
       annee: row.annee ? String(row.annee) : "",
       filiere: row.filiere || "",
-      cohorte_id: row.cohorte_id ? String(row.cohorte_id) : "",
+      cohorte_id: row.cohorte_id ? String(row.cohorte_id) : ""
     });
     setModalOpen(true);
   }
@@ -204,12 +204,12 @@ export default function AdminUtilisateurs() {
       const payload = {
         id: userId,
         service: String(form.service || "").trim() || null,
-        grade: String(form.grade || "").trim() || null,
+        grade: String(form.grade || "").trim() || null
       };
       await request(teacherIds.has(Number(userId)) ? `/api/enseignants/${userId}` : "/api/enseignants", {
         method: teacherIds.has(Number(userId)) ? "PUT" : "POST",
         data: payload,
-        auth: true,
+        auth: true
       });
     }
 
@@ -223,12 +223,12 @@ export default function AdminUtilisateurs() {
         numeroEtudiant,
         annee: form.annee ? Number(form.annee) : null,
         filiere: String(form.filiere || "").trim() || null,
-        cohorte_id: form.cohorte_id ? Number(form.cohorte_id) : null,
+        cohorte_id: form.cohorte_id ? Number(form.cohorte_id) : null
       };
       await request(studentIds.has(Number(userId)) ? `/api/etudiants/${userId}` : "/api/etudiants", {
         method: studentIds.has(Number(userId)) ? "PUT" : "POST",
         data: payload,
-        auth: true,
+        auth: true
       });
     }
   }
@@ -243,7 +243,7 @@ export default function AdminUtilisateurs() {
       nom: String(form.nom || "").trim(),
       prenom: String(form.prenom || "").trim(),
       email: String(form.email || "").trim(),
-      role: String(form.role || "").trim().toLowerCase(),
+      role: String(form.role || "").trim().toLowerCase()
     };
 
     if (!payload.nom || !payload.prenom || !payload.email || !payload.role) {
@@ -273,14 +273,14 @@ export default function AdminUtilisateurs() {
         await request(`/api/users/${editingRecord.id}`, {
           method: "PUT",
           data: payload,
-          auth: true,
+          auth: true
         });
         await syncRoleDetails(editingRecord.id, payload.role, editingRecord.role);
       } else {
         const response = await request("/api/users", {
           method: "POST",
           data: payload,
-          auth: true,
+          auth: true
         });
         await syncRoleDetails(response?.user?.id, payload.role, null);
       }
@@ -311,11 +311,11 @@ export default function AdminUtilisateurs() {
 
   function exportCurrentRows() {
     const csvRows =
-      tab === "enseignants"
-        ? [["Nom", "Prénom", "Email", "Département", "Spécialisation", "Statut"]]
-            .concat(filteredRows.map((row) => [row.nom, row.prenom, row.email, row.service || "Non renseigné", row.grade || "Non renseigné", "Actif"]))
-        : [["Nom", "Prénom", "Email", "Filière", "Cohorte", "Statut"]]
-            .concat(filteredRows.map((row) => [row.nom, row.prenom, row.email, row.filiere || "Non renseigné", row.cohorte_nom || "Non renseigné", "Actif"]));
+    tab === "enseignants" ?
+    [["Nom", "Prénom", "Email", "Département", "Spécialisation", "Statut"]].
+    concat(filteredRows.map((row) => [row.nom, row.prenom, row.email, row.service || "Non renseigné", row.grade || "Non renseigné", "Actif"])) :
+    [["Nom", "Prénom", "Email", "Filière", "Cohorte", "Statut"]].
+    concat(filteredRows.map((row) => [row.nom, row.prenom, row.email, row.filiere || "Non renseigné", row.cohorte_nom || "Non renseigné", "Actif"]));
 
     const blob = new Blob([buildCsv(csvRows)], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -329,9 +329,9 @@ export default function AdminUtilisateurs() {
   }
 
   const currentCount = tab === "enseignants" ? stats.enseignants : stats.etudiants;
-  const emptyMessage = search.trim()
-    ? "Aucun résultat pour cette recherche."
-    : `Aucun ${tab === "enseignants" ? "enseignant" : "étudiant"} trouvé dans la base de données.`;
+  const emptyMessage = search.trim() ?
+  "Aucun résultat pour cette recherche." :
+  `Aucun ${tab === "enseignants" ? "enseignant" : "étudiant"} trouvé dans la base de données.`;
 
   return (
     <div className="admin-users-page">
@@ -346,8 +346,8 @@ export default function AdminUtilisateurs() {
               type="search"
               placeholder="Rechercher..."
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
+              onChange={(event) => setSearch(event.target.value)} />
+
           </label>
         </div>
 
@@ -361,8 +361,8 @@ export default function AdminUtilisateurs() {
               type="button"
               className="admin-users-btn admin-users-btn--ghost"
               onClick={exportCurrentRows}
-              disabled={loading || filteredRows.length === 0}
-            >
+              disabled={loading || filteredRows.length === 0}>
+
               Exporter
             </button>
             <button type="button" className="admin-users-btn admin-users-btn--primary" onClick={openCreate}>
@@ -372,19 +372,19 @@ export default function AdminUtilisateurs() {
         </div>
 
         <div className="admin-users-tabs">
-          {TABS.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              className={`admin-users-tab ${tab === item.key ? "is-active" : ""}`}
-              onClick={() => setTab(item.key)}
-            >
+          {TABS.map((item) =>
+          <button
+            key={item.key}
+            type="button"
+            className={`admin-users-tab ${tab === item.key ? "is-active" : ""}`}
+            onClick={() => setTab(item.key)}>
+
               <span>{item.label}</span>
               <span className="admin-users-tab-count">
                 {item.key === "enseignants" ? stats.enseignants : stats.etudiants}
               </span>
             </button>
-          ))}
+          )}
         </div>
       </section>
 
@@ -395,8 +395,8 @@ export default function AdminUtilisateurs() {
             type="search"
             placeholder="Rechercher par nom ou email..."
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
+            onChange={(event) => setSearch(event.target.value)} />
+
         </label>
       </section>
 
@@ -407,12 +407,12 @@ export default function AdminUtilisateurs() {
 
         {error ? <div className="admin-users-feedback admin-users-feedback--error">{error}</div> : null}
         {loading ? <div className="admin-users-feedback">Chargement des utilisateurs...</div> : null}
-        {!loading && filteredRows.length === 0 ? (
-          <div className="admin-users-feedback">{emptyMessage}</div>
-        ) : null}
+        {!loading && filteredRows.length === 0 ?
+        <div className="admin-users-feedback">{emptyMessage}</div> :
+        null}
 
-        {!loading && filteredRows.length > 0 ? (
-          <div className="admin-users-table-wrap">
+        {!loading && filteredRows.length > 0 ?
+        <div className="admin-users-table-wrap">
             <table className="admin-users-table">
               <thead>
                 <tr>
@@ -425,8 +425,8 @@ export default function AdminUtilisateurs() {
                 </tr>
               </thead>
               <tbody>
-                {filteredRows.map((row) => (
-                  <tr key={row.id}>
+                {filteredRows.map((row) =>
+              <tr key={row.id}>
                     <td>
                       <div className="admin-users-person">
                         <div className="admin-users-avatar">{row.initials}</div>
@@ -455,25 +455,25 @@ export default function AdminUtilisateurs() {
                           ✎
                         </button>
                         <button
-                          type="button"
-                          className="admin-users-icon-btn is-danger"
-                          onClick={() => handleDelete(row)}
-                          disabled={deletingId === row.id}
-                        >
+                      type="button"
+                      className="admin-users-icon-btn is-danger"
+                      onClick={() => handleDelete(row)}
+                      disabled={deletingId === row.id}>
+
                           🗑
                         </button>
                       </div>
                     </td>
                   </tr>
-                ))}
+              )}
               </tbody>
             </table>
-          </div>
-        ) : null}
+          </div> :
+        null}
       </section>
 
-      {modalOpen ? (
-        <div className="admin-users-modal-backdrop" onClick={closeModal}>
+      {modalOpen ?
+      <div className="admin-users-modal-backdrop" onClick={closeModal}>
           <div className="admin-users-modal" onClick={(event) => event.stopPropagation()}>
             <div className="admin-users-modal-header">
               <div>
@@ -504,15 +504,15 @@ export default function AdminUtilisateurs() {
                   <input type="password" value={form.mot_de_passe} onChange={setField("mot_de_passe")} />
                 </label>
 
-                {form.role === "enseignant" ? (
-                  <>
+                {form.role === "enseignant" ?
+              <>
                     <label className="admin-users-field"><span>Département</span><input value={form.service} onChange={setField("service")} /></label>
                     <label className="admin-users-field"><span>Spécialisation</span><input value={form.grade} onChange={setField("grade")} /></label>
-                  </>
-                ) : null}
+                  </> :
+              null}
 
-                {form.role === "etudiant" ? (
-                  <>
+                {form.role === "etudiant" ?
+              <>
                     <label className="admin-users-field"><span>Numéro étudiant</span><input value={form.numeroEtudiant} onChange={setField("numeroEtudiant")} /></label>
                     <label className="admin-users-field"><span>Année</span><input type="number" min="1" value={form.annee} onChange={setField("annee")} /></label>
                     <label className="admin-users-field"><span>Filière</span><input value={form.filiere} onChange={setField("filiere")} /></label>
@@ -520,13 +520,13 @@ export default function AdminUtilisateurs() {
                       <span>Cohorte</span>
                       <select value={form.cohorte_id} onChange={setField("cohorte_id")}>
                         <option value="">Aucune</option>
-                        {cohortes.map((cohorte) => (
-                          <option key={cohorte.id} value={cohorte.id}>{cohorte.nom}</option>
-                        ))}
+                        {cohortes.map((cohorte) =>
+                    <option key={cohorte.id} value={cohorte.id}>{cohorte.nom}</option>
+                    )}
                       </select>
                     </label>
-                  </>
-                ) : null}
+                  </> :
+              null}
               </div>
 
               <div className="admin-users-form-actions">
@@ -539,8 +539,8 @@ export default function AdminUtilisateurs() {
               </div>
             </form>
           </div>
-        </div>
-      ) : null}
+        </div> :
+      null}
 
       <section className="admin-users-stats">
         <article className="admin-users-stat-card">
@@ -560,6 +560,6 @@ export default function AdminUtilisateurs() {
           <div className="admin-users-stat-label">Total utilisateurs</div>
         </article>
       </section>
-    </div>
-  );
+    </div>);
+
 }

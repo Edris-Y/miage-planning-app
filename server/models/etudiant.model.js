@@ -1,7 +1,7 @@
 const { dbAll, dbGet, dbRun } = require("../db/dbAsync");
 
 exports.findAll = () =>
-  dbAll(`
+dbAll(`
     SELECT
       e.id,
       e.numeroEtudiant,
@@ -21,8 +21,8 @@ exports.findAll = () =>
   `);
 
 exports.findById = (id) =>
-  dbGet(
-    `
+dbGet(
+  `
     SELECT
       e.id,
       e.numeroEtudiant,
@@ -40,27 +40,27 @@ exports.findById = (id) =>
     LEFT JOIN Cohorte c ON e.cohorte_id = c.id
     WHERE e.id = ?
     `,
-    [id]
-  );
+  [id]
+);
 
 exports.create = ({
   id,
   numeroEtudiant,
   annee = null,
   filiere = null,
-  cohorte_id = null,
+  cohorte_id = null
 }) =>
-  dbRun(
-    `
+dbRun(
+  `
     INSERT INTO Etudiant (id, numeroEtudiant, annee, filiere, cohorte_id)
     VALUES (?, ?, ?, ?, ?)
     `,
-    [id, numeroEtudiant, annee, filiere, cohorte_id]
-  );
+  [id, numeroEtudiant, annee, filiere, cohorte_id]
+);
 
 exports.update = (id, { numeroEtudiant, annee, filiere, cohorte_id }) =>
-  dbRun(
-    `
+dbRun(
+  `
     UPDATE Etudiant
     SET
       numeroEtudiant = ?,
@@ -69,14 +69,14 @@ exports.update = (id, { numeroEtudiant, annee, filiere, cohorte_id }) =>
       cohorte_id = ?
     WHERE id = ?
     `,
-    [numeroEtudiant, annee, filiere, cohorte_id, id]
-  );
+  [numeroEtudiant, annee, filiere, cohorte_id, id]
+);
 
 exports.remove = (id) =>
-  dbRun(
-    `
+dbRun(
+  `
     DELETE FROM Etudiant
     WHERE id = ?
     `,
-    [id]
-  );
+  [id]
+);

@@ -38,9 +38,9 @@ exports.getAll = async (req, res) => {
   }
 
   if (
-    normalizeString(req.user.role) !== "administratif" &&
-    normalizeString(req.user.role) !== role
-  ) {
+  normalizeString(req.user.role) !== "administratif" &&
+  normalizeString(req.user.role) !== role)
+  {
     throw new ApiError(403, "Accès interdit");
   }
 
@@ -82,7 +82,7 @@ exports.create = async (req, res) => {
     message,
     date,
     iconType = "info",
-    cohorte_id = null,
+    cohorte_id = null
   } = req.body;
 
   if (!ROLES_VALIDES.includes(normalizeString(role))) {
@@ -113,14 +113,14 @@ exports.create = async (req, res) => {
     date: date || new Date().toISOString(),
     iconType: normalizeString(iconType),
     cohorte_id:
-      normalizeString(role) === "etudiant" && Number.isInteger(Number(cohorte_id))
-        ? Number(cohorte_id)
-        : null,
+    normalizeString(role) === "etudiant" && Number.isInteger(Number(cohorte_id)) ?
+    Number(cohorte_id) :
+    null
   });
 
   res.status(201).json({
     message: "Notification créée avec succès",
-    id: result.lastID,
+    id: result.lastID
   });
 };
 
@@ -147,7 +147,7 @@ exports.markAsRead = async (req, res) => {
 
   res.json({
     message: "Notification marquée comme lue",
-    id,
+    id
   });
 };
 
@@ -174,6 +174,6 @@ exports.remove = async (req, res) => {
 
   res.json({
     message: "Notification supprimée",
-    id,
+    id
   });
 };

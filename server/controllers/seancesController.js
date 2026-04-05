@@ -67,7 +67,7 @@ exports.create = async (req, res) => {
     matiere_id = null,
     cohorte_id = null,
     enseignant_id = null,
-    salle_id = null, // 🚀 RÉCUPÉRÉ ICI
+    salle_id = null
   } = req.body;
 
   if (!dateSeance || !heureDebut || !duree || !typeSeance) {
@@ -116,14 +116,14 @@ exports.create = async (req, res) => {
     matiere_id: matiere_id ? Number(matiere_id) : null,
     cohorte_id: cohorte_id ? Number(cohorte_id) : null,
     enseignant_id: enseignant_id ? Number(enseignant_id) : null,
-    salle_id: salle_id ? Number(salle_id) : null, // 🚀 TRANSMIS ICI
+    salle_id: salle_id ? Number(salle_id) : null
   });
 
   const created = await seanceModel.findById(result.lastID);
 
   res.status(201).json({
     message: "Séance créée avec succès",
-    seance: created,
+    seance: created
   });
 };
 
@@ -187,14 +187,14 @@ exports.update = async (req, res) => {
     description: finalDescription,
     matiere_id: finalMatiereId ? Number(finalMatiereId) : null,
     cohorte_id: finalCohorteId ? Number(finalCohorteId) : null,
-    enseignant_id: finalEnseignantId ? Number(finalEnseignantId) : null,
+    enseignant_id: finalEnseignantId ? Number(finalEnseignantId) : null
   });
 
   const updated = await seanceModel.findById(id);
 
   res.json({
     message: "Séance mise à jour",
-    seance: updated,
+    seance: updated
   });
 };
 
@@ -214,6 +214,6 @@ exports.remove = async (req, res) => {
 
   res.json({
     message: "Séance supprimée",
-    id,
+    id
   });
 };

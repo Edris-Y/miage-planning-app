@@ -73,7 +73,7 @@ exports.create = async (req, res) => {
 
   res.status(201).json({
     message: "Matière créée avec succès",
-    matiere: created,
+    matiere: created
   });
 };
 
@@ -135,7 +135,7 @@ exports.update = async (req, res) => {
 
   res.json({
     message: "Matière mise à jour",
-    matiere: updated,
+    matiere: updated
   });
 };
 
@@ -169,6 +169,6 @@ exports.remove = async (req, res) => {
 
   res.json({
     message: "Matière supprimée",
-    id,
+    id
   });
 };

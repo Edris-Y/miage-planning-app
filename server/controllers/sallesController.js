@@ -33,7 +33,7 @@ exports.create = async (req, res) => {
     capacite,
     type,
     accessibilitePMR = 0,
-    isActive = 1,
+    isActive = 1
   } = req.body;
 
   if (!code || !capacite || !type) {
@@ -55,14 +55,14 @@ exports.create = async (req, res) => {
     capacite: Number(capacite),
     type: finalType,
     accessibilitePMR: accessibilitePMR ? 1 : 0,
-    isActive: isActive ? 1 : 0,
+    isActive: isActive ? 1 : 0
   });
 
   const created = await salleModel.findById(result.lastID);
 
   res.status(201).json({
     message: "Salle créée avec succès",
-    salle: created,
+    salle: created
   });
 };
 
@@ -98,14 +98,14 @@ exports.update = async (req, res) => {
     capacite: Number(finalCapacite),
     type: finalType,
     accessibilitePMR: finalPMR ? 1 : 0,
-    isActive: finalIsActive ? 1 : 0,
+    isActive: finalIsActive ? 1 : 0
   });
 
   const updated = await salleModel.findById(id);
 
   res.json({
     message: "Salle mise à jour",
-    salle: updated,
+    salle: updated
   });
 };
 
@@ -125,6 +125,6 @@ exports.remove = async (req, res) => {
 
   res.json({
     message: "Salle supprimée",
-    id,
+    id
   });
 };

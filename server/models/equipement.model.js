@@ -1,7 +1,7 @@
 const { dbAll, dbGet, dbRun } = require("../db/dbAsync");
 
 exports.findAll = () =>
-  dbAll(`
+dbAll(`
     SELECT
       e.id,
       e.nom,
@@ -13,8 +13,8 @@ exports.findAll = () =>
   `);
 
 exports.findById = (id) =>
-  dbGet(
-    `
+dbGet(
+  `
     SELECT
       e.id,
       e.nom,
@@ -24,12 +24,12 @@ exports.findById = (id) =>
     LEFT JOIN Salle s ON e.salle_id = s.id
     WHERE e.id = ?
     `,
-    [id]
-  );
+  [id]
+);
 
 exports.findBySalleId = (salleId) =>
-  dbAll(
-    `
+dbAll(
+  `
     SELECT
       e.id,
       e.nom,
@@ -40,35 +40,35 @@ exports.findBySalleId = (salleId) =>
     WHERE e.salle_id = ?
     ORDER BY e.nom ASC
     `,
-    [salleId]
-  );
+  [salleId]
+);
 
 exports.create = ({ nom, salle_id }) =>
-  dbRun(
-    `
+dbRun(
+  `
     INSERT INTO Equipement (nom, salle_id)
     VALUES (?, ?)
     `,
-    [nom, salle_id]
-  );
+  [nom, salle_id]
+);
 
 exports.update = (id, { nom, salle_id }) =>
-  dbRun(
-    `
+dbRun(
+  `
     UPDATE Equipement
     SET
       nom = ?,
       salle_id = ?
     WHERE id = ?
     `,
-    [nom, salle_id, id]
-  );
+  [nom, salle_id, id]
+);
 
 exports.remove = (id) =>
-  dbRun(
-    `
+dbRun(
+  `
     DELETE FROM Equipement
     WHERE id = ?
     `,
-    [id]
-  );
+  [id]
+);

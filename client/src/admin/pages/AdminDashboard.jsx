@@ -8,7 +8,7 @@ const SALLE_TYPES_LABELS = {
   TD: 'Salle TD',
   TP: 'Salle TP',
   LABO: 'Laboratoire',
-  INFO: 'Salle informatique',
+  INFO: 'Salle informatique'
 };
 
 const SALLE_TYPES_COLORS = {
@@ -16,7 +16,7 @@ const SALLE_TYPES_COLORS = {
   TD: '#6d95c6',
   TP: '#4f76a9',
   LABO: '#2f4f86',
-  INFO: '#356ddb',
+  INFO: '#356ddb'
 };
 
 const ROLE_TEXT_COLORS = {
@@ -27,7 +27,7 @@ const ROLE_TEXT_COLORS = {
 
 function groupSallesByType(salles) {
   const grouped = {};
-  
+
   salles.forEach((salle) => {
     const type = (salle.type || 'AUTRE').toUpperCase();
     if (!grouped[type]) {
@@ -48,8 +48,8 @@ function PieChart({ data }) {
 
   Object.entries(data).forEach(([type, salles]) => {
     const count = salles.length;
-    const percentage = (count / total) * 100;
-    const sliceAngle = (count / total) * 360;
+    const percentage = count / total * 100;
+    const sliceAngle = count / total * 360;
 
     segments.push({
       type,
@@ -57,17 +57,17 @@ function PieChart({ data }) {
       percentage,
       startAngle: currentAngle,
       endAngle: currentAngle + sliceAngle,
-      color: SALLE_TYPES_COLORS[type] || '#cbd5e1',
+      color: SALLE_TYPES_COLORS[type] || '#cbd5e1'
     });
 
     currentAngle += sliceAngle;
   });
 
   const polarToCartesian = (angle, radius) => {
-    const radians = ((angle - 90) * Math.PI) / 180;
+    const radians = (angle - 90) * Math.PI / 180;
     return {
       x: 100 + radius * Math.cos(radians),
-      y: 100 + radius * Math.sin(radians),
+      y: 100 + radius * Math.sin(radians)
     };
   };
 
@@ -77,34 +77,34 @@ function PieChart({ data }) {
     const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0;
 
     return [
-      `M 100 100`,
-      `L ${start.x} ${start.y}`,
-      `A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`,
-      'Z',
-    ].join(' ');
+    `M 100 100`,
+    `L ${start.x} ${start.y}`,
+    `A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`,
+    'Z'].
+    join(' ');
   };
 
   return (
     <div className="pie-chart-container">
       <svg viewBox="0 0 200 200" className="pie-chart">
-        {segments.map((segment) => (
-          <path
-            key={segment.type}
-            d={getPath(segment.startAngle, segment.endAngle, 80)}
-            fill={segment.color}
-            stroke="#fff"
-            strokeWidth="2"
-          />
-        ))}
+        {segments.map((segment) =>
+        <path
+          key={segment.type}
+          d={getPath(segment.startAngle, segment.endAngle, 80)}
+          fill={segment.color}
+          stroke="#fff"
+          strokeWidth="2" />
+
+        )}
       </svg>
 
       <div className="pie-legend">
-        {segments.map((segment) => (
-          <div key={segment.type} className="legend-item">
+        {segments.map((segment) =>
+        <div key={segment.type} className="legend-item">
             <span
-              className="legend-color"
-              style={{ backgroundColor: segment.color }}
-            />
+            className="legend-color"
+            style={{ backgroundColor: segment.color }} />
+
             <span className="legend-label">
               {SALLE_TYPES_LABELS[segment.type] || segment.type}
             </span>
@@ -112,10 +112,10 @@ function PieChart({ data }) {
               {segment.count} ({segment.percentage.toFixed(0)}%)
             </span>
           </div>
-        ))}
+        )}
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
 function getRoleTextColor(role) {
@@ -153,10 +153,10 @@ export default function AdminDashboard() {
         }
 
         const [usersResult, sallesResult, statsResult] = await Promise.all([
-          getUsers(),
-          getSalles(),
-          getDashboardStats(),
-        ]);
+        getUsers(),
+        getSalles(),
+        getDashboardStats()]
+        );
 
         setUsers(usersResult);
         setSalles(Array.isArray(sallesResult) ? sallesResult : []);
@@ -170,16 +170,16 @@ export default function AdminDashboard() {
       }
     };
 
-    fetchUsers(); 
+    fetchUsers();
   }, []);
 
   if (loading) return <div className="admin-page"><p>Chargement...</p></div>;
   if (error) return <div className="admin-page"><p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p></div>;
 
-  // Afficher seulement les 5 premiers utilisateurs pour l'aperçu
+
   const previewUsers = users.slice(0, 5);
-  
-  // Regrouper les salles par type
+
+
   const sallesByType = groupSallesByType(salles);
 
   return (
@@ -190,22 +190,22 @@ export default function AdminDashboard() {
           <button
             type="button"
             className="dashboard-action-btn"
-            onClick={() => navigate('/admin/salles')}
-          >
+            onClick={() => navigate('/admin/salles')}>
+
             + une salle
           </button>
           <button
             type="button"
             className="dashboard-action-btn"
-            onClick={() => navigate('/admin/reservations')}
-          >
+            onClick={() => navigate('/admin/reservations')}>
+
             + une reservation
           </button>
           <button
             type="button"
             className="dashboard-action-btn"
-            onClick={() => navigate('/admin/generation')}
-          >
+            onClick={() => navigate('/admin/generation')}>
+
             + generer edt
           </button>
         </div>
@@ -225,7 +225,7 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Carte 2: Salles */}
+            {}
             <div className="stat-card stat-card-blue-teal">
               <div className="stat-icon-container stat-icon-blue-teal">
                 <span className="stat-icon">🏢</span>
@@ -236,7 +236,7 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Carte 3: Réservations en attente */}
+            {}
             <div className="stat-card stat-card-orange">
               <div className="stat-icon-container stat-icon-orange">
                 <span className="stat-icon">⏳</span>
@@ -247,7 +247,7 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Carte 4: Conflits non résolus */}
+            {}
             <div className="stat-card stat-card-coral">
               <div className="stat-icon-container stat-icon-coral">
                 <span className="stat-icon">⚠️</span>
@@ -260,13 +260,13 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Bloc 2: Aperçu utilisateurs */}
+        {}
         <div className="dashboard-card dashboard-card-large">
           <h3>Aperçu des utilisateurs</h3>
           
           <div className="user-preview-list">
-            {previewUsers.length > 0 ? (
-              <>
+            {previewUsers.length > 0 ?
+            <>
                 <div className="user-preview-header">
                   <div className="header-col header-nom">Nom</div>
                   <div className="header-col header-prenom">Prénom</div>
@@ -274,47 +274,47 @@ export default function AdminDashboard() {
                   <div className="header-col header-role">Rôle</div>
                 </div>
 
-                {previewUsers.map((user) => (
-                  <div key={user.id} className="user-preview-row">
+                {previewUsers.map((user) =>
+              <div key={user.id} className="user-preview-row">
                     <div className="user-col user-nom">{user.nom}</div>
                     <div className="user-col user-prenom">{user.prenom}</div>
                     <div className="user-col user-email">{user.email}</div>
                     <div className="user-col user-role">
-                      <span 
-                        className={`role-badge role-${String(user.role || '').toLowerCase()}`}
-                        style={{ color: getRoleTextColor(user.role) }}
-                      >
+                      <span
+                    className={`role-badge role-${String(user.role || '').toLowerCase()}`}
+                    style={{ color: getRoleTextColor(user.role) }}>
+
                         {user.role}
                       </span>
                     </div>
                   </div>
-                ))}
-              </>
-            ) : (
-              <p style={{ color: '#999', fontSize: '0.9rem' }}>Aucun utilisateur disponible</p>
-            )}
+              )}
+              </> :
+
+            <p style={{ color: '#999', fontSize: '0.9rem' }}>Aucun utilisateur disponible</p>
+            }
           </div>
 
-          <button 
+          <button
             className="btn-view-all"
-            onClick={() => navigate('/admin/utilisateurs')}
-          >
+            onClick={() => navigate('/admin/utilisateurs')}>
+
             Voir la liste complète
           </button>
         </div>
 
-        {/* Bloc 3: Répartition des salles */}
+        {}
         <div className="dashboard-card dashboard-card-small">
           <h3>Répartition des salles</h3>
-          {Object.keys(sallesByType).length > 0 ? (
-            <PieChart data={sallesByType} />
-          ) : (
-            <p style={{ color: '#999', fontSize: '0.9rem', textAlign: 'center', padding: '20px 0' }}>
+          {Object.keys(sallesByType).length > 0 ?
+          <PieChart data={sallesByType} /> :
+
+          <p style={{ color: '#999', fontSize: '0.9rem', textAlign: 'center', padding: '20px 0' }}>
               Aucune donnée disponible
             </p>
-          )}
+          }
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }

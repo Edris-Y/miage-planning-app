@@ -5,7 +5,7 @@ export default function BackButton({
   to,
   fallback = '/calendar',
   className = 'ens-btn-outline',
-  style,
+  style
 }) {
   const navigate = useNavigate();
 
@@ -26,6 +26,6 @@ export default function BackButton({
   return (
     <button type="button" className={className} style={style} onClick={handleClick}>
       {`← ${label}`}
-    </button>
-  );
+    </button>);
+
 }

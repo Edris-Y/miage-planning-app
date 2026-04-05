@@ -6,9 +6,9 @@ async function ensureNotificationSchema() {
   if (notificationSchemaReady) return;
 
   const columns = await dbAll(`PRAGMA table_info(Notification)`);
-  const hasCohorteId = Array.isArray(columns)
-    ? columns.some((column) => String(column.name) === "cohorte_id")
-    : false;
+  const hasCohorteId = Array.isArray(columns) ?
+  columns.some((column) => String(column.name) === "cohorte_id") :
+  false;
 
   if (!hasCohorteId) {
     await dbRun(`ALTER TABLE Notification ADD COLUMN cohorte_id INTEGER REFERENCES Cohorte(id) ON DELETE SET NULL`);

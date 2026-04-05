@@ -9,14 +9,14 @@ const TYPE_CLS = {
   CM: 'cm',
   TD: 'td',
   TP: 'tp',
-  EXAM: 'exam',
+  EXAM: 'exam'
 };
 
 const TYPE_LABELS = {
   CM: 'Cours Magistral',
   TD: 'Travaux Diriges',
   TP: 'Travaux Pratiques',
-  EXAM: 'Examen',
+  EXAM: 'Examen'
 };
 
 const DAY_NAMES = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
@@ -73,8 +73,8 @@ export default function EtudiantSeanceDetails() {
         <div className="ens-content etu-detail-content">
           <div className="ens-card">Chargement des détails de la séance...</div>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (!seance) {
@@ -93,8 +93,8 @@ export default function EtudiantSeanceDetails() {
             </button>
           </div>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   const typeCls = TYPE_CLS[seance.type] || 'cm';
@@ -112,8 +112,8 @@ export default function EtudiantSeanceDetails() {
         <div className="etu-detail-close-row">
           <button
             className="etu-detail-close-btn"
-            onClick={() => navigate('/etudiant')}
-          >
+            onClick={() => navigate('/etudiant')}>
+
             ✕
           </button>
         </div>
@@ -185,6 +185,6 @@ export default function EtudiantSeanceDetails() {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }

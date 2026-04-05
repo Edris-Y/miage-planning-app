@@ -10,25 +10,25 @@ const PRIORITY_MAP = {
   TD: 60,
   TP: 50,
   EVENEMENT: 40,
-  REUNION: 30,
+  REUNION: 30
 };
 
 function formatDateForSql(date) {
   const pad = (n) => String(n).padStart(2, "0");
 
   return [
-    date.getFullYear(),
-    "-",
-    pad(date.getMonth() + 1),
-    "-",
-    pad(date.getDate()),
-    " ",
-    pad(date.getHours()),
-    ":",
-    pad(date.getMinutes()),
-    ":",
-    pad(date.getSeconds()),
-  ].join("");
+  date.getFullYear(),
+  "-",
+  pad(date.getMonth() + 1),
+  "-",
+  pad(date.getDate()),
+  " ",
+  pad(date.getHours()),
+  ":",
+  pad(date.getMinutes()),
+  ":",
+  pad(date.getSeconds())].
+  join("");
 }
 
 function buildDateRange({ dateSeance, heureDebut, duree }) {
@@ -47,7 +47,7 @@ function buildDateRange({ dateSeance, heureDebut, duree }) {
 
   return {
     startSql: formatDateForSql(start),
-    endSql: formatDateForSql(end),
+    endSql: formatDateForSql(end)
   };
 }
 
@@ -56,10 +56,10 @@ async function saveConflit({
   description,
   reservation_id = null,
   seance_id_1 = null,
-  seance_id_2 = null,
+  seance_id_2 = null
 }) {
   try {
-    // 🚀 ON AJOUTE 'resolu' ET LA VALEUR 0 DANS LE SQL
+
     await dbRun(
       `INSERT INTO Conflit (type, description, reservation_id, seance_id_1, seance_id_2, resolu)
        VALUES (?, ?, ?, ?, ?, 0)`,
@@ -103,24 +103,24 @@ async function notifyPlanningChangeOnValidation({ reservation, type, beforeSeanc
   const typeSeance = reservation.type_seance_souhaitee || "Séance";
 
   const titre =
-    type === "AJOUT"
-      ? "Nouvelle séance validée"
-      : "Séance déplacée validée";
+  type === "AJOUT" ?
+  "Nouvelle séance validée" :
+  "Séance déplacée validée";
 
   const enseignantMessage =
-    type === "AJOUT"
-      ? `Votre demande d'ajout a été validée : ${typeSeance} le ${dateTxt} à ${heureTxt}, salle ${salleCode}, ${cohorteNom}.`
-      : `Le déplacement de votre séance a été validé : ${typeSeance} replanifiée le ${dateTxt} à ${heureTxt}, salle ${salleCode}, ${cohorteNom}.`;
+  type === "AJOUT" ?
+  `Votre demande d'ajout a été validée : ${typeSeance} le ${dateTxt} à ${heureTxt}, salle ${salleCode}, ${cohorteNom}.` :
+  `Le déplacement de votre séance a été validé : ${typeSeance} replanifiée le ${dateTxt} à ${heureTxt}, salle ${salleCode}, ${cohorteNom}.`;
 
   const etudiantMessage =
-    type === "AJOUT"
-      ? `Une nouvelle séance a été ajoutée pour ${cohorteNom} : ${typeSeance} le ${dateTxt} à ${heureTxt}, salle ${salleCode}.`
-      : `Votre planning a été modifié pour ${cohorteNom} : séance déplacée au ${dateTxt} à ${heureTxt}, salle ${salleCode}.`;
+  type === "AJOUT" ?
+  `Une nouvelle séance a été ajoutée pour ${cohorteNom} : ${typeSeance} le ${dateTxt} à ${heureTxt}, salle ${salleCode}.` :
+  `Votre planning a été modifié pour ${cohorteNom} : séance déplacée au ${dateTxt} à ${heureTxt}, salle ${salleCode}.`;
 
   const detailBefore =
-    type === "MODIFICATION" && beforeSeance
-      ? ` (Ancien créneau : ${beforeSeance.dateSeance} ${beforeSeance.heureDebut})`
-      : "";
+  type === "MODIFICATION" && beforeSeance ?
+  ` (Ancien créneau : ${beforeSeance.dateSeance} ${beforeSeance.heureDebut})` :
+  "";
 
   await notificationModel.create({
     role: "enseignant",
@@ -128,7 +128,7 @@ async function notifyPlanningChangeOnValidation({ reservation, type, beforeSeanc
     titre,
     message: `${enseignantMessage}${detailBefore}`,
     date: new Date().toISOString(),
-    iconType: type === "AJOUT" ? "check" : "location",
+    iconType: type === "AJOUT" ? "check" : "location"
   });
 
   await notificationModel.create({
@@ -138,7 +138,7 @@ async function notifyPlanningChangeOnValidation({ reservation, type, beforeSeanc
     message: `${etudiantMessage}${detailBefore}`,
     date: new Date().toISOString(),
     iconType: type === "AJOUT" ? "check" : "location",
-    cohorte_id: null,
+    cohorte_id: null
   });
 }
 
@@ -168,7 +168,7 @@ exports.createReservation = async ({
   duree_souhaitee = null,
   type_seance_souhaitee = null,
   cohorte_id = null,
-  enseignant_id = null,
+  enseignant_id = null
 }) => {
   if (!["MODIFICATION", "AJOUT"].includes(type_demande)) {
     throw new ApiError(400, "type_demande invalide");
@@ -180,9 +180,9 @@ exports.createReservation = async ({
     if (!salle) throw new ApiError(404, "Salle introuvable");
   }
 
-  // ==========================================
-  // BLOC MODIFICATION
-  // ==========================================
+
+
+
   if (type_demande === "MODIFICATION") {
     if (!seance_id) throw new ApiError(400, "seance_id est obligatoire");
 
@@ -202,7 +202,7 @@ exports.createReservation = async ({
     const { startSql, endSql } = buildDateRange({
       dateSeance: date_souhaitee || seance.dateSeance,
       heureDebut: heure_debut_souhaitee || seance.heureDebut,
-      duree: duree_souhaitee || seance.duree,
+      duree: duree_souhaitee || seance.duree
     });
 
     if (salle) {
@@ -213,38 +213,38 @@ exports.createReservation = async ({
       }
 
       const [confSalle, confCohorte, confEnseignant] = await Promise.all([
-        reservationModel.findSalleConflicts(salle_id, startSql, endSql, seance_id),
-        reservationModel.findCohorteConflicts(seance.cohorte_id, startSql, endSql, seance_id),
-        reservationModel.findEnseignantConflicts(seance.enseignant_id, startSql, endSql, seance_id),
-      ]);
+      reservationModel.findSalleConflicts(salle_id, startSql, endSql, seance_id),
+      reservationModel.findCohorteConflicts(seance.cohorte_id, startSql, endSql, seance_id),
+      reservationModel.findEnseignantConflicts(seance.enseignant_id, startSql, endSql, seance_id)]
+      );
 
       if (confSalle.length || confCohorte.length || confEnseignant.length) {
         const prioriteNouvelle = PRIORITY_MAP[type_seance_souhaitee || seance.typeSeance] ?? 10;
         const allConflicts = [...confSalle, ...confCohorte, ...confEnseignant];
-        const prioriteExistanteMax = Math.max(...allConflicts.map(c => PRIORITY_MAP[c.typeSeance] ?? 10));
+        const prioriteExistanteMax = Math.max(...allConflicts.map((c) => PRIORITY_MAP[c.typeSeance] ?? 10));
 
-        // 🧠 SYSTÈME DE PRIORITÉ POUR MODIFICATION
+
         if (prioriteNouvelle > prioriteExistanteMax) {
           const priorite = PRIORITY_MAP[seance.typeSeance] ?? 10;
           const result = await reservationModel.create({
             type_demande, seance_id, salle_id, demandeur_id: created_by, cohorte_id: seance.cohorte_id,
             enseignant_id: seance.enseignant_id, statut: "EN_ATTENTE", priorite, motif,
-            date_souhaitee, heure_debut_souhaitee, duree_souhaitee, type_seance_souhaitee,
+            date_souhaitee, heure_debut_souhaitee, duree_souhaitee, type_seance_souhaitee
           });
 
-          // 🚀 RECUPERATION SECURISEE
+
           const newResaId = result.lastID || result.id || result;
 
           await saveConflit({
             type: "PRIORITE",
             description: `⚠️ Une demande prioritaire (${type_seance_souhaitee || seance.typeSeance}) s'impose sur un créneau. Arbitrage Admin requis.`,
-            reservation_id: newResaId, 
+            reservation_id: newResaId,
             seance_id_1: allConflicts[0].id
           });
           return { id: newResaId, message: "Demande prioritaire envoyée avec succès ! En attente d'arbitrage." };
         } else {
           const alternatives = await reservationModel.findAlternativeSalles({
-            excludeSalleId: salle.id, type: salle.type, effectif: cohorte.effectif, pmr: salle.accessibilitePMR, limit: 5,
+            excludeSalleId: salle.id, type: salle.type, effectif: cohorte.effectif, pmr: salle.accessibilitePMR, limit: 5
           });
           await saveConflit({ type: "CONFLIT_RESERVATION", description: `Créneau occupé.`, seance_id_1: seance_id });
           throw new ApiError(409, "Créneau déjà occupé par un cours de priorité égale ou supérieure.", { alternatives });
@@ -252,21 +252,21 @@ exports.createReservation = async ({
       }
     }
 
-    // Création normale si aucun conflit
+
     const priorite = PRIORITY_MAP[seance.typeSeance] ?? 10;
     const result = await reservationModel.create({
       type_demande, seance_id, salle_id, demandeur_id: created_by, cohorte_id: seance.cohorte_id,
       enseignant_id: seance.enseignant_id, statut: "EN_ATTENTE", priorite, motif,
-      date_souhaitee, heure_debut_souhaitee, duree_souhaitee, type_seance_souhaitee,
+      date_souhaitee, heure_debut_souhaitee, duree_souhaitee, type_seance_souhaitee
     });
-    
+
     const finalId = result.lastID || result.id || result;
     return { id: finalId, message: "Demande de modification créée avec succès" };
   }
 
-  // ==========================================
-  // BLOC AJOUT
-  // ==========================================
+
+
+
   if (!date_souhaitee || !heure_debut_souhaitee || !duree_souhaitee || !type_seance_souhaitee || !cohorte_id || !enseignant_id) {
     throw new ApiError(400, "Champs requis manquants");
   }
@@ -277,7 +277,7 @@ exports.createReservation = async ({
   }
 
   const { startSql, endSql } = buildDateRange({
-    dateSeance: date_souhaitee, heureDebut: heure_debut_souhaitee, duree: duree_souhaitee,
+    dateSeance: date_souhaitee, heureDebut: heure_debut_souhaitee, duree: duree_souhaitee
   });
 
   if (salle) {
@@ -285,37 +285,37 @@ exports.createReservation = async ({
     if (maintenance) throw new ApiError(409, "Salle en maintenance", maintenance);
 
     const [confSalle, confCohorte, confEnseignant] = await Promise.all([
-      reservationModel.findSalleConflicts(salle_id, startSql, endSql),
-      reservationModel.findCohorteConflicts(cohorte_id, startSql, endSql),
-      reservationModel.findEnseignantConflicts(enseignant_id, startSql, endSql),
-    ]);
+    reservationModel.findSalleConflicts(salle_id, startSql, endSql),
+    reservationModel.findCohorteConflicts(cohorte_id, startSql, endSql),
+    reservationModel.findEnseignantConflicts(enseignant_id, startSql, endSql)]
+    );
 
     if (confSalle.length || confCohorte.length || confEnseignant.length) {
       const prioriteNouvelle = PRIORITY_MAP[type_seance_souhaitee] ?? 10;
       const allConflicts = [...confSalle, ...confCohorte, ...confEnseignant];
-      const prioriteExistanteMax = Math.max(...allConflicts.map(c => PRIORITY_MAP[c.typeSeance] ?? 10));
+      const prioriteExistanteMax = Math.max(...allConflicts.map((c) => PRIORITY_MAP[c.typeSeance] ?? 10));
 
-      // 🧠 SYSTÈME DE PRIORITÉ POUR L'AJOUT
+
       if (prioriteNouvelle > prioriteExistanteMax) {
         const priorite = PRIORITY_MAP[type_seance_souhaitee] ?? 10;
         const result = await reservationModel.create({
           type_demande, seance_id: null, salle_id, demandeur_id: created_by, date_souhaitee, heure_debut_souhaitee,
-          duree_souhaitee, type_seance_souhaitee, cohorte_id, enseignant_id, statut: "EN_ATTENTE", priorite, motif,
+          duree_souhaitee, type_seance_souhaitee, cohorte_id, enseignant_id, statut: "EN_ATTENTE", priorite, motif
         });
 
-        // 🚀 RECUPERATION SECURISEE
+
         const newResaId = result.lastID || result.id || result;
 
         await saveConflit({
           type: "PRIORITE",
           description: `⚠️ Un nouvel événement prioritaire (${type_seance_souhaitee}) s'impose sur un créneau occupé. Arbitrage Admin requis.`,
-          reservation_id: newResaId, 
-          seance_id_1: allConflicts[0].id 
+          reservation_id: newResaId,
+          seance_id_1: allConflicts[0].id
         });
         return { id: newResaId, message: "Demande prioritaire envoyée avec succès ! En attente d'arbitrage." };
       } else {
         const alternatives = await reservationModel.findAlternativeSalles({
-          excludeSalleId: salle.id, type: salle.type, effectif: cohorte.effectif, pmr: salle.accessibilitePMR, limit: 5,
+          excludeSalleId: salle.id, type: salle.type, effectif: cohorte.effectif, pmr: salle.accessibilitePMR, limit: 5
         });
         await saveConflit({ type: "CONFLIT_AJOUT", description: `Le créneau est occupé.` });
         throw new ApiError(409, "Créneau déjà occupé par un cours de priorité égale ou supérieure.", { alternatives });
@@ -323,11 +323,11 @@ exports.createReservation = async ({
     }
   }
 
-  // Création normale si aucun conflit
+
   const priorite = PRIORITY_MAP[type_seance_souhaitee] ?? 10;
   const result = await reservationModel.create({
     type_demande, seance_id: null, salle_id, demandeur_id: created_by, date_souhaitee, heure_debut_souhaitee,
-    duree_souhaitee, type_seance_souhaitee, cohorte_id, enseignant_id, statut: "EN_ATTENTE", priorite, motif,
+    duree_souhaitee, type_seance_souhaitee, cohorte_id, enseignant_id, statut: "EN_ATTENTE", priorite, motif
   });
 
   const finalId = result.lastID || result.id || result;
@@ -342,57 +342,57 @@ exports.updateReservation = async (reservationId, payload, userId = null) => {
   let notifyType = null;
   let previousSeance = null;
 
-  // 🚀 LE COUPE-FILE (Validation par l'Admin)
+
   if (payload.statut && !payload.date_souhaitee && !payload.salle_id) {
-    
-    // CAS 1 : Validation d'un AJOUT
-    // ✅ VERSION CORRIGÉE (Ligne 160 environ)
+
+
+
     if (payload.statut === "VALIDEE" && !existing.seance_id && existing.type_demande === "AJOUT") {
       const newSeance = await dbRun(
         `INSERT INTO Seance (dateSeance, heureDebut, duree, typeSeance, statut, description, cohorte_id, enseignant_id, salle_id) 
-        VALUES (?, ?, ?, ?, 'VALIDE', ?, ?, ?, ?)`, // 🚀 ICI : 'VALIDE' au lieu de 'PLANIFIE'
+        VALUES (?, ?, ?, ?, 'VALIDE', ?, ?, ?, ?)`,
         [
-          existing.date_souhaitee,
-          existing.heure_debut_souhaitee,
-          existing.duree_souhaitee,
-          existing.type_seance_souhaitee,
-          existing.motif || "Généré depuis une réservation",
-          existing.cohorte_id,
-          existing.enseignant_id,
-          existing.salle_id
-        ]
+        existing.date_souhaitee,
+        existing.heure_debut_souhaitee,
+        existing.duree_souhaitee,
+        existing.type_seance_souhaitee,
+        existing.motif || "Généré depuis une réservation",
+        existing.cohorte_id,
+        existing.enseignant_id,
+        existing.salle_id]
+
       );
-      
+
       const generatedId = newSeance.lastID || newSeance.id;
       await dbRun("UPDATE Reservation SET seance_id = ?, statut = 'VALIDEE' WHERE id = ?", [generatedId, reservationId]);
       notifyType = "AJOUT";
-    }
-    // CAS 2 : Validation d'un DÉPLACEMENT (MODIFICATION)
-    else if (payload.statut === "VALIDEE" && existing.seance_id && existing.type_demande === "MODIFICATION") {
+    } else
+
+    if (payload.statut === "VALIDEE" && existing.seance_id && existing.type_demande === "MODIFICATION") {
       previousSeance = await findSeanceById(existing.seance_id);
       await dbRun(
         `UPDATE Seance 
          SET dateSeance = ?, heureDebut = ?, duree = ? 
          WHERE id = ?`,
         [
-          existing.date_souhaitee,
-          existing.heure_debut_souhaitee,
-          existing.duree_souhaitee,
-          existing.seance_id
-        ]
+        existing.date_souhaitee,
+        existing.heure_debut_souhaitee,
+        existing.duree_souhaitee,
+        existing.seance_id]
+
       );
       notifyType = "MODIFICATION";
     }
 
-    // Mise à jour finale du statut de la demande
+
     await reservationModel.updateStatus(reservationId, payload.statut);
-    
+
     await historiqueService.logAction({
       auteur_id: userId,
       entite: "Reservation",
       entite_id: reservationId,
       action: "UPDATE_STATUS",
-      detail: `Statut passé à ${payload.statut} pour la réservation ${reservationId}`,
+      detail: `Statut passé à ${payload.statut} pour la réservation ${reservationId}`
     });
 
     if (payload.statut === "VALIDEE" && notifyType) {
@@ -400,7 +400,7 @@ exports.updateReservation = async (reservationId, payload, userId = null) => {
         await notifyPlanningChangeOnValidation({
           reservation: existing,
           type: notifyType,
-          beforeSeance: previousSeance,
+          beforeSeance: previousSeance
         });
       } catch (notificationError) {
         console.error("Erreur création notifications planning :", notificationError.message);
@@ -410,7 +410,7 @@ exports.updateReservation = async (reservationId, payload, userId = null) => {
     return { message: "Statut mis à jour avec succès", id: reservationId };
   }
 
-  // LOGIQUE DE MISE À JOUR CLASSIQUE
+
   const data = {
     type_demande: payload.type_demande ?? existing.type_demande,
     seance_id: payload.seance_id ?? existing.seance_id,
@@ -421,7 +421,7 @@ exports.updateReservation = async (reservationId, payload, userId = null) => {
     type_seance_souhaitee: payload.type_seance_souhaitee ?? existing.type_seance_souhaitee,
     cohorte_id: payload.cohorte_id ?? existing.cohorte_id,
     enseignant_id: payload.enseignant_id ?? existing.enseignant_id,
-    motif: payload.motif ?? existing.motif,
+    motif: payload.motif ?? existing.motif
   };
 
   if (!["MODIFICATION", "AJOUT"].includes(data.type_demande)) {
@@ -449,7 +449,7 @@ exports.updateReservation = async (reservationId, payload, userId = null) => {
       ...data,
       cohorte_id: seance.cohorte_id,
       enseignant_id: seance.enseignant_id,
-      priorite,
+      priorite
     });
   } else {
     const priorite = PRIORITY_MAP[data.type_seance_souhaitee] ?? 10;
@@ -457,7 +457,7 @@ exports.updateReservation = async (reservationId, payload, userId = null) => {
     await reservationModel.update(reservationId, {
       ...data,
       seance_id: null,
-      priorite,
+      priorite
     });
   }
 
@@ -466,12 +466,12 @@ exports.updateReservation = async (reservationId, payload, userId = null) => {
     entite: "Reservation",
     entite_id: reservationId,
     action: "UPDATE",
-    detail: `Mise à jour de la réservation ${reservationId}`,
+    detail: `Mise à jour de la réservation ${reservationId}`
   });
 
   return {
     message: "Réservation mise à jour",
-    id: reservationId,
+    id: reservationId
   };
 };
 
@@ -488,11 +488,11 @@ exports.cancelReservation = async (reservationId, userId = null) => {
     entite: "Reservation",
     entite_id: reservationId,
     action: "CANCEL",
-    detail: `Annulation de la réservation ${reservationId}`,
+    detail: `Annulation de la réservation ${reservationId}`
   });
 
   return {
     message: "Réservation annulée",
-    id: reservationId,
+    id: reservationId
   };
 };

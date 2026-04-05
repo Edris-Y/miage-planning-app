@@ -1,43 +1,43 @@
 const { dbAll, dbGet, dbRun } = require("../db/dbAsync");
 
 exports.findAll = () =>
-  dbAll(`
+dbAll(`
     SELECT *
     FROM Seance
     WHERE statut = 'VALIDE'
     ORDER BY dateSeance ASC, heureDebut ASC
   `);
 exports.findById = (id) =>
-  dbGet(
-    `
+dbGet(
+  `
     SELECT *
     FROM Seance
     WHERE id = ?
     `,
-    [id]
-  );
+  [id]
+);
 
 exports.findByCohorteId = (cohorteId) =>
-  dbAll(
-    `
+dbAll(
+  `
     SELECT *
     FROM Seance
     WHERE cohorte_id = ?
     ORDER BY dateSeance ASC, heureDebut ASC
     `,
-    [cohorteId]
-  );
+  [cohorteId]
+);
 
 exports.findByEnseignantId = (enseignantId) =>
-  dbAll(
-    `
+dbAll(
+  `
     SELECT *
     FROM Seance
     WHERE enseignant_id = ?
     ORDER BY dateSeance ASC, heureDebut ASC
     `,
-    [enseignantId]
-  );
+  [enseignantId]
+);
 
 exports.create = ({
   dateSeance,
@@ -49,10 +49,10 @@ exports.create = ({
   matiere_id = null,
   cohorte_id = null,
   enseignant_id = null,
-  salle_id = null, // 🚀 AJOUTÉ
+  salle_id = null
 }) =>
-  dbRun(
-    `
+dbRun(
+  `
     INSERT INTO Seance (
       dateSeance,
       heureDebut,
@@ -67,37 +67,37 @@ exports.create = ({
     )
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
-    [
-      dateSeance,
-      heureDebut,
-      duree,
-      typeSeance,
-      statut,
-      description,
-      matiere_id,
-      cohorte_id,
-      enseignant_id,
-      salle_id, // 🚀 AJOUTÉ
-    ]
-  );
+  [
+  dateSeance,
+  heureDebut,
+  duree,
+  typeSeance,
+  statut,
+  description,
+  matiere_id,
+  cohorte_id,
+  enseignant_id,
+  salle_id]
+
+);
 
 exports.update = (
-  id,
-  {
-    dateSeance,
-    heureDebut,
-    duree,
-    typeSeance,
-    statut,
-    description,
-    matiere_id,
-    cohorte_id,
-    enseignant_id,
-    salle_id, // 🚀 AJOUTÉ
-  }
-) =>
-  dbRun(
-    `
+id,
+{
+  dateSeance,
+  heureDebut,
+  duree,
+  typeSeance,
+  statut,
+  description,
+  matiere_id,
+  cohorte_id,
+  enseignant_id,
+  salle_id
+}) =>
+
+dbRun(
+  `
     UPDATE Seance
     SET
       dateSeance = ?,
@@ -112,25 +112,25 @@ exports.update = (
       salle_id = ? -- 🚀 AJOUTÉ
     WHERE id = ?
     `,
-    [
-      dateSeance,
-      heureDebut,
-      duree,
-      typeSeance,
-      statut,
-      description,
-      matiere_id,
-      cohorte_id,
-      enseignant_id,
-      salle_id, // 🚀 AJOUTÉ
-      id,
-    ]
-  );
+  [
+  dateSeance,
+  heureDebut,
+  duree,
+  typeSeance,
+  statut,
+  description,
+  matiere_id,
+  cohorte_id,
+  enseignant_id,
+  salle_id,
+  id]
+
+);
 exports.remove = (id) =>
-  dbRun(
-    `
+dbRun(
+  `
     DELETE FROM Seance
     WHERE id = ?
     `,
-    [id]
-  );
+  [id]
+);

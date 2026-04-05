@@ -6,6 +6,6 @@ exports.logAction = async ({ auteur_id = null, entite, entite_id, action, detail
     entite,
     entite_id,
     action,
-    detail,
+    detail
   });
 };

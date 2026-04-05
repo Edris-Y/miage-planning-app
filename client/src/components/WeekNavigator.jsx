@@ -133,13 +133,13 @@ export default function WeekNavigator({ currentDate, onDateChange, view = 'Semai
           </button>
         </div>
         <div className="view-toggle">
-          {['Jour', 'Semaine', 'Mois'].map(v => (
-            <button key={v} className={`view-btn ${view === v ? 'active' : ''}`} onClick={() => onViewChange && onViewChange(v)}>
+          {['Jour', 'Semaine', 'Mois'].map((v) =>
+          <button key={v} className={`view-btn ${view === v ? 'active' : ''}`} onClick={() => onViewChange && onViewChange(v)}>
               {v}
             </button>
-          ))}
+          )}
         </div>
       </div>
-    </>
-  );
+    </>);
+
 }

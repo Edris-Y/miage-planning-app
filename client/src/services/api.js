@@ -83,8 +83,8 @@ export function getToken() {
     localStorage.getItem(LEGACY_TOKEN_KEY) ||
     getCookie(TOKEN_KEY) ||
     getCookie(LEGACY_TOKEN_KEY) ||
-    ""
-  );
+    "");
+
 }
 
 export function setUser(user) {
@@ -119,7 +119,7 @@ export async function request(path, { method = "GET", data, headers = {}, auth =
 
   const finalHeaders = {
     "Content-Type": "application/json",
-    ...headers,
+    ...headers
   };
 
   if (auth && token) {
@@ -129,7 +129,7 @@ export async function request(path, { method = "GET", data, headers = {}, auth =
   const response = await fetch(`${API_BASE}${path}`, {
     method,
     headers: finalHeaders,
-    body: data !== undefined ? JSON.stringify(data) : undefined,
+    body: data !== undefined ? JSON.stringify(data) : undefined
   });
 
   let payload = null;
@@ -150,7 +150,7 @@ export async function request(path, { method = "GET", data, headers = {}, auth =
 export async function login(email, password) {
   const payload = await request("/api/auth/login", {
     method: "POST",
-    data: { email, password },
+    data: { email, password }
   });
 
   if (payload?.token) {
@@ -164,9 +164,9 @@ export async function login(email, password) {
   return payload;
 }
 
-// -------------------------------------------------------------
-// HYBRIDE MAPPING : Combine les données de main avec les noms de ta base
-// -------------------------------------------------------------
+
+
+
 function mapPlanningRow(row) {
   const debut = row.heureDebut || row.debut || "00:00";
   const duree = Number(row.duree || 0);
@@ -181,13 +181,13 @@ function mapPlanningRow(row) {
     fin: row.fin ? toHHMM(row.fin) : addMinutes(debut, duree),
     type: normalizeType(row.typeSeance || row.type),
     enseignant:
-      row.enseignant_nom ||
-      row.enseignant ||
-      (row.enseignant_id ? `Enseignant ${row.enseignant_id}` : ""),
+    row.enseignant_nom ||
+    row.enseignant || (
+    row.enseignant_id ? `Enseignant ${row.enseignant_id}` : ""),
     cohorte: row.cohorte_nom || row.cohorte || "",
     description: row.statut ? `Statut: ${row.statut}` : row.description || "",
     statut: row.statut || "",
-    duree: duree,
+    duree: duree
   };
 }
 
@@ -212,7 +212,7 @@ function mapReservationFrontRow(row) {
     createdAt: row.createdAt || row.created_at || new Date().toISOString(),
     enseignant: row.enseignant_nom || row.enseignant || "",
     motif: row.motif || "",
-    duree,
+    duree
   };
 }
 
@@ -228,13 +228,13 @@ function mapSeanceRow(row) {
     enseignantId: row.enseignant_id,
     cohorte: row.cohorte_nom || "-",
     matiere: row.matiere_nom || "Cours",
-    salle: row.salle_code || "-",
+    salle: row.salle_code || "-"
   };
 }
 
-// -------------------------------------------------------------
-// REQUÊTES API PROTÉGÉES (Version de main avec auth: true)
-// -------------------------------------------------------------
+
+
+
 export async function getEnseignantCours({ enseignantId } = {}) {
   const user = getUser();
   const idToFetch = enseignantId || user?.id || DEFAULT_ENSEIGNANT_ID;
@@ -259,7 +259,7 @@ export async function getSeanceDetailsForEtudiant(id, { cohorteId = DEFAULT_COHO
 
 export async function getDemandes() {
   const rows = await request("/api/reservations/front", { auth: true }).catch(() =>
-    request("/api/reservations", { auth: true })
+  request("/api/reservations", { auth: true })
   );
   return Array.isArray(rows) ? rows.map(mapReservationFrontRow) : [];
 }
@@ -276,7 +276,7 @@ export async function createDemande(demande) {
     demande_type,
     motif,
     seance_id,
-    source_reservation_id,
+    source_reservation_id
   } = demande;
 
   let duree_souhaitee = null;
@@ -297,13 +297,13 @@ export async function createDemande(demande) {
     type_seance_souhaitee: toReservationType(type),
     cohorte_id: cohorte_id || null,
     enseignant_id: enseignant_id || getUser()?.id || null,
-    motif: motif || null,
+    motif: motif || null
   };
 
   return request("/api/reservations", {
     method: "POST",
     data: payload,
-    auth: true,
+    auth: true
   });
 }
 
@@ -313,7 +313,7 @@ export async function getNotifications({ role } = {}) {
 
   try {
     const rows = await request(`/api/notifications?role=${encodeURIComponent(effectiveRole)}`, {
-      auth: true,
+      auth: true
     });
     if (!Array.isArray(rows)) return [];
 
@@ -324,7 +324,7 @@ export async function getNotifications({ role } = {}) {
       message: n.message || "",
       date: n.date || "",
       iconType: n.iconType || "info",
-      role: n.role || effectiveRole,
+      role: n.role || effectiveRole
     }));
   } catch {
     const demandes = await getDemandes().catch(() => []);
@@ -335,21 +335,21 @@ export async function getNotifications({ role } = {}) {
       message: `${d.type} - ${d.cohorte} - Salle ${d.salle} (${d.statut})`,
       date: d.date,
       iconType: d.statut === "REFUSÉE" ? "warning" : "info",
-      role: effectiveRole,
+      role: effectiveRole
     }));
   }
 }
 
 export async function markNotificationAsRead(notificationId) {
-  // Local fallback notifications use synthetic IDs (notif-...).
-  // Skip API call for those and let UI clear them locally.
+
+
   if (!/^\d+$/.test(String(notificationId))) {
     return { id: String(notificationId), message: "Notification locale marquée comme vue" };
   }
 
   return request(`/api/notifications/${notificationId}/read`, {
     method: "PATCH",
-    auth: true,
+    auth: true
   });
 }
 
@@ -368,7 +368,7 @@ export async function getSalles() {
     capacite: Number(s.capacite ?? 0),
     type: String(s.type || "").toUpperCase(),
     accessibilitePMR: Number(s.accessibilitePMR ?? 0),
-    isActive: Number(s.isActive ?? 0),
+    isActive: Number(s.isActive ?? 0)
   }));
 }
 
@@ -376,7 +376,7 @@ export async function createSalle(payload) {
   return request("/api/salles", {
     method: "POST",
     data: payload,
-    auth: true,
+    auth: true
   });
 }
 
@@ -384,14 +384,14 @@ export async function updateSalle(id, payload) {
   return request(`/api/salles/${id}`, {
     method: "PUT",
     data: payload,
-    auth: true,
+    auth: true
   });
 }
 
 export async function deleteSalle(id) {
   return request(`/api/salles/${id}`, {
     method: "DELETE",
-    auth: true,
+    auth: true
   });
 }
 
@@ -426,6 +426,6 @@ export async function getDashboardStats() {
     conflitsNonResolus: 0,
     seances: 0,
     cohortes: 0,
-    notificationsImportantes: 0,
+    notificationsImportantes: 0
   };
 }

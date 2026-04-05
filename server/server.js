@@ -9,7 +9,7 @@ const notFound = require("./middleware/notFound");
 const errorHandler = require("./middleware/errorHandler");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
-const cohortesRoutes = require("./routes/cohortesRoutes"); // <-- AJOUTE CETTE LIGNE
+const cohortesRoutes = require("./routes/cohortesRoutes");
 const conflitsRoutes = require("./routes/conflitsRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const disponibilitesRoutes = require("./routes/disponibilitesRoutes");
@@ -30,7 +30,7 @@ const port = Number(process.env.PORT) || 5000;
 app.use(
   cors({
     origin: true,
-    credentials: true,
+    credentials: true
   })
 );
 
@@ -39,7 +39,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (_req, res) => {
   res.status(200).json({
-    message: "API Gestion Planning - MIAGE en ligne",
+    message: "API Gestion Planning - MIAGE en ligne"
   });
 });
 
@@ -53,7 +53,7 @@ app.get("/health", async (_req, res, next) => {
     res.status(200).json({
       status: "ok",
       database: "connected",
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
     next(error);
@@ -64,7 +64,7 @@ app.get("/health", async (_req, res, next) => {
   }
 });
 
-// Routes API
+
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/cohortes", cohortesRoutes);
@@ -82,7 +82,7 @@ app.use("/api/reservations", reservationsRoutes);
 app.use("/api/salles", sallesRoutes);
 app.use("/api/seances", seancesRoutes);
 app.use('/api/generation', generationRoutes);
-// Middleware de fin
+
 app.use(notFound);
 app.use(errorHandler);
 

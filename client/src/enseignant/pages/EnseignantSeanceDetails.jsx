@@ -57,12 +57,12 @@ export default function EnseignantSeanceDetails() {
         <div className="ens-content" style={{ maxWidth: 520 }}>
           <div className="ens-card">Chargement des détails de la séance...</div>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
-  const notFound = (
-    <div className="ens-page">
+  const notFound =
+  <div className="ens-page">
       <div className="ens-content" style={{ maxWidth: 480 }}>
         <div className="ens-card" style={{ textAlign: 'center', padding: 40 }}>
           <div style={{ fontSize: '3rem', marginBottom: 12 }}>🔍</div>
@@ -73,8 +73,8 @@ export default function EnseignantSeanceDetails() {
           <button className="ens-btn" onClick={() => navigate(-1)}>← Retour</button>
         </div>
       </div>
-    </div>
-  );
+    </div>;
+
 
   if (!seance) return notFound;
 
@@ -96,8 +96,8 @@ export default function EnseignantSeanceDetails() {
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
           <button
             style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer', color: 'var(--muted)' }}
-            onClick={() => navigate(-1)}
-          >✕</button>
+            onClick={() => navigate(-1)}>
+            ✕</button>
         </div>
 
         <div className="ens-card">
@@ -147,11 +147,11 @@ export default function EnseignantSeanceDetails() {
               <div className="ens-detail-row-content">
                 <div className="row-label">Équipements</div>
                 <div className="ens-equipment-chips">
-                  {equipements.map(eq => (
-                    <span key={eq} className="ens-chip">
+                  {equipements.map((eq) =>
+                  <span key={eq} className="ens-chip">
                       {eq === 'Vidéoprojecteur' ? '🖥' : eq === 'Son' ? '🔊' : '📶'} {eq}
                     </span>
-                  ))}
+                  )}
                 </div>
               </div>
             </div>
@@ -165,15 +165,15 @@ export default function EnseignantSeanceDetails() {
             </div>
           </div>
 
-          {seance.description && (
-            <>
+          {seance.description &&
+          <>
               <div className="ens-divider" />
               <div>
                 <div className="ens-section-title">Description</div>
                 <p style={{ fontSize: '.9rem', color: 'var(--text)', lineHeight: 1.6 }}>{seance.description}</p>
               </div>
             </>
-          )}
+          }
 
           <div className="ens-divider" />
           <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
@@ -182,6 +182,6 @@ export default function EnseignantSeanceDetails() {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }

@@ -21,13 +21,13 @@ function formatPlanningRows(rows) {
     debut: row.heureDebut,
     fin: computeEndTime(row.dateSeance, row.heureDebut, row.duree),
     type: row.typeSeance === "EXAMEN" ? "EXAM" : row.typeSeance,
-    enseignant: row.enseignant_nom
-      ? `${row.enseignant_prenom} ${row.enseignant_nom}`
-      : null,
+    enseignant: row.enseignant_nom ?
+    `${row.enseignant_prenom} ${row.enseignant_nom}` :
+    null,
     cohorte: row.cohorte_nom || null,
     description: row.description || null,
     statut: row.statut,
-    duree: row.duree,
+    duree: row.duree
   }));
 }
 

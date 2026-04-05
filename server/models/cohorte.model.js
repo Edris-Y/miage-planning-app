@@ -1,44 +1,44 @@
 const { dbAll, dbGet, dbRun } = require("../db/dbAsync");
 
 exports.findAll = () =>
-  dbAll(`
+dbAll(`
     SELECT *
     FROM Cohorte
     ORDER BY nom ASC
   `);
 
 exports.findById = (id) =>
-  dbGet(
-    `
+dbGet(
+  `
     SELECT *
     FROM Cohorte
     WHERE id = ?
     `,
-    [id]
-  );
+  [id]
+);
 
 exports.findByNom = (nom) =>
-  dbGet(
-    `
+dbGet(
+  `
     SELECT *
     FROM Cohorte
     WHERE nom = ?
     `,
-    [nom]
-  );
+  [nom]
+);
 
 exports.create = ({ nom, effectif = 0, niveau = null }) =>
-  dbRun(
-    `
+dbRun(
+  `
     INSERT INTO Cohorte (nom, effectif, niveau)
     VALUES (?, ?, ?)
     `,
-    [nom, effectif, niveau]
-  );
+  [nom, effectif, niveau]
+);
 
 exports.update = (id, { nom, effectif, niveau }) =>
-  dbRun(
-    `
+dbRun(
+  `
     UPDATE Cohorte
     SET
       nom = ?,
@@ -46,14 +46,14 @@ exports.update = (id, { nom, effectif, niveau }) =>
       niveau = ?
     WHERE id = ?
     `,
-    [nom, effectif, niveau, id]
-  );
+  [nom, effectif, niveau, id]
+);
 
 exports.remove = (id) =>
-  dbRun(
-    `
+dbRun(
+  `
     DELETE FROM Cohorte
     WHERE id = ?
     `,
-    [id]
-  );
+  [id]
+);

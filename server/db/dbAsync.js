@@ -24,7 +24,7 @@ const dbRun = async (sql, params = []) => {
     const result = await db.run(sql, params);
     return {
       lastID: result.lastID,
-      changes: result.changes,
+      changes: result.changes
     };
   } finally {
     await db.close();
@@ -44,5 +44,5 @@ module.exports = {
   dbAll,
   dbGet,
   dbRun,
-  dbExec,
+  dbExec
 };

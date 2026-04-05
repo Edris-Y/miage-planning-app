@@ -29,7 +29,7 @@ exports.create = async (req, res) => {
     numeroEtudiant,
     annee = null,
     filiere = null,
-    cohorte_id = null,
+    cohorte_id = null
   } = req.body;
 
   if (!id || !numeroEtudiant) {
@@ -75,14 +75,14 @@ exports.create = async (req, res) => {
     numeroEtudiant: String(numeroEtudiant).trim(),
     annee: annee ? Number(annee) : null,
     filiere,
-    cohorte_id: cohorte_id ? Number(cohorte_id) : null,
+    cohorte_id: cohorte_id ? Number(cohorte_id) : null
   });
 
   const created = await etudiantModel.findById(userId);
 
   res.status(201).json({
     message: "Étudiant créé avec succès",
-    etudiant: created,
+    etudiant: created
   });
 };
 
@@ -114,14 +114,14 @@ exports.update = async (req, res) => {
     numeroEtudiant: String(finalNumero).trim(),
     annee: finalAnnee ? Number(finalAnnee) : null,
     filiere: finalFiliere,
-    cohorte_id: finalCohorteId ? Number(finalCohorteId) : null,
+    cohorte_id: finalCohorteId ? Number(finalCohorteId) : null
   });
 
   const updated = await etudiantModel.findById(id);
 
   res.json({
     message: "Étudiant mis à jour",
-    etudiant: updated,
+    etudiant: updated
   });
 };
 
@@ -141,6 +141,6 @@ exports.remove = async (req, res) => {
 
   res.json({
     message: "Étudiant supprimé",
-    id,
+    id
   });
 };

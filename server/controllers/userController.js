@@ -95,12 +95,12 @@ exports.create = async (req, res) => {
     VALUES (?, ?, ?, ?, ?)
     `,
     [
-      String(nom).trim(),
-      String(prenom).trim(),
-      String(email).trim(),
-      hashedPassword,
-      finalRole,
-    ]
+    String(nom).trim(),
+    String(prenom).trim(),
+    String(email).trim(),
+    hashedPassword,
+    finalRole]
+
   );
 
   const created = await dbGet(
@@ -114,7 +114,7 @@ exports.create = async (req, res) => {
 
   res.status(201).json({
     message: "Utilisateur créé avec succès",
-    user: created,
+    user: created
   });
 };
 
@@ -177,13 +177,13 @@ exports.update = async (req, res) => {
     WHERE id = ?
     `,
     [
-      String(finalNom).trim(),
-      String(finalPrenom).trim(),
-      String(finalEmail).trim(),
-      finalPassword,
-      finalRole,
-      id,
-    ]
+    String(finalNom).trim(),
+    String(finalPrenom).trim(),
+    String(finalEmail).trim(),
+    finalPassword,
+    finalRole,
+    id]
+
   );
 
   const updated = await dbGet(
@@ -197,7 +197,7 @@ exports.update = async (req, res) => {
 
   res.json({
     message: "Utilisateur mis à jour",
-    user: updated,
+    user: updated
   });
 };
 
@@ -231,6 +231,6 @@ exports.remove = async (req, res) => {
 
   res.json({
     message: "Utilisateur supprimé",
-    id,
+    id
   });
 };
