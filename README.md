@@ -38,7 +38,7 @@ L’application permet de centraliser les informations liées aux cours, aux sal
 
 ### 👥 Acteurs
 - **Étudiant** : consultation du planning  
-- **Enseignant** : gestion des cours et disponibilités  
+- **Enseignant** : gestion des cours et réservations  
 - **Administratif** : gestion globale du système  
 
 ###  Objectifs du système
