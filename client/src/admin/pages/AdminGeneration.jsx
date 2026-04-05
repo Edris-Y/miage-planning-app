@@ -49,7 +49,6 @@ function AdminGeneration() {
         {loading ? '🧠 Réflexion en cours...' : '⚡ Lancer la Génération Gloutonne'}
       </button>
 
-      {/* AFFICHAGE DES RÉSULTATS */}
       {resultat && resultat.stats && (
         <div style={{ marginTop: '20px', padding: '15px', border: '1px solid #ccc', backgroundColor: '#e8f5e9' }}>
           <h3>✅ Bilan de la génération</h3>

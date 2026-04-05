@@ -79,9 +79,7 @@ function CloseIcon() {
 }
 
 export default function AdminReservations() {
-  const navigate = useNavigate();
-  
-  // 🚀 Nouveaux états pour la gestion de l'API
+  const navigate = useNavigate();  
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -92,15 +90,12 @@ export default function AdminReservations() {
   const [conflictFilter, setConflictFilter] = useState("all");
   const [selectedReservation, setSelectedReservation] = useState(null);
 
-  // 🚀 Récupération des vraies données depuis la base de données
   useEffect(() => {
     let isMounted = true;
-
     async function fetchReservations() {
       try {
         setLoading(true);
         const data = await getDemandes(); // Appel à ton backend via api.js
-        
         if (isMounted) {
           // On transforme les données du backend pour coller au design du composant
           const formattedData = data.map((d) => {

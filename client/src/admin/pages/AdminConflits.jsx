@@ -5,7 +5,6 @@ export default function AdminConflits() {
   const [conflits, setConflits] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 1. Charger les conflits non résolus
   const fetchConflits = async () => {
     setLoading(true);
     try {
@@ -70,14 +69,13 @@ export default function AdminConflits() {
           "Authorization": `Bearer ${token}` // C'est ça qui remplace ton "auth: true"
         },
         body: JSON.stringify({
-          reservation_exam_id: reservationId, // 🚀 Là on est sûr que 55 part !
-          seance_old_id: seanceGênanteId,     // 🚀 Et là 29 part !
+          reservation_exam_id: reservationId, 
+          seance_old_id: seanceGênanteId,     
           nouvelleDate: nouvelleDate || null,
           nouvelleHeure: nouvelleHeure || null
         })
       });
 
-      // 3. On lit la réponse du serveur
       const data = await res.json();
 
       if (!res.ok) {
@@ -161,7 +159,6 @@ export default function AdminConflits() {
                   <td>{c.created_at ? new Date(c.created_at).toLocaleString() : "Date inconnue"}</td>
                  <td>
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      {/* Si c'est un conflit de priorité, on ajoute le bouton "Trancher" */}
                       {c.type === 'PRIORITE' && c.reservation_id && (
                         <button 
                           className="btn-primary" 
