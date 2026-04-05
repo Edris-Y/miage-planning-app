@@ -492,12 +492,7 @@ export default function EtudiantPage() {
                             >
                               <span>{s.matiere}</span>
                               <small>{debut}</small>
-<<<<<<< HEAD
-                              <small className="cal-month-item-teacher">{s.enseignant}</small>
-                            </button>
-=======
                             </div>
->>>>>>> d8cbbe0 (feat: update login, calendar interactions, and reservation request flow)
                           );
                         })}
                         {sessions.length > 2 && <div className="cal-month-more">+{sessions.length - 2}</div>}

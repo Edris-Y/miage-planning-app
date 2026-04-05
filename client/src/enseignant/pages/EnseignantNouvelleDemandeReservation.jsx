@@ -5,15 +5,12 @@ import { createDemande, getCohortes, getDemandes, getSalles } from '../../servic
 import '../../styles/enseignant.css';
 
 const TYPES = ['CM', 'TD', 'TP', 'EXAMEN'];
-<<<<<<< HEAD
-=======
 
 function normalizeReservationType(type) {
   const t = String(type || '').toUpperCase();
   if (t === 'EXAM') return 'EXAMEN';
   return t;
 }
->>>>>>> d8cbbe0 (feat: update login, calendar interactions, and reservation request flow)
 
 export default function EnseignantNouvelleDemandeReservation() {
   const navigate = useNavigate();
