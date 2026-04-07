@@ -214,6 +214,7 @@ miage-planning-app/
 - Base de données
 - Gestion des conflits
 - Gestion des reservations
+- Génération automatique EDT
 
 
 ##  Architecture Technique
