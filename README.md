@@ -280,8 +280,6 @@ npm start
 
 **Projet universitaire MIAGE 2026**
 
-![GitHub](https://img.shields.io/badge/GitHub-Edris--Y%2Fmiage--planning--app-181717?style=for-the-badge&logo=github&logoColor=white)
-
 *Lina EL HATHOUT · Youssef EDRIS · Belkacemi CIRINE · Adjaz RYMA*
 
 </div>
